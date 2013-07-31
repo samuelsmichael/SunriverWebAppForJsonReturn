@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CommuterAlert</string>
+    <string name="action_settings">Settings</string>
+    <string name="AddressField">Key in an address</string>
+    <string name="hint_address">Example:\n121 S Eaton St\nLakewood CO 80226</string>
+    <string name="KeyAnAddress">Key an address</string>
+
+</resources>
