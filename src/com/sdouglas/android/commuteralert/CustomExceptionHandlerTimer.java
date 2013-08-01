@@ -20,7 +20,7 @@ public class CustomExceptionHandlerTimer implements UncaughtExceptionHandler {
 			StackTraceElement[] stea=e.getStackTrace();
 			for(int c=0;c<stea.length;c++) {
 				StackTraceElement ste=stea[c];
-				str=ste.toString();
+				str=ste.toString() + " Line nbr: " + String.valueOf(ste.getLineNumber());
 			}
 			logger.log(str,99);
 		} catch (Exception ee) {}

@@ -50,28 +50,30 @@ public class LocationService extends Service implements LocationListener  {
 		super.onStart(intent, startId);
 		Thread
 		.setDefaultUncaughtExceptionHandler(new CustomExceptionHandlerTimer(this));
-		if(intent.getAction()=="JustDisarm") {
-	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
-	    	stopMyLocationsTimer2();
-		} else {
-			if(intent.getAction()=="JustInitializeLocationManager") {
-				initializeLocationManager();
+		if(intent != null) {
+			if(intent.getAction()=="JustDisarm") {
+		    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
+		    	stopMyLocationsTimer2();
 			} else {
-				mAddressInReadableForm=intent.getStringExtra("LocationAddress");
-		    	Notification.Builder mBuilder=new Notification.Builder(this)
-			    	.setSmallIcon(R.drawable.ic_launcher)
-			    	.setContentTitle("CommuterAlert is armed")
-			    	.setContentText(mAddressInReadableForm)
-			    	.setOngoing(true);
-		    	
-		    	// Creates an explicit intent for an Activity in your app
-		    	Intent resultIntent = new Intent(this, LocationService.class);
-				PendingIntent pendingIntent = PendingIntent.getActivity(this,
-						(int)System.currentTimeMillis(), resultIntent, 0);
-		    	mBuilder.setContentIntent(pendingIntent);    	    	
-		    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
-	
-				getmAlarmSender();
+				if(intent.getAction()=="JustInitializeLocationManager") {
+					initializeLocationManager();
+				} else {
+					mAddressInReadableForm=intent.getStringExtra("LocationAddress");
+			    	Notification.Builder mBuilder=new Notification.Builder(this)
+				    	.setSmallIcon(R.drawable.ic_launcher)
+				    	.setContentTitle("CommuterAlert is armed")
+				    	.setContentText(mAddressInReadableForm)
+				    	.setOngoing(true);
+			    	
+			    	// Creates an explicit intent for an Activity in your app
+			    	Intent resultIntent = new Intent(this, LocationService.class);
+					PendingIntent pendingIntent = PendingIntent.getActivity(this,
+							(int)System.currentTimeMillis(), resultIntent, 0);
+			    	mBuilder.setContentIntent(pendingIntent);    	    	
+			    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
+		
+					getmAlarmSender();
+				}
 			}
 		}
 	}
