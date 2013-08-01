@@ -26,7 +26,6 @@ public class Home extends Activity implements HomeImplementer {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 		Intent intent=getIntent();
-        getHomeManager().initialize(Home.this);
         final EditText locationAddress = (EditText) findViewById(R.id.editText);
         final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
         
@@ -38,7 +37,17 @@ public class Home extends Activity implements HomeImplementer {
         });
 	}
 
-	
+	@Override 	
+	protected void onResume()
+	{
+	   super.onResume();
+       getHomeManager().initialize(Home.this);	}
+	@Override 	
+	protected void onRestart()
+	{
+	   super.onRestart();
+       getHomeManager().initialize(Home.this);
+    }
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

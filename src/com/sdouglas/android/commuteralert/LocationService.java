@@ -141,15 +141,13 @@ public class LocationService extends Service implements LocationListener  {
 	    			/* This is it!  We've arrived. Time to wake up our sleeping passenger*/
 	    			// remove the "is armed" notification 
 	    			stopMyLocationsTimer2();
-
 	    			SharedPreferences.Editor editor = settings.edit();
 	    	        editor.putFloat("latitude", (float) 0);
 	    	        editor.putFloat("longitude", (float) 0);
 	    	        editor.putString("locationString","");
 
 	    	        editor.commit();
-
-	    			int armedNotification=settings.getInt("IsArmedNotificationId",0);
+	    	        		    			int armedNotification=settings.getInt("IsArmedNotificationId",0);
 	    	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);
 	    	    	// and create one of our own
 	    	    	Notification.Builder mBuilder=new Notification.Builder(this)
