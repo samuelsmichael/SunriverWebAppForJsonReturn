@@ -8,41 +8,73 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Home" >
 
-	<LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="104dp"
-                android:layout_gravity="center"
-                android:focusableInTouchMode="false"
-                android:orientation="horizontal"
-                android:layout_marginLeft="33dp"
-                android:layout_marginTop="55dp"
-                android:layout_marginRight="33dp"
-                android:layout_marginBottom="33dp">
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:focusableInTouchMode="false"
+        android:gravity="top"
+        android:orientation="horizontal" >
 
-		<Button
-		    android:id="@+id/buttonAddress"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:text="@string/KeyAnAddress" />
+        <Button
+            android:id="@+id/buttonAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/KeyAnAddress"
+            android:textSize="14sp" />
 
-            <EditText
-                android:id="@+id/editText"
-                android:layout_width="96dp"
-                android:layout_height="120dp"
-                android:layout_gravity="center"
-                android:layout_marginBottom="4dp"
-                android:layout_marginTop="4dp"
-                android:cursorVisible="true"
-                android:editable="true"
-                android:enabled="true"
-                android:focusable="true"
-                android:gravity="top"
-                android:hint="@string/hint_address"
-                android:inputType="textMultiLine|textPostalAddress"
-                android:lines="4"
-                android:padding="5dp"
-                android:textColorHint="#aaaaaa" />
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:cursorVisible="true"
+            android:enabled="true"
+            android:focusable="true"
+            android:gravity="top"
+            android:hint="@string/hint_address"
+            android:inputType="textMultiLine|textPostalAddress"
+            android:lines="4"
+            android:padding="5dp"
+            android:textColorHint="#aaaaaa"
+            android:textSize="14sp" >
 
-        </LinearLayout>
+            <requestFocus />
+        </EditText>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout1"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/tvCurrentViewHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="System is armed.  The current location is:"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/tvCurrentLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        <Button
+            android:id="@+id/btnDisarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Disarm" />
+
+        
+    </LinearLayout>
 
 </RelativeLayout>
