@@ -60,19 +60,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:orientation="horizontal" >
+            android:orientation="horizontal"
+            android:padding="5dp" >
 
             <TextView
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="System status:"
+                android:color="#660000"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
                 android:id="@+id/tvSystemStatus2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:color="#00FF00"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
             
         </LinearLayout>

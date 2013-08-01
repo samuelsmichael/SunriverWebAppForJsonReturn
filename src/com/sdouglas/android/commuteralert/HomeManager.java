@@ -2,6 +2,8 @@ package com.sdouglas.android.commuteralert;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -32,8 +34,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 public class HomeManager implements LocationListener {
     private LocationManager mLocationManager=null;
+    private NotificationManager mNotificationManager=null;
     private Activity mActivity=null;
     public static final String PREFS_NAME = "MyPrefsFile";
+    private static final int ARMED_NOTIFICATION_ID=3;
 
     /*
      * Public Interface  ----------------------------------------------------------------------------
@@ -121,11 +125,20 @@ public class HomeManager implements LocationListener {
         editor.putString("locationString","");
 
         editor.commit();
+    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);
 
 	}
 	/*
 	 * Private Interface ----------------------------------------------------------------------------
 	 */
+	private NotificationManager getNotificationManager() {
+		if (mNotificationManager==null) {
+			mNotificationManager =
+	    		    (NotificationManager) mActivity.getSystemService(Context.NOTIFICATION_SERVICE);
+		}
+		return mNotificationManager;
+	}
+	
 	private void armLocationService(Address a) {
     	SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
@@ -234,11 +247,17 @@ public class HomeManager implements LocationListener {
     private void newLocation(Address a) {
     	((HomeImplementer)mActivity).heresYourAddress(a,getReadableFormOfAddress(a));
     	armLocationService(a);
+    	Notification.Builder mBuilder=new Notification.Builder(mActivity)
+    	.setSmallIcon(R.drawable.ic_launcher)
+    	.setContentTitle("CommuterAlert is armed")
+    	.setContentText(getReadableFormOfAddress(a))
+    	.setOngoing(true);
+    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
     }
     private void clearLocation() {
     	((HomeImplementer)mActivity).heresYourAddress(null,null);
     }
-    
+
     @Override
     public void onLocationChanged(Location location) {
         getLocationManager().removeUpdates(this);

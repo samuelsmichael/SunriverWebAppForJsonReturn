@@ -1,5 +1,6 @@
 package com.sdouglas.android.commuteralert;
 
+import android.graphics.Color;
 import android.location.Address;
 import android.os.Bundle;
 import android.app.Activity;
@@ -78,12 +79,14 @@ public class Home extends Activity implements HomeImplementer {
 			locationAddress.setVisibility(View.GONE);
 			deriveFromAddress.setVisibility(View.GONE);
 			systemStatus.setText("Armed");
+			systemStatus.setTextColor(Color.RED);
 		} else {
 			disarmButton.setVisibility(View.GONE);
 			systemIsArmed.setVisibility(View.GONE);
 			locationAddress.setVisibility(View.VISIBLE);
 			deriveFromAddress.setVisibility(View.VISIBLE);
 			systemStatus.setText("Disarmed");
+			systemStatus.setTextColor(Color.BLUE);
 		}
 	}
 }
