@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.location.Address;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -24,6 +25,7 @@ public class Home extends Activity implements HomeImplementer {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
+		Intent intent=getIntent();
         getHomeManager().initialize(Home.this);
         final EditText locationAddress = (EditText) findViewById(R.id.editText);
         final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
@@ -35,6 +37,9 @@ public class Home extends Activity implements HomeImplementer {
             }
         });
 	}
+
+	
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

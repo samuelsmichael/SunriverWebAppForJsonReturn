@@ -18,7 +18,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 
-public class LocationService extends Service {
+public class LocationService extends Service implements LocationListener  {
 	private long MTIMEOALARMINTENSECONDINTERVALS=12;
     public static final String PREFS_NAME = "MyPrefsFile";
 	private Timer mLocationsTimer2=null;
@@ -52,21 +52,25 @@ public class LocationService extends Service {
 	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
 	    	stopMyLocationsTimer2();
 		} else {
-			mAddressInReadableForm=intent.getStringExtra("LocationAddress");
-	    	Notification.Builder mBuilder=new Notification.Builder(this)
-		    	.setSmallIcon(R.drawable.ic_launcher)
-		    	.setContentTitle("CommuterAlert is armed")
-		    	.setContentText(mAddressInReadableForm)
-		    	.setOngoing(true);
-	    	
-	    	// Creates an explicit intent for an Activity in your app
-	    	Intent resultIntent = new Intent(this, LocationService.class);
-			PendingIntent pendingIntent = PendingIntent.getActivity(this,
-					(int)System.currentTimeMillis(), resultIntent, 0);
-	    	mBuilder.setContentIntent(pendingIntent);    	    	
-	    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
-
-			getmAlarmSender();
+			if(intent.getAction()=="JustInitializeLocationManager") {
+				initializeLocationManager();
+			} else {
+				mAddressInReadableForm=intent.getStringExtra("LocationAddress");
+		    	Notification.Builder mBuilder=new Notification.Builder(this)
+			    	.setSmallIcon(R.drawable.ic_launcher)
+			    	.setContentTitle("CommuterAlert is armed")
+			    	.setContentText(mAddressInReadableForm)
+			    	.setOngoing(true);
+		    	
+		    	// Creates an explicit intent for an Activity in your app
+		    	Intent resultIntent = new Intent(this, LocationService.class);
+				PendingIntent pendingIntent = PendingIntent.getActivity(this,
+						(int)System.currentTimeMillis(), resultIntent, 0);
+		    	mBuilder.setContentIntent(pendingIntent);    	    	
+		    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
+	
+				getmAlarmSender();
+			}
 		}
 	}
 	@Override
@@ -78,13 +82,12 @@ public class LocationService extends Service {
         return settings.getInt("modifyingValue", 1);
 	}
 	private void getmAlarmSender() {
-		startMyLocationsTimer2(500,1000*5*MTIMEOALARMINTENSECONDINTERVALS*getModifyingValue());
+		startMyLocationsTimer2(500,1000*3*MTIMEOALARMINTENSECONDINTERVALS*getModifyingValue());
 	}
 	
 	private Timer getLocationsTimer2() {
 		if (mLocationsTimer2 == null) {
-			mLocationsTimer2 = new Timer(
-			"LocationsActivities2");
+			mLocationsTimer2 = new Timer("LocationsActivities2");
 		}
 		return mLocationsTimer2;
 	}
@@ -115,46 +118,60 @@ public class LocationService extends Service {
 	}
 
 	private void sayIt(String it) {
-		final String jdSomething=it;
-			Intent jdIntent=new Intent(this, VoiceHelper.class)
-			.putExtra("voicedata",it);
-			jdIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(jdIntent);		
+		Intent jdIntent=new Intent(this, VoiceHelper.class)
+		.putExtra("voicedata",it);
+		jdIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(jdIntent);		
+
 	}
 
-	
-	private synchronized void manageLocationNotifications(Location newLocation) {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        float latitude = settings.getFloat("latitude", 0);
-        float longitude = settings.getFloat("longitude", 0);
-		if(latitude!=0 && mLastKnownLocation != null) {
-    		Location location = new Location(getProvider());
-    		location.setLatitude(Double.valueOf(latitude));
-    		location.setLongitude(Double.valueOf(longitude));
-    		float dx = mLastKnownLocation.distanceTo(location);
-    		if(dx<500) { //TODO: parameterize this
-    			/* This is it!  We've arrived. Time to wake up our sleeping passenger*/
-    			// remove the "is armed" notification 
-    			int armedNotification=settings.getInt("IsArmedNotificationId",0);
-    	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);
-    	    	// and create one of our own
-    	    	Notification.Builder mBuilder=new Notification.Builder(this)
-		    	.setSmallIcon(R.drawable.ic_launcher)
-		    	.setContentTitle("Douglas. Wake up! We're here!")
-		    	.setContentText(mAddressInReadableForm)
-		    	.setOngoing(true)
-		    	.setVibrate(new long[] {100,1000,100,1000,100,1000})
-		    	.setDefaults(Notification.DEFAULT_SOUND); //TODO: get this from checkboxes in Home
-	    	
-	    	// Creates an explicit intent for an Activity in your app
-	    	Intent resultIntent = new Intent(this, LocationService.class);
-			PendingIntent pendingIntent = PendingIntent.getActivity(this,
-					(int)System.currentTimeMillis(), resultIntent, 0);
-	    	mBuilder.setContentIntent(pendingIntent);    	    	
-	    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
-	    	sayIt("Wake up! We're here!");
-    		}
-        }	
+	int mDontReenter=0;
+	private void manageLocationNotifications(Location newLocation) {
+		if(mDontReenter==0) {
+			mDontReenter++;
+	        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+	        float latitude = settings.getFloat("latitude", 0);
+	        float longitude = settings.getFloat("longitude", 0);
+			if(latitude!=0 && mLastKnownLocation != null) {
+	    		Location location = new Location(getProvider());
+	    		location.setLatitude(Double.valueOf(latitude));
+	    		location.setLongitude(Double.valueOf(longitude));
+	    		float dx = mLastKnownLocation.distanceTo(location);
+	    		if(dx<500) { //TODO: parameterize this
+	    			/* This is it!  We've arrived. Time to wake up our sleeping passenger*/
+	    			// remove the "is armed" notification 
+	    			stopMyLocationsTimer2();
+
+	    			SharedPreferences.Editor editor = settings.edit();
+	    	        editor.putFloat("latitude", (float) 0);
+	    	        editor.putFloat("longitude", (float) 0);
+	    	        editor.putString("locationString","");
+
+	    	        editor.commit();
+
+	    			int armedNotification=settings.getInt("IsArmedNotificationId",0);
+	    	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);
+	    	    	// and create one of our own
+	    	    	Notification.Builder mBuilder=new Notification.Builder(this)
+			    	.setSmallIcon(R.drawable.ic_launcher)
+			    	.setContentTitle("Douglas. Wake up! We are arriving at our destination!")
+			    	.setContentText(mAddressInReadableForm)
+			    	.setVibrate(new long[] {100,1000,100,1000,100,1000})
+			    	.setDefaults(Notification.DEFAULT_SOUND); //TODO: get this from checkboxes in Home
+		    	
+			    	// Creates an explicit intent for an Activity in your app
+			    	Intent resultIntent = new Intent(this, LocationService.class);
+					PendingIntent pendingIntent = PendingIntent.getActivity(this,
+							(int)System.currentTimeMillis(), resultIntent, 0);
+			    	mBuilder.setContentIntent(pendingIntent);    	    	
+			    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
+			    	sayIt("Douglas ... Wake up! We are arriving at our destination!");
+	    		}
+	        }
+			if(mDontReenter>0) {
+				mDontReenter--;
+			}
+		}
 	}
 	private void resetmAlarmSender() {
 		stopMyLocationsTimer2();
@@ -179,8 +196,8 @@ public class LocationService extends Service {
 	private void doS() {
 		try {
 
-			Location jdlocation=getLocationManager().getLastKnownLocation(LocationManager.GPS_PROVIDER);
 			if(_jdFY==0) {
+				Location jdlocation=getLocationManager().getLastKnownLocation(LocationManager.GPS_PROVIDER);
 				if(jdlocation!=null) {
 					_jdFY++;
 					long jdInterval=12;
@@ -213,6 +230,10 @@ public class LocationService extends Service {
 									_jdFY--;
 								}
 							} catch (Exception ee) {
+								if(mLastKnownLocation == null) {
+									int bkHere=3;
+									int bkThere=4;
+								}
 							}
 						}
 						@Override
@@ -229,6 +250,8 @@ public class LocationService extends Service {
 				}
 			}
 		} catch (Exception e) {
+			int bkhere=3;
+			int bkthere=bkhere;
 		}
 	}
 	
@@ -244,6 +267,22 @@ public class LocationService extends Service {
 			}
 		}, trigger, interval);
 	}
+    private void initializeLocationManager() {
+        try {
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+            String bestProvider = getLocationManager().getBestProvider(criteria, false);
+            if(bestProvider==null) {
+            	bestProvider=LocationManager.GPS_PROVIDER;
+            }
+            if(getLocationManager().isProviderEnabled(bestProvider)) {
+                getLocationManager().requestLocationUpdates(bestProvider, 20000, 1, this);
+                getLocationManager().getLastKnownLocation(bestProvider);
+            }
+        } catch (Exception ee3) {
+        }
+    }
+	
 	private void stopMyLocationsTimer2() {
 		if (mLocationsTimer2 != null) {
 			try {
@@ -254,4 +293,23 @@ public class LocationService extends Service {
 			mLocationsTimer2 = null;
 		}
 	}	
+    @Override
+    public void onLocationChanged(Location location) {
+        getLocationManager().removeUpdates(this);
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
 }

@@ -34,7 +34,7 @@ import java.util.Locale;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-public class HomeManager implements LocationListener {
+public class HomeManager {
     private LocationManager mLocationManager=null;
     private Activity mActivity=null;
     public static final String PREFS_NAME = "MyPrefsFile";
@@ -46,7 +46,7 @@ public class HomeManager implements LocationListener {
         try {
             locationAddress=locationAddress.replace("\n"," ");
             final List<Address> addressList=getFromLocationName(locationAddress, mActivity);
-            if(addressList.size()>0) {
+            if(addressList != null || addressList.size()>0) {
                 if(addressList.size()>1) { // Popup a display so the user can choose which he wants.
                     final String[] addresses=new String[addressList.size()];
                     final double [] latitudes=new double[addressList.size()];
@@ -96,7 +96,10 @@ public class HomeManager implements LocationListener {
 	}
 	public void initialize(Activity activity) {
 		mActivity=activity;
-		initializeLocationManager();
+    	Intent intent=new Intent(mActivity,LocationService.class).
+    			setAction("JustInitializeLocationManager");
+    	
+    	mActivity.startService(intent);
 		Geocoder g=new Geocoder(mActivity);
         SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
@@ -175,6 +178,7 @@ public class HomeManager implements LocationListener {
             }
             return addressList;
         } catch (Exception e) {
+        	/* TODO: this needs to be on it's own thread
             String url="http://local.yahooapis.com/MapsService/V1/geocode?appid=yDSMLAbV34EUyy1AJrHKqbb1gL4A4xvchBWqr4MaNharntRqZTcCfm5Qs.ugfgTyrdoe4eoGxpM-&location=" +
                     addressTextText;
             url = url.replace(" ", "%20");
@@ -199,6 +203,8 @@ public class HomeManager implements LocationListener {
             addressList.add(deriveAddressFromElement(rootElement));
             try {is.close();} catch (Exception eieiee) {}
             return addressList;
+            */
+        	return addressList;
         }
     }
     private Address deriveAddressFromElement(Element elem) {
@@ -224,25 +230,6 @@ public class HomeManager implements LocationListener {
         }
     }
     
-    private LocationManager getLocationManager() {
-        if(mLocationManager==null) {
-            mLocationManager = (android.location.LocationManager) mActivity.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        }
-        return mLocationManager;
-    }
-    private void initializeLocationManager() {
-        try {
-            Criteria criteria = new Criteria();
-            criteria.setAccuracy(Criteria.ACCURACY_FINE);
-            String bestProvider = getLocationManager().getBestProvider(criteria, false);
-            if(getLocationManager().isProviderEnabled(bestProvider)) {
-                getLocationManager().requestLocationUpdates(bestProvider, 20000, 1, this);
-                getLocationManager().getLastKnownLocation(bestProvider);
-            }
-        } catch (Exception ee3) {
-        }
-    }
-    
     private void newLocation(Address a) {
     	((HomeImplementer)mActivity).heresYourAddress(a,getReadableFormOfAddress(a));
     	armLocationService(a);
@@ -252,23 +239,4 @@ public class HomeManager implements LocationListener {
 
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        getLocationManager().removeUpdates(this);
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
-    }
 }
