@@ -15,19 +15,28 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -45,54 +54,10 @@ public class HomeManager {
 	public void manageKeyedInAddress(String locationAddress) {
         try {
             locationAddress=locationAddress.replace("\n"," ");
-            final List<Address> addressList=getFromLocationName(locationAddress, mActivity);
-            if(addressList != null || addressList.size()>0) {
-                if(addressList.size()>1) { // Popup a display so the user can choose which he wants.
-                    final String[] addresses=new String[addressList.size()];
-                    final double [] latitudes=new double[addressList.size()];
-                    final double [] longitudes=new double[addressList.size()];
-                    for(int i=0;i<addressList.size();i++) {
-
-                        int maxIndex=addressList.get(i).getMaxAddressLineIndex();
-                        StringBuilder sb=new StringBuilder();
-                        String nl="";
-                        for(int c=0;c<maxIndex;c++) {
-                            sb.append(nl+addressList.get(i).getAddressLine(c));
-                            nl="\n";
-                        }
-                        addresses[i]=sb.toString();
-                        latitudes[i]=addressList.get(i).getLatitude();
-                        longitudes[i]=addressList.get(i).getLongitude();
-                    }
-                    AlertDialog.Builder builder=new AlertDialog.Builder(mActivity);
-                    builder.setTitle("More than one location found. Pick one.");
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        	Toast.makeText(mActivity.getApplicationContext(), "No selection made..", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    builder.setItems(addresses, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Address a=addressList.get(which);
-                            HomeManager.this.newLocation(a);
-                        }
-                    });
-                    AlertDialog alert=builder.create();
-                    alert.show();
-                } else {
-                    Address a=addressList.get(0);
-                    newLocation(a);
-                }
-            } else {
-                Toast.makeText(mActivity.getApplicationContext(), "No locations found for this address. Sometimes this occurs when the system isn't through initializing. Try just pushing the search button again, and if this doesn't work, try refining your address.", Toast.LENGTH_LONG).show();
-            }
+            new RetrieveAddressData().execute(locationAddress);
         } catch (Exception e) {
             Toast.makeText(mActivity.getApplicationContext(), "Problem tyring to get address. Msg:"+e.getMessage() + ". This problem often goes away by pushing the button again.", Toast.LENGTH_LONG).show();
         }
-		
 	}
 	public void initialize(Activity activity) {
 		mActivity=activity;
@@ -156,56 +121,146 @@ public class HomeManager {
         int maxIndex=address.getMaxAddressLineIndex();
         StringBuilder sb=new StringBuilder();
         String nl="";
-        for(int c=0;c<maxIndex;c++) {
-            sb.append(nl+address.getAddressLine(c));
-            nl="\n";		
+        for(int c=0;c<=maxIndex;c++) {
+        	try {
+        		sb.append(nl+address.getAddressLine(c));
+        		nl="\n";
+        	} catch (Exception e){}
         }
         return sb.toString();
 	}
 	
-    private List<Address> getFromLocationName(String address, Context ctx) throws Exception {
-        String addressTextText="410 Williams St Denver CO 80209";
+    private List<Address> getFromLocationNameUsingGeocoder(String streetAddress) throws IOException { 
+        String addressTextText=null;
         List<Address> addressList=null;
-        try {
-            addressTextText=address;
-            addressTextText=addressTextText.replace("\n"," ");
-            int x=4;
-            if(x==3) throw new Exception("Try other method");
-            Geocoder g=new Geocoder(ctx);
-            addressList = g.getFromLocationName(addressTextText,8);
-            if(addressList==null || addressList.size()==0) {
-                throw new Exception("Try other method");
-            }
-            return addressList;
-        } catch (Exception e) {
-        	/* TODO: this needs to be on it's own thread
-            String url="http://local.yahooapis.com/MapsService/V1/geocode?appid=yDSMLAbV34EUyy1AJrHKqbb1gL4A4xvchBWqr4MaNharntRqZTcCfm5Qs.ugfgTyrdoe4eoGxpM-&location=" +
-                    addressTextText;
-            url = url.replace(" ", "%20");
-            URL u = new URL(url);
-            HttpURLConnection conn=(HttpURLConnection)u.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            conn.connect();
-            OutputStream out=conn.getOutputStream();
-            PrintWriter pw=new PrintWriter(out);
-            pw.close();
-            InputStream is = conn.getInputStream();
-            DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();
-            DocumentBuilder db=dbf.newDocumentBuilder();
-            Document doc=db.parse(is);
-            doc.getDocumentElement().normalize();
-            Element rootElement=doc.getDocumentElement();
-            Element elem=(Element)rootElement.getChildNodes().item(0);
-            String stotalResultsReturned=rootElement.getAttribute("precision");
-            addressList=new java.util.ArrayList<Address>();
-            addressList.add(deriveAddressFromElement(rootElement));
-            try {is.close();} catch (Exception eieiee) {}
-            return addressList;
-            */
-        	return addressList;
+        addressTextText=streetAddress;
+        addressTextText=addressTextText.replace("\n"," ");
+        Geocoder g=new Geocoder(HomeManager.this.mActivity);
+        addressList = g.getFromLocationName(addressTextText,8);
+        return addressList;
+    }
+    private List<Address> getFromLocationNameUsingCallToGoogle(String streetAddress) throws Exception {
+    	List<Address> addressList=new ArrayList<Address>();
+    	streetAddress=URLEncoder.encode(streetAddress,"UTF-8");
+        String url="http://maps.googleapis.com/maps/api/geocode/json?address="+streetAddress+"&sensor=true";
+        URL u = new URL(url);
+        HttpURLConnection conn=(HttpURLConnection)u.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+        conn.connect();
+        OutputStream out=conn.getOutputStream();
+        PrintWriter pw=new PrintWriter(out);
+        pw.close();
+        InputStream is = conn.getInputStream();
+        InputStreamReader is2=new InputStreamReader(is);
+        BufferedReader reader = new BufferedReader(is2);
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line + "\n");
         }
+        is.close();
+        String json = sb.toString();
+        JSONObject jObj=new JSONObject(json);
+        JSONArray results=jObj.getJSONArray("results");
+        for(int i = 0; i < results.length(); i++){
+        	JSONObject addressObject=results.getJSONObject(i); 
+        	JSONArray addressComponents=addressObject.getJSONArray("address_components");
+       		String formattedAddress=addressObject.getString("formatted_address");
+       		JSONObject geometry=addressObject.getJSONObject("geometry");
+        	JSONObject location=geometry.getJSONObject("location");
+        	String lat=location.getString("lat");
+        	String lng=location.getString("lng");
+        	/* All I need is a string representation of the address, along with its longitude and latitude, so
+        	 * I'm not going to bother breaking into city, state, zip components. 
+        	*/
+            Address address=new Address(Locale.getDefault());
+            address.setLatitude(Double.valueOf(lat));
+            address.setLongitude(Double.valueOf(lng));
+            address.setAddressLine(0, formattedAddress);
+            addressList.add(address);
+        }
+        try {is2.close();} catch (Exception eieiee) {}
+        return addressList;
+    	
+    }
+    class RetrieveAddressData extends AsyncTask<String, Void, List<Address>> {
+    	private String exceptionMessage=null;
+
+    	    protected List<Address> doInBackground(String... addressesParm) {
+    	    	String addressTextText=addressesParm[0];
+                List<Address> addressList=null;
+				try {
+					addressList = getFromLocationNameUsingGeocoder(addressTextText);
+				} catch (IOException e) {
+					exceptionMessage=e.getMessage();
+				}
+                if(addressList==null || addressList.size()==0) {
+                	try {
+						addressList=getFromLocationNameUsingCallToGoogle(addressTextText);
+					} catch (Exception e) {
+						if(exceptionMessage==null) {
+							exceptionMessage=e.getMessage();
+						} else {
+							exceptionMessage+=" and "+e.getMessage();
+						}
+					}
+                }
+                return addressList;
+    	    }
+    	    protected void onPostExecute(List<Address> result) {
+    	        // TODO: check this.exception 
+    	        // TODO: do something with the feed
+    	    	final List<Address> addressList=result;
+                if(addressList != null && addressList.size()>0) {
+                    if(addressList.size()>1) { // Popup a display so the user can choose which he wants.
+                        final String[] addresses=new String[addressList.size()];
+                        final double [] latitudes=new double[addressList.size()];
+                        final double [] longitudes=new double[addressList.size()];
+                        for(int i=0;i<addressList.size();i++) {
+
+                            int maxIndex=addressList.get(i).getMaxAddressLineIndex();
+                            StringBuilder sb=new StringBuilder();
+                            String nl="";
+                            for(int c=0;c<maxIndex;c++) {
+                                sb.append(nl+addressList.get(i).getAddressLine(c));
+                                nl="\n";
+                            }
+                            addresses[i]=sb.toString();
+                            latitudes[i]=addressList.get(i).getLatitude();
+                            longitudes[i]=addressList.get(i).getLongitude();
+                        }
+                        AlertDialog.Builder builder=new AlertDialog.Builder(mActivity);
+                        builder.setTitle("More than one location found. Pick one.");
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            	Toast.makeText(mActivity.getApplicationContext(), "No selection made..", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        builder.setItems(addresses, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Address a=addressList.get(which);
+                                HomeManager.this.newLocation(a);
+                            }
+                        });
+                        AlertDialog alert=builder.create();
+                        alert.show();
+                    } else {
+                        Address a=addressList.get(0);
+                        newLocation(a);
+                    }
+                } else {
+                	if(exceptionMessage==null) {
+                		Toast.makeText(mActivity.getApplicationContext(), "No locations found for this address.", Toast.LENGTH_LONG).show();
+                	} else {
+                		Toast.makeText(mActivity.getApplicationContext(), exceptionMessage , Toast.LENGTH_LONG).show();
+                	}
+                }
+    	    }
     }
     private Address deriveAddressFromElement(Element elem) {
         Address address=new Address(Locale.getDefault());

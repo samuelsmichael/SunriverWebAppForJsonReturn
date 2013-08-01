@@ -87,6 +87,7 @@ public class Home extends Activity implements HomeImplementer {
         final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
         final TextView systemStatus=(TextView) findViewById(R.id.tvSystemStatus2);
 		currentLocation.setText(readableAddress);
+		currentLocation.setTextColor(Color.BLUE);
 		if(isArmed) {
 			disarmButton.setVisibility(View.VISIBLE);
 			systemIsArmed.setVisibility(View.VISIBLE);

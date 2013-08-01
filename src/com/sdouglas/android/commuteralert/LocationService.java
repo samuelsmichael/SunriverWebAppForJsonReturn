@@ -48,6 +48,8 @@ public class LocationService extends Service implements LocationListener  {
 	@Override
 	public void onStart(Intent intent, int startId) {
 		super.onStart(intent, startId);
+		Thread
+		.setDefaultUncaughtExceptionHandler(new CustomExceptionHandlerTimer(this));
 		if(intent.getAction()=="JustDisarm") {
 	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
 	    	stopMyLocationsTimer2();
