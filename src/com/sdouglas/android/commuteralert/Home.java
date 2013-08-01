@@ -70,17 +70,20 @@ public class Home extends Activity implements HomeImplementer {
 		final TextView systemIsArmed = (TextView)findViewById(R.id.tvCurrentViewHeading);
         final EditText locationAddress = (EditText) findViewById(R.id.editText);
         final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
+        final TextView systemStatus=(TextView) findViewById(R.id.tvSystemStatus2);
 		currentLocation.setText(readableAddress);
 		if(isArmed) {
 			disarmButton.setVisibility(View.VISIBLE);
 			systemIsArmed.setVisibility(View.VISIBLE);
 			locationAddress.setVisibility(View.GONE);
 			deriveFromAddress.setVisibility(View.GONE);
+			systemStatus.setText("Armed");
 		} else {
 			disarmButton.setVisibility(View.GONE);
 			systemIsArmed.setVisibility(View.GONE);
 			locationAddress.setVisibility(View.VISIBLE);
 			deriveFromAddress.setVisibility(View.VISIBLE);
+			systemStatus.setText("Disarmed");
 		}
 	}
 }
