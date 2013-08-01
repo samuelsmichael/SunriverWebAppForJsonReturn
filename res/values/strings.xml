@@ -6,5 +6,7 @@
     <string name="AddressField">Key in an address</string>
     <string name="hint_address">Example:\n121 S Eaton St\nLakewood CO 80226</string>
     <string name="KeyAnAddress">Key an address</string>
+    <string name="title_activity_voice_helper">VoiceHelper</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

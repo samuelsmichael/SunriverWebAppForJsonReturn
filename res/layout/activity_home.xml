@@ -91,6 +91,7 @@
             android:id="@+id/tvCurrentLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:color="#0000FF"
             android:textAppearance="?android:attr/textAppearanceMedium" />
         <Button
             android:id="@+id/btnDisarm"

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/custom_bg_2"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+	<LinearLayout 
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:padding="4dp"
+	    android:background="@drawable/custom_bg_1"
+	    android:orientation="vertical" >
+	    
+		<LinearLayout
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:orientation="horizontal">
+	    	    
+		    <TextView
+		        android:id="@+id/textViewJDNeed"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="Talk to"
+		        android:textAppearance="?android:attr/textAppearanceMedium" />
+		    <TextView
+		        android:id="@+id/textViewJDNeedFor"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="Need for goes here"
+		        android:layout_marginLeft="4dp"
+		        android:textAppearance="?android:attr/textAppearanceMedium" />
+		    <TextView
+		        android:id="@+id/textViewJDNeed2"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="about"
+		        android:layout_marginLeft="4dp"
+		        android:textAppearance="?android:attr/textAppearanceMedium" />
+		</LinearLayout>
+		    	
+	    <TextView
+	        android:id="@+id/needName"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="20dp"
+	        android:layout_marginRight="2dp"
+	        android:text="need name goes here" />
+	
+	    <TextView
+	        android:id="@+id/textViewJDDescription"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Details"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	    <TextView
+	        android:id="@+id/needDescription"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="20dp"
+	        android:layout_marginLeft="20dp"
+	        android:layout_marginRight="2dp"
+	        android:text="description goes here" />
+	
+	    <Button
+	        android:id="@+id/closeMe"
+	        style="?android:attr/buttonStyleSmall"
+	        android:layout_gravity="center_horizontal"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:text="Close" />
+	
+	
+	</LinearLayout>
+</LinearLayout>

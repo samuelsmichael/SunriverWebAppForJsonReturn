@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Criteria;
@@ -34,10 +36,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 public class HomeManager implements LocationListener {
     private LocationManager mLocationManager=null;
-    private NotificationManager mNotificationManager=null;
     private Activity mActivity=null;
     public static final String PREFS_NAME = "MyPrefsFile";
-    private static final int ARMED_NOTIFICATION_ID=3;
 
     /*
      * Public Interface  ----------------------------------------------------------------------------
@@ -99,6 +99,10 @@ public class HomeManager implements LocationListener {
 		initializeLocationManager();
 		Geocoder g=new Geocoder(mActivity);
         SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("modifyingValue",1);
+        editor.commit();
+
         float latitude = settings.getFloat("latitude", 0);
         float longitude = settings.getFloat("longitude", 0);
         if(latitude!=0) {
@@ -114,7 +118,7 @@ public class HomeManager implements LocationListener {
 				 */
 			}
         } else {
-        	clearLocation();
+        	((HomeImplementer)mActivity).heresYourAddress(null,null);
         }
 	}
 	public void disarmLocationService() {
@@ -125,19 +129,14 @@ public class HomeManager implements LocationListener {
         editor.putString("locationString","");
 
         editor.commit();
-    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);
-
+    	Intent intent=new Intent(mActivity,LocationService.class).
+    			setAction("JustDisarm");
+    	
+    	mActivity.startService(intent);
 	}
 	/*
 	 * Private Interface ----------------------------------------------------------------------------
 	 */
-	private NotificationManager getNotificationManager() {
-		if (mNotificationManager==null) {
-			mNotificationManager =
-	    		    (NotificationManager) mActivity.getSystemService(Context.NOTIFICATION_SERVICE);
-		}
-		return mNotificationManager;
-	}
 	
 	private void armLocationService(Address a) {
     	SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, 0);
@@ -247,15 +246,10 @@ public class HomeManager implements LocationListener {
     private void newLocation(Address a) {
     	((HomeImplementer)mActivity).heresYourAddress(a,getReadableFormOfAddress(a));
     	armLocationService(a);
-    	Notification.Builder mBuilder=new Notification.Builder(mActivity)
-    	.setSmallIcon(R.drawable.ic_launcher)
-    	.setContentTitle("CommuterAlert is armed")
-    	.setContentText(getReadableFormOfAddress(a))
-    	.setOngoing(true);
-    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
-    }
-    private void clearLocation() {
-    	((HomeImplementer)mActivity).heresYourAddress(null,null);
+    	Intent jdItent2=new Intent(mActivity, LocationService.class).
+    			putExtra("LocationAddress",getReadableFormOfAddress(a));
+		mActivity.startService(jdItent2);
+
     }
 
     @Override

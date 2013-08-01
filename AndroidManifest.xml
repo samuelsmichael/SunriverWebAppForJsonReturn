@@ -22,6 +22,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name="com.sdouglas.android.commuteralert.LocationService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+
+        <activity
+            android:name="com.sdouglas.android.commuteralert.VoiceHelper"
+            android:label="@string/title_activity_voice_helper" >
+        </activity>
     </application>
 
 </manifest>
