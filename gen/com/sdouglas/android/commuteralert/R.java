@@ -182,6 +182,7 @@ containing a value of this type.
         public static final int custom_bg_1=0x7f020018;
         public static final int custom_bg_2=0x7f020019;
         public static final int ic_launcher=0x7f02001a;
+        public static final int train1=0x7f02001b;
     }
     public static final class id {
         public static final int action_settings=0x7f050016;

@@ -9,6 +9,8 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -208,19 +210,31 @@ public class Home extends Activity implements HomeImplementer {
 	/*
 	 * I am using an AsyncTask here because its onPostExecute insures that I can update the UI
 	 */
-    class ShowMap extends AsyncTask<Location, Void, Location> {
-	    protected Location doInBackground(Location... location) {
+    class ShowMap extends AsyncTask<LocationAndAssociatedTrainStations, Void, LocationAndAssociatedTrainStations> {
+	    protected LocationAndAssociatedTrainStations doInBackground(LocationAndAssociatedTrainStations... location) {
 	    	try {
 	    		return location[0];
 	    	} catch (Exception e) {
 	    		return null;
 	    	}
 	    }
-	    protected void onPostExecute(Location result) {
+	    protected void onPostExecute(LocationAndAssociatedTrainStations result) {
 	    	
 	    	if(result!=null) {
-	        	mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng((float)result.getLatitude(),(float)result.getLongitude())));
+	        	mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng((float)result.mLocation.getLatitude(),(float)result.mLocation.getLongitude())));
 	        	mMap.setMyLocationEnabled(true);
+        		BitmapDescriptor bmd=BitmapDescriptorFactory
+        		.fromResource(R.drawable.train1);
+        		BitmapDescriptor bmd2=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+	        	for(int i=0;i<result.mAddresses.size();i++) {
+	        		Address address=result.mAddresses.get(i);
+        			Marker marker=
+		        			mMap.addMarker(new MarkerOptions()
+		        			        .position(new LatLng(address.getLatitude(),address.getLongitude()))
+		        			        .title(address.getAddressLine(0))
+		        			        .icon(bmd));	  
+	        			marker.showInfoWindow(); 
+	        	}
 	        	mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener(){
 	        		public void onMapLongClick(LatLng point) {
 	        			if(mPreviousMarker!=null) {
@@ -239,8 +253,17 @@ public class Home extends Activity implements HomeImplementer {
 	    	}
 	    }
     }	
+    private class LocationAndAssociatedTrainStations {
+    	public Location mLocation;
+    	public ArrayList<Address> mAddresses;
+    	LocationAndAssociatedTrainStations(Location location,ArrayList<Address> addresses) {
+    		mLocation=location;
+    		mAddresses=addresses;
+    	}    
+    }
     public void heresTheTrainStationAddressesToDisplayOnMap(ArrayList<Address> addresses,Location location) {
-        new ShowMap().execute(location);
+    	LocationAndAssociatedTrainStations t= new LocationAndAssociatedTrainStations(location,addresses);
+        new ShowMap().execute(t);
     }
 	private void findInitialLocation() {
 		String provider=getProvider();
