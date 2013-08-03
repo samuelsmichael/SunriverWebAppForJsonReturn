@@ -25,6 +25,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -166,7 +168,6 @@ public class HomeManager {
         JSONArray results=jObj.getJSONArray("results");
         for(int i = 0; i < results.length(); i++){
         	JSONObject addressObject=results.getJSONObject(i); 
-        	JSONArray addressComponents=addressObject.getJSONArray("address_components");
        		String formattedAddress=addressObject.getString("formatted_address");
        		JSONObject geometry=addressObject.getJSONObject("geometry");
         	JSONObject location=geometry.getJSONObject("location");

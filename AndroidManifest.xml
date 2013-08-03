@@ -7,17 +7,22 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- Google, non-trial version only --> 
 	<uses-permission android:name="com.android.vending.CHECK_LICENSE" />
-    
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+	
     <uses-sdk
         android:minSdkVersion="11"
-        android:targetSdkVersion="17" />
+        android:targetSdkVersion="18" />
 
+
+	<uses-feature
+	        android:glEsVersion="0x00020000"
+	        android:required="true"/>    
+    
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -43,6 +48,16 @@
             android:name="com.sdouglas.android.commuteralert.VoiceHelper"
             android:label="@string/title_activity_voice_helper" >
         </activity>
+		<!--
+		<meta-data
+		    android:name="com.google.android.maps.v2.API_KEY"
+		    android:value="AIzaSyDRB2FlpUa1eFKeiJJ2LBffATMy29bPBMQ"/>
+		 -->
+		<meta-data
+		    android:name="com.google.android.maps.v2.API_KEY"
+		    android:value="AIzaSyAVi8mSzoZJBV1qsxIeFXgguXTzcw9Voys"/>
+		 
+		
     </application>
 
 </manifest>

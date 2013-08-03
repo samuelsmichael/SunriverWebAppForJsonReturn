@@ -149,7 +149,7 @@ public class LocationService extends Service implements LocationListener  {
 	    	        editor.putString("locationString","");
 
 	    	        editor.commit();
-	    	        		    			int armedNotification=settings.getInt("IsArmedNotificationId",0);
+	    	        int armedNotification=settings.getInt("IsArmedNotificationId",0);
 	    	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);
 	    	    	// and create one of our own
 	    	    	Notification.Builder mBuilder=new Notification.Builder(this)
@@ -194,64 +194,66 @@ public class LocationService extends Service implements LocationListener  {
 	}
 	
 	private void doS() {
-		try {
-
-			if(_jdFY==0) {
-				Location jdlocation=getLocationManager().getLastKnownLocation(LocationManager.GPS_PROVIDER);
-				if(jdlocation!=null) {
-					_jdFY++;
-					long jdInterval=12;
-					try {
-						jdInterval=getAlarmInTenSecondIntervals();
-					} catch (Exception eee) {}
-					getLocationManager().requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000*9*jdInterval, 200, new LocationListener() {
-						@Override
-						public void onLocationChanged(Location location) {
-							try {
-								if(location.hasAccuracy()==false || location.getAccuracy()<412) {
-									manageLocationNotifications(location);
-									getLocationManager().removeUpdates(this); 
-									try {
-										if (
-											(location.hasSpeed() && location.getSpeed()>2f) 
-												||
-										    (mLastKnownLocation != null && location.distanceTo(mLastKnownLocation)> 100f)
-										) {
-											modifyAlarmMinutes(false);
-										} else {
-											if(location.getSpeed()<1f) {
-												modifyAlarmMinutes(true);
-											}
+		if(_jdFY==0) {
+			_jdFY++;
+			long jdInterval=12;
+			try {
+				jdInterval=getAlarmInTenSecondIntervals();
+			} catch (Exception eee) {}
+			String provider=getProvider();
+			
+            if(provider==null) {
+            	provider=LocationManager.GPS_PROVIDER;
+            }
+            if(getLocationManager().isProviderEnabled(provider)) {
+				getLocationManager().requestLocationUpdates(getProvider(), 1000*9*jdInterval, 200, new LocationListener() {
+					@Override
+					public void onLocationChanged(Location location) {
+						try {
+							if(location.hasAccuracy()==false || location.getAccuracy()<412) {
+								manageLocationNotifications(location);
+								getLocationManager().removeUpdates(this); 
+								try {
+									if (
+										(location.hasSpeed() && location.getSpeed()>2f) 
+											||
+									    (mLastKnownLocation != null && location.distanceTo(mLastKnownLocation)> 100f)
+									) {
+										modifyAlarmMinutes(false);
+									} else {
+										if(location.getSpeed()<1f) {
+											modifyAlarmMinutes(true);
 										}
-									} catch (Exception ee33dd3) {}
-									mLastKnownLocation= location;
-								}
-								if(_jdFY>0) {
-									_jdFY--;
-								}
-							} catch (Exception ee) {
-								if(mLastKnownLocation == null) {
-									int bkHere=3;
-									int bkThere=4;
-								}
+									}
+								} catch (Exception ee33dd3) {}
+								mLastKnownLocation= location;
+							}
+							if(_jdFY>0) {
+								_jdFY--;
+							}
+						} catch (Exception ee) {
+							if(mLastKnownLocation == null) {
+								int bkHere=3;
+								int bkThere=4;
 							}
 						}
-						@Override
-						public void onProviderDisabled(String provider) {
-						}
-						@Override
-						public void onProviderEnabled(String provider) {
-						}
-						@Override
-						public void onStatusChanged(String provider, int status, Bundle extras) {
-							//INeedToo.mSingleton.log("Provider " + provider+ " status changed to "+ String.valueOf(status)+".", 1);
-						}
-					},Looper.getMainLooper());					
+					}
+					@Override
+					public void onProviderDisabled(String provider) {
+					}
+					@Override
+					public void onProviderEnabled(String provider) {
+					}
+					@Override
+					public void onStatusChanged(String provider, int status, Bundle extras) {
+						//INeedToo.mSingleton.log("Provider " + provider+ " status changed to "+ String.valueOf(status)+".", 1);
+					}
+				},Looper.getMainLooper());					
+            } else {
+				if(_jdFY>0) {
+					_jdFY--;
 				}
-			}
-		} catch (Exception e) {
-			int bkhere=3;
-			int bkthere=bkhere;
+            }
 		}
 	}
 	
@@ -269,15 +271,12 @@ public class LocationService extends Service implements LocationListener  {
 	}
     private void initializeLocationManager() {
         try {
-            Criteria criteria = new Criteria();
-            criteria.setAccuracy(Criteria.ACCURACY_FINE);
-            String bestProvider = getLocationManager().getBestProvider(criteria, false);
+            String bestProvider = getProvider();
             if(bestProvider==null) {
             	bestProvider=LocationManager.GPS_PROVIDER;
             }
             if(getLocationManager().isProviderEnabled(bestProvider)) {
                 getLocationManager().requestLocationUpdates(bestProvider, 20000, 1, this);
-                getLocationManager().getLastKnownLocation(bestProvider);
             }
         } catch (Exception ee3) {
         }
@@ -293,6 +292,7 @@ public class LocationService extends Service implements LocationListener  {
 			mLocationsTimer2 = null;
 		}
 	}	
+		
     @Override
     public void onLocationChanged(Location location) {
         getLocationManager().removeUpdates(this);
