@@ -142,6 +142,7 @@ public class LocationService extends Service implements LocationListener  {
 	    		if(dx<500) { //TODO: parameterize this
 	    			/* This is it!  We've arrived. Time to wake up our sleeping passenger*/
 	    			// remove the "is armed" notification 
+	    	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
 	    			stopMyLocationsTimer2();
 	    			SharedPreferences.Editor editor = settings.edit();
 	    	        editor.putFloat("latitude", (float) 0);

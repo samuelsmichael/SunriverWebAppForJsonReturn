@@ -3,6 +3,7 @@ package com.sdouglas.android.commuteralert;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -19,6 +20,7 @@ import com.sdouglas.android.commuteralert.HomeManager.RetrieveAddressData;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -38,73 +40,70 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class Home extends Activity implements HomeImplementer {
-	private GoogleMap mMap=null;
+	private GoogleMap mMap = null;
 	private HomeManager mHomeManager;
-	private LocationManager mLocationManager=null;
+	private LocationManager mLocationManager = null;
 	private MapFragment mMapFragment;
 	static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
 	private Marker mPreviousMarker;
-	
-    private HomeManager getHomeManager() {
-    	if(mHomeManager==null) {
-    		mHomeManager=new HomeManager();
-    	}
-    	return mHomeManager;
-    }
-    
+
+	private HomeManager getHomeManager() {
+		if (mHomeManager == null) {
+			mHomeManager = new HomeManager();
+		}
+		return mHomeManager;
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-		Intent intent=getIntent();
-        final EditText locationAddress = (EditText) findViewById(R.id.editText);
-        final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
-        
-        deriveFromAddress.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	mHomeManager.manageKeyedInAddress(locationAddress.getText().toString());
-            }
-        });
+		Intent intent = getIntent();
+		final EditText locationAddress = (EditText) findViewById(R.id.editText);
+		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
+
+		deriveFromAddress.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mHomeManager.manageKeyedInAddress(locationAddress.getText()
+						.toString());
+			}
+		});
 	}
 
 	private void setUpMapIfNeeded() {
-	    // Do a null check to confirm that we have not already instantiated the map.
-	    if (mMap == null) {
-	    	mMapFragment=(MapFragment) getFragmentManager().findFragmentById(R.id.map);
-	        mMap = mMapFragment.getMap();
-	        // Check if we were successful in obtaining the map.
-	        if (mMap != null) {
-	            // The Map is verified. It is now safe to manipulate the map.
-	        	mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-	        	findInitialLocation();
-/*
- *  map:cameraBearing="112.5"
-  map:cameraTargetLat="-33.796923"
-  map:cameraTargetLng="150.922433"
-  map:cameraTilt="30"
-  map:cameraZoom="13"
-  map:mapType="normal"
-  map:uiCompass="false"
-  map:uiRotateGestures="true"
-  map:uiScrollGestures="false"
-  map:uiTiltGestures="true"
-  map:uiZoomControls="false"
-  map:uiZoomGestures="true"/>
- */
-	        }
-	    }
-	}	
-	
-	@Override 	
+		// Do a null check to confirm that we have not already instantiated the
+		// map.
+		if (mMap == null) {
+			mMapFragment = (MapFragment) getFragmentManager().findFragmentById(
+					R.id.map);
+			mMap = mMapFragment.getMap();
+			// Check if we were successful in obtaining the map.
+			if (mMap != null) {
+				// The Map is verified. It is now safe to manipulate the map.
+				mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+				findInitialLocation();
+				/*
+				 * map:cameraBearing="112.5" map:cameraTargetLat="-33.796923"
+				 * map:cameraTargetLng="150.922433" map:cameraTilt="30"
+				 * map:cameraZoom="13" map:mapType="normal"
+				 * map:uiCompass="false" map:uiRotateGestures="true"
+				 * map:uiScrollGestures="false" map:uiTiltGestures="true"
+				 * map:uiZoomControls="false" map:uiZoomGestures="true"/>
+				 */
+			}
+		}
+	}
+
+	@Override
 	protected void onResume() {
-		 super.onResume();
-		 if (checkPlayServices()) {
+		super.onResume();
+		if (checkPlayServices()) {
 			setUpMapIfNeeded();
-		 }
-	     getHomeManager().initialize(Home.this);	     
-    }
-	
+		}
+		getHomeManager().initialize(Home.this);
+	}
+
 	private boolean checkPlayServices() {
 		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (status != ConnectionResult.SUCCESS) {
@@ -114,33 +113,32 @@ public class Home extends Activity implements HomeImplementer {
 			return false;
 		}
 		return true;
-	}	 
-		 
+	}
+
 	void showErrorDialog(int code) {
-		GooglePlayServicesUtil.getErrorDialog(code, this, 
-			REQUEST_CODE_RECOVER_PLAY_SERVICES).show();
-	}	
-	
+		GooglePlayServicesUtil.getErrorDialog(code, this,
+				REQUEST_CODE_RECOVER_PLAY_SERVICES).show();
+	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	  switch (requestCode) {
-	    case REQUEST_CODE_RECOVER_PLAY_SERVICES:
-	      if (resultCode != RESULT_CANCELED) {
-	      }
-	  }
-	  super.onActivityResult(requestCode, resultCode, data);
-	}	
-	
-	@Override 	
-	protected void onRestart()
-	{
-	   super.onRestart();
-		 if (checkPlayServices()) {
+		switch (requestCode) {
+		case REQUEST_CODE_RECOVER_PLAY_SERVICES:
+			if (resultCode != RESULT_CANCELED) {
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		if (checkPlayServices()) {
 			setUpMapIfNeeded();
-		 }
-		 getHomeManager().initialize(Home.this);
-    }
-	
+		}
+		getHomeManager().initialize(Home.this);
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -149,38 +147,47 @@ public class Home extends Activity implements HomeImplementer {
 	}
 
 	@Override
-	/* Javadoc
-	 * If this method is passed null, this means that there is no location.
+	/*
+	 * Javadoc If this method is passed null, this means that there is no
+	 * location.
 	 */
 	/*
 	 * (non-Javadoc)
-	 * @see com.sdouglas.android.commuteralert.HomeImplementer#heresYourAddress(android.location.Address, java.lang.String)
 	 * 
+	 * @see
+	 * com.sdouglas.android.commuteralert.HomeImplementer#heresYourAddress(android
+	 * .location.Address, java.lang.String)
 	 */
 	public void heresYourAddress(Address address, String readableAddress) {
-		final Button disarmButton=(Button)findViewById(R.id.btnDisarm);
-		if(address!=null) {
-			setControlsVisibility(true,readableAddress);
+		final Button disarmButton = (Button) findViewById(R.id.btnDisarm);
+		if (address != null) {
+			setControlsVisibility(true, readableAddress);
+			positionMapToLocation((double)address.getLatitude(),(double)address.getLongitude());			
+			
 		} else {
-			setControlsVisibility(false,"");
+			setControlsVisibility(false, "");
 		}
-        disarmButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	mHomeManager.disarmLocationService();
-    			setControlsVisibility(false,"");
-            }
-        });
+		disarmButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				mHomeManager.disarmLocationService();
+				setControlsVisibility(false, "");
+			}
+		});
 	}
+
 	private void setControlsVisibility(Boolean isArmed, String readableAddress) {
-		final TextView currentLocation=	(TextView)findViewById(R.id.tvCurrentLocation);
-		final Button disarmButton=(Button)findViewById(R.id.btnDisarm);
-		final TextView systemIsArmed = (TextView)findViewById(R.id.tvCurrentViewHeading);
-        final EditText locationAddress = (EditText) findViewById(R.id.editText);
-        final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
-        final TextView systemStatus=(TextView) findViewById(R.id.tvSystemStatus2);
+		final TextView currentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
+		final Button disarmButton = (Button) findViewById(R.id.btnDisarm);
+		final TextView systemIsArmed = (TextView) findViewById(R.id.tvCurrentViewHeading);
+		final EditText locationAddress = (EditText) findViewById(R.id.editText);
+		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
+		final TextView systemStatus = (TextView) findViewById(R.id.tvSystemStatus2);
+		if (mPreviousMarker != null && mPreviousMarker.isVisible()) {
+			mPreviousMarker.setVisible(false);
+		}
 		currentLocation.setText(readableAddress);
 		currentLocation.setTextColor(Color.BLUE);
-		if(isArmed) {
+		if (isArmed) {
 			disarmButton.setVisibility(View.VISIBLE);
 			systemIsArmed.setVisibility(View.VISIBLE);
 			locationAddress.setVisibility(View.GONE);
@@ -196,98 +203,176 @@ public class Home extends Activity implements HomeImplementer {
 			systemStatus.setTextColor(Color.BLUE);
 		}
 	}
+
 	private LocationManager getLocationManager() {
-		if(mLocationManager==null) {
-			mLocationManager=(android.location.LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		if (mLocationManager == null) {
+			mLocationManager = (android.location.LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		}
 		return mLocationManager;
 	}
+
 	private String getProvider() {
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		return getLocationManager().getBestProvider(criteria, false);
 	}
+	public void positionMapToLocation(double latitude, double longitude) {
+		if(mMap != null) {
+		mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(
+				(float) latitude,
+				(float) longitude)));
+		}
+	}
+
 	/*
-	 * I am using an AsyncTask here because its onPostExecute insures that I can update the UI
+	 * I am using an AsyncTask here because its onPostExecute insures that I can
+	 * update the UI
 	 */
-    class ShowMap extends AsyncTask<LocationAndAssociatedTrainStations, Void, LocationAndAssociatedTrainStations> {
-	    protected LocationAndAssociatedTrainStations doInBackground(LocationAndAssociatedTrainStations... location) {
-	    	try {
-	    		return location[0];
-	    	} catch (Exception e) {
-	    		return null;
-	    	}
-	    }
-	    protected void onPostExecute(LocationAndAssociatedTrainStations result) {
-	    	
-	    	if(result!=null) {
-	        	mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng((float)result.mLocation.getLatitude(),(float)result.mLocation.getLongitude())));
-	        	mMap.setMyLocationEnabled(true);
-        		BitmapDescriptor bmd=BitmapDescriptorFactory
-        		.fromResource(R.drawable.train1);
-        		BitmapDescriptor bmd2=BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
-	        	for(int i=0;i<result.mAddresses.size();i++) {
-	        		Address address=result.mAddresses.get(i);
-        			Marker marker=
-		        			mMap.addMarker(new MarkerOptions()
-		        			        .position(new LatLng(address.getLatitude(),address.getLongitude()))
-		        			        .title(address.getAddressLine(0))
-		        			        .icon(bmd));	  
-	        			marker.showInfoWindow(); 
-	        	}
-	        	mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener(){
-	        		public void onMapLongClick(LatLng point) {
-	        			if(mPreviousMarker!=null) {
-	        				mPreviousMarker.setVisible(false);
-	        			}
-	        			Marker marker=
-		        			mMap.addMarker(new MarkerOptions()
-		        			        .position(point)
-		        			        .title("Here's your destination")
-		        			        .snippet("You will be notified when you are near it"));	  
-	        			marker.showInfoWindow(); 
-	        			mPreviousMarker=marker;
-	        			//TODO: now do a reversegeo and arm my engine
-	        		}
-	        	});
-	    	}
-	    }
-    }	
-    private class LocationAndAssociatedTrainStations {
-    	public Location mLocation;
-    	public ArrayList<Address> mAddresses;
-    	LocationAndAssociatedTrainStations(Location location,ArrayList<Address> addresses) {
-    		mLocation=location;
-    		mAddresses=addresses;
-    	}    
-    }
-    public void heresTheTrainStationAddressesToDisplayOnMap(ArrayList<Address> addresses,Location location) {
-    	LocationAndAssociatedTrainStations t= new LocationAndAssociatedTrainStations(location,addresses);
-        new ShowMap().execute(t);
-    }
+	class ShowMap
+			extends
+			AsyncTask<LocationAndAssociatedTrainStations, Void, LocationAndAssociatedTrainStations> {
+		protected LocationAndAssociatedTrainStations doInBackground(
+				LocationAndAssociatedTrainStations... location) {
+			try {
+				return location[0];
+			} catch (Exception e) {
+				return null;
+			}
+		}
+
+		protected void onPostExecute(LocationAndAssociatedTrainStations result) {
+			final LocationAndAssociatedTrainStations resultF = result;
+			if (result != null) {
+				positionMapToLocation(result.mLocation.getLatitude(),result.mLocation.getLongitude());
+				mMap.setMyLocationEnabled(true);
+				BitmapDescriptor bmd = BitmapDescriptorFactory
+						.fromResource(R.drawable.train1);
+				for (int i = 0; i < result.mAddresses.size(); i++) {
+					Address address = result.mAddresses.get(i);
+					Marker marker = mMap.addMarker(new MarkerOptions()
+							.position(
+									new LatLng(address.getLatitude(), address
+											.getLongitude()))
+							.title(address.getAddressLine(0)).icon(bmd));
+					marker.showInfoWindow();
+				}
+				mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+					public void onMapLongClick(LatLng point) {
+						if (mPreviousMarker != null) {
+							mPreviousMarker.setVisible(false);
+						}
+						/*
+						 * Let's do a "snap-to-grid" thing. If they long-touched
+						 * near to one of the trains, then make it that one
+						 * instead ... assuming that s/he has "fat fingers".
+						 */
+						LatLng useThisOne = point;
+						Address useThisAddress = null;
+						for (int i = 0; i < resultF.mAddresses.size(); i++) {
+							LatLng latlng2 = new LatLng(resultF.mAddresses.get(
+									i).getLatitude(), resultF.mAddresses.get(i)
+									.getLongitude());
+							float[] results = new float[3];
+							Location.distanceBetween(point.latitude,
+									point.longitude, latlng2.latitude,
+									latlng2.longitude, results);
+							if (results[0] < 600f) {
+								useThisOne = latlng2;
+								useThisAddress = resultF.mAddresses.get(i);
+								break;
+							}
+						}
+
+						try {
+							if (useThisAddress == null) {
+								Geocoder g = new Geocoder(Home.this);
+								List<Address> addresses = g.getFromLocation(
+										(double) point.latitude,
+										(double) point.longitude, 2);
+								if (addresses != null && addresses.size() > 0) {
+									useThisAddress = addresses.get(0);
+								}
+							}
+						} catch (Exception e) {
+						}
+						if (useThisAddress == null) {
+							useThisAddress = new Address(null);
+							useThisAddress.setLatitude(point.latitude);
+							useThisAddress.setLongitude(point.longitude);
+							useThisAddress.setAddressLine(1,
+									"Address for red marker, below");
+						}
+						getHomeManager().newLocation(useThisAddress);
+						// TODO: now do a reversegeo and arm my engine
+					}
+				});
+			}
+		}
+	}
+
+	public void dropPin(Address a) {
+		if (mMap != null) {
+			LatLng latlng=new LatLng(a.getLatitude(),a.getLongitude());
+			Marker marker = mMap
+					.addMarker(new MarkerOptions()
+							.position(latlng)
+							.title("Here's your destination")
+							.snippet(
+									"You will be notified when you are near it"));
+			marker.showInfoWindow();
+			mPreviousMarker = marker;
+		}
+	}
+	
+	private class LocationAndAssociatedTrainStations {
+		public Location mLocation;
+		public ArrayList<Address> mAddresses;
+
+		LocationAndAssociatedTrainStations(Location location,
+				ArrayList<Address> addresses) {
+			mLocation = location;
+			mAddresses = addresses;
+		}
+	}
+
+	public void heresTheTrainStationAddressesToDisplayOnMap(
+			ArrayList<Address> addresses, Location location) {
+		LocationAndAssociatedTrainStations t = new LocationAndAssociatedTrainStations(
+				location, addresses);
+		new ShowMap().execute(t);
+	}
+
 	private void findInitialLocation() {
-		String provider=getProvider();
-        if(provider==null) {
-        	provider=LocationManager.GPS_PROVIDER;
-        }		
-        if(getLocationManager().isProviderEnabled(provider)) {
-			getLocationManager().requestLocationUpdates(getProvider(), 2000, 1, new LocationListener() {
-				@Override
-				public void onLocationChanged(Location location) {
-					getLocationManager().removeUpdates(this); 
-					getHomeManager().new RetrieveAddressDataForMap().execute(location);
-				}
-				@Override
-				public void onProviderDisabled(String provider) {
-				}
-				@Override
-				public void onProviderEnabled(String provider) {
-				}
-				@Override
-				public void onStatusChanged(String provider, int status, Bundle extras) {
-					//INeedToo.mSingleton.log("Provider " + provider+ " status changed to "+ String.valueOf(status)+".", 1);
-				}
-			},Looper.getMainLooper());	
-        }
-	}	
+		String provider = getProvider();
+		if (provider == null) {
+			provider = LocationManager.GPS_PROVIDER;
+		}
+		if (getLocationManager().isProviderEnabled(provider)) {
+			getLocationManager().requestLocationUpdates(getProvider(), 2000, 1,
+					new LocationListener() {
+						@Override
+						public void onLocationChanged(Location location) {
+							getLocationManager().removeUpdates(this);
+							getHomeManager().new RetrieveAddressDataForMap()
+									.execute(location);
+						}
+
+						@Override
+						public void onProviderDisabled(String provider) {
+						}
+
+						@Override
+						public void onProviderEnabled(String provider) {
+						}
+
+						@Override
+						public void onStatusChanged(String provider,
+								int status, Bundle extras) {
+							// INeedToo.mSingleton.log("Provider " + provider+
+							// " status changed to "+
+							// String.valueOf(status)+".", 1);
+						}
+					}, Looper.getMainLooper());
+		}
+	}
 }

@@ -405,14 +405,14 @@ public class HomeManager {
 		}
 	}
 
-	private void newLocation(Address a) {
+	public void newLocation(Address a) {
 		((HomeImplementer) mActivity).heresYourAddress(a,
 				getReadableFormOfAddress(a));
 		armLocationService(a);
 		Intent jdItent2 = new Intent(mActivity, LocationService.class)
 				.putExtra("LocationAddress", getReadableFormOfAddress(a));
 		mActivity.startService(jdItent2);
-
+		((HomeImplementer)mActivity).dropPin(a);
 	}
 
 }

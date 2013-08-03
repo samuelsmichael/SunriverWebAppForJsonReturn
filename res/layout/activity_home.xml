@@ -98,7 +98,14 @@
             android:layout_height="wrap_content"
             android:text="Disarm" />
 
-		<fragment 
+        <TextView
+            android:id="@+id/tvId1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Long press = pick location. Short press train = view name."
+            android:textSize="12sp"
+             />
+        <fragment 
           android:id="@+id/map"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"

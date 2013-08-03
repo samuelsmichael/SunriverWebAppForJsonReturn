@@ -8,4 +8,5 @@ import android.location.Location;
 public interface HomeImplementer {
 	void heresYourAddress(Address address, String readableAddress);
 	void heresTheTrainStationAddressesToDisplayOnMap(ArrayList<Address> addresses,Location location);
+	void dropPin(Address a);
 }
