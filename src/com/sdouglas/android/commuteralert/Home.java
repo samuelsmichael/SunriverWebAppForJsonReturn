@@ -1,6 +1,7 @@
 package com.sdouglas.android.commuteralert;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -9,6 +10,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.sdouglas.android.commuteralert.HomeManager.RetrieveAddressData;
 
 import android.graphics.Color;
@@ -38,6 +41,7 @@ public class Home extends Activity implements HomeImplementer {
 	private LocationManager mLocationManager=null;
 	private MapFragment mMapFragment;
 	static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
+	private Marker mPreviousMarker;
 	
     private HomeManager getHomeManager() {
     	if(mHomeManager==null) {
@@ -213,11 +217,31 @@ public class Home extends Activity implements HomeImplementer {
 	    	}
 	    }
 	    protected void onPostExecute(Location result) {
+	    	
 	    	if(result!=null) {
 	        	mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng((float)result.getLatitude(),(float)result.getLongitude())));
+	        	mMap.setMyLocationEnabled(true);
+	        	mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener(){
+	        		public void onMapLongClick(LatLng point) {
+	        			if(mPreviousMarker!=null) {
+	        				mPreviousMarker.setVisible(false);
+	        			}
+	        			Marker marker=
+		        			mMap.addMarker(new MarkerOptions()
+		        			        .position(point)
+		        			        .title("Here's your destination")
+		        			        .snippet("You will be notified when you are near it"));	  
+	        			marker.showInfoWindow(); 
+	        			mPreviousMarker=marker;
+	        			//TODO: now do a reversegeo and arm my engine
+	        		}
+	        	});
 	    	}
 	    }
     }	
+    public void heresTheTrainStationAddressesToDisplayOnMap(ArrayList<Address> addresses,Location location) {
+        new ShowMap().execute(location);
+    }
 	private void findInitialLocation() {
 		String provider=getProvider();
         if(provider==null) {
@@ -228,7 +252,7 @@ public class Home extends Activity implements HomeImplementer {
 				@Override
 				public void onLocationChanged(Location location) {
 					getLocationManager().removeUpdates(this); 
-		            new ShowMap().execute(location);
+					getHomeManager().new RetrieveAddressDataForMap().execute(location);
 				}
 				@Override
 				public void onProviderDisabled(String provider) {
