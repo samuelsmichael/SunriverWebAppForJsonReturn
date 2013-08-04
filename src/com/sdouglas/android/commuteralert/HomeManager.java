@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -37,6 +36,7 @@ public class HomeManager {
 	public static final String PREFS_NAME = "MyPrefsFile";
 	public static final int LIMIT_NBR_ACCESSES = 2;
 	public static final String GOOGLE_API_KEY = "AIzaSyCiLgS6F41lPD-aHj7yMycVDv38gb1vd2o";
+	public static final int MODE_MULTI_PROCESS=4;
 
 	/*
 	 * Public Interface
@@ -76,7 +76,7 @@ public class HomeManager {
 
 		mActivity.startService(intent);
 		Geocoder g = new Geocoder(mActivity);
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,0);
+		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,MODE_MULTI_PROCESS);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putInt("modifyingValue", 1);
 		editor.commit();
@@ -114,8 +114,7 @@ public class HomeManager {
 	 * 
 	 */
 	public void disarmLocationService() {
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,
-				0);
+		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, MODE_MULTI_PROCESS);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putFloat("latitude", (float) 0);
 		editor.putFloat("longitude", (float) 0);
@@ -137,8 +136,7 @@ public class HomeManager {
 	 */
 
 	private void armLocationService(Address a) {
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,
-				0);
+		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,MODE_MULTI_PROCESS);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putFloat("latitude", (float) a.getLatitude());
 		editor.putFloat("longitude", (float) a.getLongitude());

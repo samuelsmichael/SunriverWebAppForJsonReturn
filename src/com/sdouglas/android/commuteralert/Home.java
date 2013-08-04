@@ -56,6 +56,9 @@ public class Home extends Activity implements HomeImplementer {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
+		if(getIntent()!=null && getIntent().getAction().equals("showdisarmed")) {
+			setControlsVisibility(false, "");
+		}
 		final EditText locationAddress = (EditText) findViewById(R.id.editText);
 		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
 
@@ -67,11 +70,74 @@ public class Home extends Activity implements HomeImplementer {
 						.toString());
 			}
 		});
+		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
+		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
+		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
+		vibrate.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_MULTI_PROCESS);
+				String oldValue=settings.getString("vibrate", "n");
+				SharedPreferences.Editor editor = settings.edit();
+				if(oldValue.equals("n")) {
+					editor.putString("vibrate","y");
+				} else {
+					editor.putString("vibrate","n");
+				}
+				editor.commit();
+			}
+		});
+		sound.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_MULTI_PROCESS);
+				String oldValue=settings.getString("sound", "n");
+				SharedPreferences.Editor editor = settings.edit();
+				if(oldValue.equals("n")) {
+					editor.putString("sound","y");
+				} else {
+					editor.putString("sound","n");
+				}
+				editor.commit();
+			}
+		});
+		voice.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_MULTI_PROCESS);
+				String oldValue=settings.getString("voice", "n");
+				SharedPreferences.Editor editor = settings.edit();
+				if(oldValue.equals("n")) {
+					editor.putString("voice","y");
+				} else {
+					editor.putString("voice","n");
+				}
+				editor.commit();
+			}
+		});
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
+		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
+		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_MULTI_PROCESS);
+		String vibrates=settings.getString("vibrate", "y");
+		if(vibrates.toLowerCase().equals("y")) {
+			vibrate.setChecked(true);
+		} else {
+			vibrate.setChecked(false);
+		}
+		if(settings.getString("sound", "y").toLowerCase().equals("y")) {
+			sound.setChecked(true);
+		} else {
+			sound.setChecked(false);
+		}
+		if(settings.getString("voice", "y").toLowerCase().equals("y")) {
+			voice.setChecked(true);
+		} else {
+			voice.setChecked(false);
+		}
+		
 		if (checkPlayServices()) {
 			setupMapIfNeeded();
 		}
@@ -81,6 +147,26 @@ public class Home extends Activity implements HomeImplementer {
 	@Override
 	protected void onRestart() {
 		super.onRestart();
+		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
+		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
+		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_MULTI_PROCESS);
+		String vibrates=settings.getString("vibrate", "y");
+		if(vibrates.toLowerCase().equals("y")) {
+			vibrate.setChecked(true);
+		} else {
+			vibrate.setChecked(false);
+		}
+		if(settings.getString("sound", "y").toLowerCase().equals("y")) {
+			sound.setChecked(true);
+		} else {
+			sound.setChecked(false);
+		}
+		if(settings.getString("voice", "y").toLowerCase().equals("y")) {
+			voice.setChecked(true);
+		} else {
+			voice.setChecked(false);
+		}
 		/* Checking for the installation of Play Services on the user's phone.
 		 * I do it here (onRestart occurs both on initial startup, and on whenever
 		 * Android "pages" your app back into memory after having taken it out
@@ -177,27 +263,7 @@ public class Home extends Activity implements HomeImplementer {
 	 */
 	public void heresYourAddress(Address address, String readableAddress) { 
 		final Button disarmButton = (Button) findViewById(R.id.btnDisarm);
-		final CheckBox vibration = (CheckBox) findViewById(R.id.cbVibrate);
-		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
-		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
 		
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME,
-				0);
-		if(settings.getString("vibrate", "y").toLowerCase().equals("y")) {
-			vibration.setChecked(true);
-		} else {
-			vibration.setChecked(false);
-		}
-		if(settings.getString("sound", "y").toLowerCase().equals("y")) {
-			sound.setChecked(true);
-		} else {
-			sound.setChecked(false);
-		}
-		if(settings.getString("voice", "y").toLowerCase().equals("y")) {
-			voice.setChecked(true);
-		} else {
-			voice.setChecked(false);
-		}
 		if (address != null) {
 			setControlsVisibility(true, readableAddress);
 			positionMapToLocation((double)address.getLatitude(),(double)address.getLongitude());			
@@ -210,48 +276,6 @@ public class Home extends Activity implements HomeImplementer {
 				getHomeManager().disarmLocationService();
 				setControlsVisibility(false, "");
 
-			}
-		});
-		vibration.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				SharedPreferences settings = getSharedPreferences(PREFS_NAME,
-						0);
-				String oldValue=settings.getString("vibration", "n");
-				SharedPreferences.Editor editor = settings.edit();
-				if(oldValue.equals("n")) {
-					editor.putString("vibration","y");
-				} else {
-					editor.putString("vibration","n");
-				}
-				editor.commit();
-			}
-		});
-		sound.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				SharedPreferences settings = getSharedPreferences(PREFS_NAME,
-						0);
-				String oldValue=settings.getString("sound", "n");
-				SharedPreferences.Editor editor = settings.edit();
-				if(oldValue.equals("n")) {
-					editor.putString("sound","y");
-				} else {
-					editor.putString("sound","n");
-				}
-				editor.commit();
-			}
-		});
-		voice.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				SharedPreferences settings = getSharedPreferences(PREFS_NAME,
-						0);
-				String oldValue=settings.getString("voice", "n");
-				SharedPreferences.Editor editor = settings.edit();
-				if(oldValue.equals("n")) {
-					editor.putString("voice","y");
-				} else {
-					editor.putString("voice","n");
-				}
-				editor.commit();
 			}
 		});
 	}
@@ -275,9 +299,9 @@ public class Home extends Activity implements HomeImplementer {
 		if (mPreviousMarker != null && mPreviousMarker.isVisible()) {
 			mPreviousMarker.setVisible(false);
 		}
-		currentLocation.setText(readableAddress);
-		currentLocation.setTextColor(Color.BLUE);
 		if (isArmed) {
+			currentLocation.setText(readableAddress);
+			currentLocation.setTextColor(Color.BLUE);
 			vibration.setVisibility(View.GONE);
 			sound.setVisibility(View.GONE);
 			voice.setVisibility(View.GONE);

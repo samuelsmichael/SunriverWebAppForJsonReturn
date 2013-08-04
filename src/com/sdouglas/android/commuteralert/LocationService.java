@@ -115,7 +115,7 @@ public class LocationService extends Service implements LocationListener  {
 		stopMyLocationsTimer2();
 	}
 	private int getModifyingValue() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_MULTI_PROCESS);
         return settings.getInt("modifyingValue", 1);
 	}
 	private void getmAlarmSender() {
@@ -167,7 +167,7 @@ public class LocationService extends Service implements LocationListener  {
 	private void manageLocationNotifications(Location newLocation) {
 		if(mDontReenter==0) {
 			mDontReenter++;
-	        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+	        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_MULTI_PROCESS);
 	        float latitude = settings.getFloat("latitude", 0);
 	        float longitude = settings.getFloat("longitude", 0);
 			if(latitude!=0 && mLastKnownLocation != null) {
@@ -192,7 +192,7 @@ public class LocationService extends Service implements LocationListener  {
 	    	        editor.commit();
 	    	        
 	    	        // 4. Produce a notification in Android's Notification Bar
-	    			String vibration=settings.getString("vibration", "y");
+	    			String vibration=settings.getString("vibrate", "y");
 	    			String voice=settings.getString("voice", "y");
 	    			String sound=settings.getString("sound", "y");
 	    	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);
@@ -203,10 +203,10 @@ public class LocationService extends Service implements LocationListener  {
 			    	.setContentText(mAddressInReadableForm)
 			    	.setOngoing(false);
 			    	; 
-	    	    	if(vibration.toLowerCase()=="y") {
+	    	    	if(vibration.toLowerCase().equals("y")) {
 	    	    		mBuilder.setVibrate(new long[] {100,1000,100,1000,100,1000});
 	    	    	}
-	    	    	if(sound.toLowerCase()=="y") {
+	    	    	if(sound.toLowerCase().equals("y")) {
 	    	    		mBuilder.setDefaults(Notification.DEFAULT_SOUND);
 	    	    	}
 		    	
@@ -218,9 +218,14 @@ public class LocationService extends Service implements LocationListener  {
 			    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
 			    	
 			    	// 5. Send a voice alert
-			    	if(voice.toLowerCase()=="y") {
+			    	if(voice.toLowerCase().equals("y")) {
 			    		sayIt("Alert. Alert.  You are arriving at your destination!");
 			    	}
+					Intent jdIntent=new Intent(this, Home.class)
+					.setAction("showdisarmed");
+					jdIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					startActivity(jdIntent);		
+
 	    		}
 	        }
 			if(mDontReenter>0) {
