@@ -155,7 +155,7 @@ public class LocationService extends Service implements LocationListener  {
 	    	    	// and create one of our own
 	    	    	Notification.Builder mBuilder=new Notification.Builder(this)
 			    	.setSmallIcon(R.drawable.ic_launcher)
-			    	.setContentTitle("Douglas. Wake up! We are arriving at our destination!")
+			    	.setContentTitle("Alert. Alert.  You are arriving at your destination!")
 			    	.setContentText(mAddressInReadableForm)
 			    	.setVibrate(new long[] {100,1000,100,1000,100,1000})
 			    	.setDefaults(Notification.DEFAULT_SOUND); //TODO: get this from checkboxes in Home
@@ -166,7 +166,7 @@ public class LocationService extends Service implements LocationListener  {
 							(int)System.currentTimeMillis(), resultIntent, 0);
 			    	mBuilder.setContentIntent(pendingIntent);    	    	
 			    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
-			    	sayIt("Douglas ... Wake up! We are arriving at our destination!");
+			    	sayIt("Alert. Alert.  You are arriving at your destination!");
 	    		}
 	        }
 			if(mDontReenter>0) {

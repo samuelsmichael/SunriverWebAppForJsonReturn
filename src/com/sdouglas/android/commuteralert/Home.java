@@ -1,9 +1,7 @@
 package com.sdouglas.android.commuteralert;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -15,7 +13,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.sdouglas.android.commuteralert.HomeManager.RetrieveAddressData;
 
 import android.graphics.Color;
 import android.location.Address;
@@ -28,16 +25,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class Home extends Activity implements HomeImplementer {
 	private GoogleMap mMap = null;
@@ -62,16 +56,41 @@ public class Home extends Activity implements HomeImplementer {
 		final EditText locationAddress = (EditText) findViewById(R.id.editText);
 		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
 
+		/* User clicks the button after having keyed in an address */
 		deriveFromAddress.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mHomeManager.manageKeyedInAddress(locationAddress.getText()
+				getHomeManager().manageKeyedInAddress(locationAddress.getText()
 						.toString());
 			}
 		});
 	}
 
-	private void setUpMapIfNeeded() {
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (checkPlayServices()) {
+			setUpMapIfNeeded();
+		}
+		getHomeManager().initialize(Home.this);
+	}
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		if (checkPlayServices()) {
+			setUpMapIfNeeded();
+		}
+		getHomeManager().initialize(Home.this);
+	}
+	
+	/* Whenever the application starts up (onResume), or it gets "paged" back into memory (onRestart),
+	 * do a check to see if the map object (mMap) has
+	 * already been created.  If not, then we have to prepare for displaying it,
+	 * and that involves also "finding initial location" -- which is our location --
+	 * and fetching all of the rail stations in the vicinity.
+	 */
+	private void setupMapIfNeeded() {
 		// Do a null check to confirm that we have not already instantiated the
 		// map.
 		if (mMap == null) {
@@ -83,25 +102,8 @@ public class Home extends Activity implements HomeImplementer {
 				// The Map is verified. It is now safe to manipulate the map.
 				mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
 				findInitialLocation();
-				/*
-				 * map:cameraBearing="112.5" map:cameraTargetLat="-33.796923"
-				 * map:cameraTargetLng="150.922433" map:cameraTilt="30"
-				 * map:cameraZoom="13" map:mapType="normal"
-				 * map:uiCompass="false" map:uiRotateGestures="true"
-				 * map:uiScrollGestures="false" map:uiTiltGestures="true"
-				 * map:uiZoomControls="false" map:uiZoomGestures="true"/>
-				 */
 			}
 		}
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (checkPlayServices()) {
-			setUpMapIfNeeded();
-		}
-		getHomeManager().initialize(Home.this);
 	}
 
 	private boolean checkPlayServices() {
@@ -130,14 +132,6 @@ public class Home extends Activity implements HomeImplementer {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	@Override
-	protected void onRestart() {
-		super.onRestart();
-		if (checkPlayServices()) {
-			setUpMapIfNeeded();
-		}
-		getHomeManager().initialize(Home.this);
-	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -169,7 +163,7 @@ public class Home extends Activity implements HomeImplementer {
 		}
 		disarmButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				mHomeManager.disarmLocationService();
+				getHomeManager().disarmLocationService();
 				setControlsVisibility(false, "");
 			}
 		});
@@ -245,6 +239,8 @@ public class Home extends Activity implements HomeImplementer {
 			if (result != null) {
 				positionMapToLocation(result.mLocation.getLatitude(),result.mLocation.getLongitude());
 				mMap.setMyLocationEnabled(true);
+				TextView tvId1 = (TextView)findViewById(R.id.tvId1);
+				tvId1.setVisibility(View.VISIBLE);
 				BitmapDescriptor bmd = BitmapDescriptorFactory
 						.fromResource(R.drawable.train1);
 				for (int i = 0; i < result.mAddresses.size(); i++) {
@@ -352,6 +348,13 @@ public class Home extends Activity implements HomeImplementer {
 					new LocationListener() {
 						@Override
 						public void onLocationChanged(Location location) {
+							
+							/*
+							// simulate Scott's address
+							location.setLatitude(40.658421);
+							location.setLongitude(-74.29959);
+							*/
+							
 							getLocationManager().removeUpdates(this);
 							getHomeManager().new RetrieveAddressDataForMap()
 									.execute(location);
@@ -373,6 +376,8 @@ public class Home extends Activity implements HomeImplementer {
 							// String.valueOf(status)+".", 1);
 						}
 					}, Looper.getMainLooper());
+		} else {
+			
 		}
 	}
 }

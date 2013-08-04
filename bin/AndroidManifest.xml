@@ -44,18 +44,20 @@
             android:exported="false" >
         </service>
 
+
         <activity
             android:name="com.sdouglas.android.commuteralert.VoiceHelper"
             android:label="@string/title_activity_voice_helper" >
         </activity>
-		<!--  -->
+        <!-- Live  -->
 		<meta-data
 		    android:name="com.google.android.maps.v2.API_KEY"
 		    android:value="AIzaSyDRB2FlpUa1eFKeiJJ2LBffATMy29bPBMQ"/>
-		 
+<!-- debugging		   		 
 		<meta-data
 		    android:name="com.google.android.maps.v2.API_KEY"
 		    android:value="AIzaSyAVi8mSzoZJBV1qsxIeFXgguXTzcw9Voys"/>
+-->
 		 
 		
     </application>

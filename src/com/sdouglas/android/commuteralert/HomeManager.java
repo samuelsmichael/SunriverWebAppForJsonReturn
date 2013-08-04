@@ -49,6 +49,8 @@ public class HomeManager {
 	private LocationManager mLocationManager = null;
 	private Activity mActivity = null;
 	public static final String PREFS_NAME = "MyPrefsFile";
+	public static final int LIMIT_NBR_ACCESSES = 2;
+	public static final String GOOGLE_API_KEY = "AIzaSyCiLgS6F41lPD-aHj7yMycVDv38gb1vd2o";
 
 	/*
 	 * Public Interface
@@ -217,16 +219,17 @@ public class HomeManager {
 	}
 
 	public void getTrainStationsNear(Location location,
-			ArrayList<Address> runningList, String nextPageToken)
-			throws Exception {
+			ArrayList<Address> runningList, String nextPageToken,
+			int nbrOfAccessesLeft) throws Exception {
 
 		String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
 				+ location.getLatitude()
 				+ ","
 				+ location.getLongitude()
-				+ "&token=" + (nextPageToken == null ? ""
-				: nextPageToken)
-						+ "&radius=50000&types=train_station&sensor=true&key=AIzaSyATAeHYlhWZJFk-ctGbWHV06Y9P_PqdLcs";
+				+ "&token="
+				+ (nextPageToken == null ? "" : nextPageToken)
+				+ "&radius=50000&types=train_station&sensor=true&key="
+				+ GOOGLE_API_KEY;
 		URL u = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) u.openConnection();
 		conn.setRequestMethod("POST");
@@ -252,6 +255,13 @@ public class HomeManager {
 			nextPageToken = jObj.getString("next_page_token");
 		} catch (Exception e) {
 		}
+		try {
+			String status = jObj.getString("status");
+			if (status == "OVER_QUERY_LIMIT") {
+				Thread.currentThread().wait(1000);
+			}
+		} catch (Exception e) {
+		}
 		JSONArray results = jObj.getJSONArray("results");
 		for (int i = 0; i < results.length(); i++) {
 			JSONObject geometry = ((JSONObject) results.get(i))
@@ -266,51 +276,69 @@ public class HomeManager {
 			address.setAddressLine(0, name);
 			runningList.add(address);
 		}
-		if (nextPageToken != null) {
-			getTrainStationsNear(location, runningList, nextPageToken);
+		if (nextPageToken != null && nbrOfAccessesLeft > 1) {
+			nbrOfAccessesLeft--;
+			getTrainStationsNear(location, runningList, nextPageToken,
+					nbrOfAccessesLeft);
 		}
 	}
 
-	public class RetrieveAddressDataForMap extends AsyncTask<Location, Void, List<Address>> {
+	public class RetrieveAddressDataForMap extends
+			AsyncTask<Location, Void, List<Address>> {
 		private Location mLocation = null;
+
 		protected List<Address> doInBackground(Location... locationsParm) {
-			mLocation=locationsParm[0];
-			ArrayList<Address> trainStationAddresses=new ArrayList<Address>();
-			try {
-				getTrainStationsNear(mLocation,trainStationAddresses,null);
-			} catch (Exception e) {
-				e.printStackTrace();
+			if (locationsParm != null) {
+				mLocation = locationsParm[0];
+				ArrayList<Address> trainStationAddresses = new ArrayList<Address>();
+				try {
+					getTrainStationsNear(mLocation, trainStationAddresses,
+							null, LIMIT_NBR_ACCESSES);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return trainStationAddresses;
+			} else {
+				return null;
 			}
-			return trainStationAddresses;
 		}
+
 		protected void onPostExecute(List<Address> result) {
-			((HomeImplementer)mActivity).heresTheTrainStationAddressesToDisplayOnMap((ArrayList)result,mLocation);
+			if (mLocation != null && result != null) {
+				((HomeImplementer) mActivity)
+						.heresTheTrainStationAddressesToDisplayOnMap(
+								(ArrayList) result, mLocation);
+			}
 		}
 	}
-	
+
 	class RetrieveAddressData extends AsyncTask<String, Void, List<Address>> {
 		private String exceptionMessage = null;
 
 		protected List<Address> doInBackground(String... addressesParm) {
-			String addressTextText = addressesParm[0];
-			List<Address> addressList = null;
 			try {
-				addressList = getFromLocationNameUsingGeocoder(addressTextText);
-			} catch (IOException e) {
-				exceptionMessage = e.getMessage();
-			}
-			if (addressList == null || addressList.size() == 0) {
+				String addressTextText = addressesParm[0];
+				List<Address> addressList = null;
 				try {
-					addressList = getFromLocationNameUsingCallToGoogle(addressTextText);
-				} catch (Exception e) {
-					if (exceptionMessage == null) {
-						exceptionMessage = e.getMessage();
-					} else {
-						exceptionMessage += " and " + e.getMessage();
+					addressList = getFromLocationNameUsingGeocoder(addressTextText);
+				} catch (IOException e) {
+					exceptionMessage = e.getMessage();
+				}
+				if (addressList == null || addressList.size() == 0) {
+					try {
+						addressList = getFromLocationNameUsingCallToGoogle(addressTextText);
+					} catch (Exception e) {
+						if (exceptionMessage == null) {
+							exceptionMessage = e.getMessage();
+						} else {
+							exceptionMessage += " and " + e.getMessage();
+						}
 					}
 				}
+				return addressList;
+			} catch (Exception e) {
+				return null;
 			}
-			return addressList;
 		}
 
 		protected void onPostExecute(List<Address> result) {
@@ -412,7 +440,7 @@ public class HomeManager {
 		Intent jdItent2 = new Intent(mActivity, LocationService.class)
 				.putExtra("LocationAddress", getReadableFormOfAddress(a));
 		mActivity.startService(jdItent2);
-		((HomeImplementer)mActivity).dropPin(a);
+		((HomeImplementer) mActivity).dropPin(a);
 	}
 
 }

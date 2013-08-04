@@ -104,6 +104,7 @@
             android:layout_height="wrap_content"
             android:text="Long press = pick location. Short press train = view name."
             android:textSize="12sp"
+            android:visibility="invisible"
              />
         <fragment 
           android:id="@+id/map"
