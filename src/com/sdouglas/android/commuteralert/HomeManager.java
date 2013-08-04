@@ -2,30 +2,21 @@ package com.sdouglas.android.commuteralert;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.google.android.gms.maps.model.LatLng;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,19 +25,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 public class HomeManager {
-	private LocationManager mLocationManager = null;
 	private Activity mActivity = null;
 	public static final String PREFS_NAME = "MyPrefsFile";
 	public static final int LIMIT_NBR_ACCESSES = 2;
@@ -71,6 +57,18 @@ public class HomeManager {
 		}
 	}
 
+	/*
+	 * This method is called by the View (Home) whenever it gets brought into the fore-front, either
+	 * when it first starts up (onResume), or when it gets "re-paged" back into memory (onRestart).
+	 * It restores the system (based on the data in the Model).  If the Model shows that the
+	 * system is armed (latitude not equal 0), then it makes sure that the 
+	 * LocationService service is started and that the View displays the correct information; otherwise,
+	 * it stops the service, and updates the View accordingly.  It also initializes the "modifyingvalue" to its 
+	 * lowest value.  This piece of information (along with the dynamically set MTIMEOALARMINTENSECONDINTERVALS)
+	 * is used in order to regulate the frequency of calls being made to the GPS satellite. 
+	 * (This is the mechanism by which I minimize the battery drainage). If I ascertain that we're not moving, 
+	 * then this frequency is low; otherwise, it's high, as more frequent updates to the location are required.
+	 */
 	public void initialize(Activity activity) {
 		mActivity = activity;
 		Intent intent = new Intent(mActivity, LocationService.class)
@@ -78,36 +76,43 @@ public class HomeManager {
 
 		mActivity.startService(intent);
 		Geocoder g = new Geocoder(mActivity);
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,
-				0);
+		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,0);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putInt("modifyingValue", 1);
 		editor.commit();
 
 		float latitude = settings.getFloat("latitude", 0);
 		float longitude = settings.getFloat("longitude", 0);
+		
+		// Inform the View so it can adjust the display. Why not do this
+		// inside of the View object itself?  The reason is because we want
+		// to keep the View as de-coupled as possible from the Controller.
+		// this leads to better extensibility.
 		if (latitude != 0) {
+			String addressDescription=settings.getString("locationString", "");
+			Address address=new Address(Locale.getDefault());
+			address.setLatitude(Double.valueOf(latitude));
+			address.setLongitude(Double.valueOf(longitude));
+			address.setAddressLine(0, addressDescription);
 			try {
 				List<Address> addresses = g.getFromLocation((double) latitude,
 						(double) longitude, 8);
 				if (addresses != null && addresses.size() > 0)
 					newLocation(addresses.get(0));
 			} catch (IOException e) {
-				/*
-				 * TODO: If this happens a lot do a background thread to obtain
-				 * Geocoder results. If we're having trouble with this, then the
-				 * thing to do is to obtain the list on a backround thread. But
-				 * care has to be taken to now try to update the UI in this
-				 * thread. See
-				 * https://developer.android.com/training/multiple-threads
-				 * /communicate-ui.html for a discussion about this.
-				 */
 			}
 		} else {
 			((HomeImplementer) mActivity).heresYourAddress(null, null);
 		}
 	}
 
+	/*
+	 * The system is disarmed either because the user specifically said to by pressing the
+	 * "disarm" button; or when the alert occurs.  The "model" (which only consists of
+	 * three pieces of data -- latitude, longitude, and description of the target location)
+	 * is cleared when the system is disarmed.
+	 * 
+	 */
 	public void disarmLocationService() {
 		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,
 				0);
@@ -115,11 +120,13 @@ public class HomeManager {
 		editor.putFloat("latitude", (float) 0);
 		editor.putFloat("longitude", (float) 0);
 		editor.putString("locationString", "");
-
 		editor.commit();
+
+		// I try to maintain only a single Android LocationManager, which is 
+		// in the class LocationService; so I need to tell LocationService to turn off,
+		// its requests to Android to give it location updates so as to conserve the battery.
 		Intent intent = new Intent(mActivity, LocationService.class)
 				.setAction("JustDisarm");
-
 		mActivity.startService(intent);
 	}
 
@@ -164,7 +171,6 @@ public class HomeManager {
 		addressList = g.getFromLocationName(addressTextText, 8);
 		return addressList;
 	}
-
 	private List<Address> getFromLocationNameUsingCallToGoogle(
 			String streetAddress) throws Exception {
 		List<Address> addressList = new ArrayList<Address>();
@@ -283,6 +289,12 @@ public class HomeManager {
 		}
 	}
 
+	/*  All web fetches have to be done on a background thread. (See
+	 * https://developer.android.com/training/multiple-threads
+	 * /communicate-ui.html for a discussion about this.)  The "AsyncTask" 
+	 * object manages this.
+	 */
+
 	public class RetrieveAddressDataForMap extends
 			AsyncTask<Location, Void, List<Address>> {
 		private Location mLocation = null;
@@ -312,6 +324,11 @@ public class HomeManager {
 		}
 	}
 
+	/*  All web fetches have to be done on a background thread. (See
+	 * https://developer.android.com/training/multiple-threads
+	 * /communicate-ui.html for a discussion about this.)  The "AsyncTask" 
+	 * object manages this.
+	 */
 	class RetrieveAddressData extends AsyncTask<String, Void, List<Address>> {
 		private String exceptionMessage = null;
 

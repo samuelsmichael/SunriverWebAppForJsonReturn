@@ -27,11 +27,32 @@ public class LocationService extends Service implements LocationListener  {
     private NotificationManager mNotificationManager=null;
     private static final int ARMED_NOTIFICATION_ID=3;
     private String mAddressInReadableForm;
+    private static final float ALARM_RADIUS_IN_METERS=500f;
 
 	private int _jdFY=0;
 
 	public LocationService() {
 	}
+	
+	/*
+	 * Overview of LocationService
+	 *	1.  It's a Service, so it doesn't get paged out of memory by Android.  Otherwise we
+	 *		would not be getting reliable alerts.
+	 *  2.  It uses a dynamically maintained frequency of asking for the current location.
+	 *  	When the user isn't moving, it requests these updates a the slowest rate.  As
+	 *  	the user is moving, the frequency gradually increases; and conversely, when he stops, the
+	 *  	frequency gradually decreases.  This is how I minimize battery usage.
+	 *  3.  A timer is used to effect this change of frequency. When the timer goes off, a request
+	 *  	is made to the GPS.  Then the timer is reset.  The amount of time until the next
+	 *  	"pop" of the timer is determined by the frequency described above.
+	 *  4.  2 fields are used to maintain this data:
+	 *  	-- MTIMEOALARMINTENSECONDINTERVALS goes up and down dynamically, as described above.
+	 *  	-- The SharedPreference value "modifyingvalue" can be set as another parameter to
+	 *  		the frequency calculation.  The idea is to -- at some future date -- give the user some control over
+	 *  		the frequency via Preferences.
+	 *  		
+	 */
+	
 	
 	private LocationManager getLocationManager() {
 		if(mLocationManager==null) {
@@ -51,6 +72,19 @@ public class LocationService extends Service implements LocationListener  {
 		Thread
 		.setDefaultUncaughtExceptionHandler(new CustomExceptionHandlerTimer(this));
 		if(intent!= null && intent.getAction()=="JustDisarm") {
+			/*
+			 * I only maintain one NotificationManager because there are several scenarios where
+			 * it has to be used:
+			 * 	1. When an target is set, we want to put an "ongoing" notice in the notification tray
+			 *		so no matter where the user is on his phone, he can always see that his 
+			 *		system is armed. "Ongoing" means that it doesn't go away when the user 
+			 *		presses on it, nor when the user clicks the X to clear all notifications.
+			 *  2. When the user clicks the "disarm" button, we need to remove it.  This is 
+			 *  	done right here.
+			 *  3. When the alarm goes off, we want to first remove the "ongoing" notification,
+			 *  	and then set a new one ... only this new one needs to be "not ongoing", because
+			 *  	once the user presses it (or presses the X to clear all notifications), it should go away.
+			 */
 	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
 	    	stopMyLocationsTimer2();
 		} else {
@@ -70,7 +104,8 @@ public class LocationService extends Service implements LocationListener  {
 							(int)System.currentTimeMillis(), resultIntent, 0);
 			    	mBuilder.setContentIntent(pendingIntent);    	    	
 			    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
-				}	
+				}
+				// Start up the timer
 				getmAlarmSender();
 			}
 		}
@@ -119,6 +154,7 @@ public class LocationService extends Service implements LocationListener  {
 		return mNotificationManager;
 	}
 
+	// Have the system voice out the alert.
 	private void sayIt(String it) {
 		Intent jdIntent=new Intent(this, VoiceHelper.class)
 		.putExtra("voicedata",it);
@@ -139,34 +175,52 @@ public class LocationService extends Service implements LocationListener  {
 	    		location.setLatitude(Double.valueOf(latitude));
 	    		location.setLongitude(Double.valueOf(longitude));
 	    		float dx = mLastKnownLocation.distanceTo(location);
-	    		if(dx<500) { //TODO: parameterize this
-	    			/* This is it!  We've arrived. Time to wake up our sleeping passenger*/
-	    			// remove the "is armed" notification 
+	    		if(dx<ALARM_RADIUS_IN_METERS) { //TODO: parameterize this
+	    			/* This is it!  We've arrived. Time to wake up our sleeping passenger.*/
+	    			
+	    			// 1. Remove the "ongoing" item in the notifications bar  
 	    	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
+	    	    	
+	    	    	// 2. Stop the timer
 	    			stopMyLocationsTimer2();
+	    			
+	    			// 3. Clear out the Model's data
 	    			SharedPreferences.Editor editor = settings.edit();
 	    	        editor.putFloat("latitude", (float) 0);
 	    	        editor.putFloat("longitude", (float) 0);
 	    	        editor.putString("locationString","");
-
 	    	        editor.commit();
-	    	        int armedNotification=settings.getInt("IsArmedNotificationId",0);
+	    	        
+	    	        // 4. Produce a notification in Android's Notification Bar
+	    			String vibration=settings.getString("vibration", "y");
+	    			String voice=settings.getString("voice", "y");
+	    			String sound=settings.getString("sound", "y");
 	    	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);
 	    	    	// and create one of our own
 	    	    	Notification.Builder mBuilder=new Notification.Builder(this)
 			    	.setSmallIcon(R.drawable.ic_launcher)
 			    	.setContentTitle("Alert. Alert.  You are arriving at your destination!")
 			    	.setContentText(mAddressInReadableForm)
-			    	.setVibrate(new long[] {100,1000,100,1000,100,1000})
-			    	.setDefaults(Notification.DEFAULT_SOUND); //TODO: get this from checkboxes in Home
+			    	.setOngoing(false);
+			    	; 
+	    	    	if(vibration.toLowerCase()=="y") {
+	    	    		mBuilder.setVibrate(new long[] {100,1000,100,1000,100,1000});
+	    	    	}
+	    	    	if(sound.toLowerCase()=="y") {
+	    	    		mBuilder.setDefaults(Notification.DEFAULT_SOUND);
+	    	    	}
 		    	
-			    	// Creates an explicit intent for an Activity in your app
-			    	Intent resultIntent = new Intent(this, LocationService.class);
+			    	// 4a. When the user presses the notification, we want to take him to our home page
+			    	Intent resultIntent = new Intent(this, Home.class);
 					PendingIntent pendingIntent = PendingIntent.getActivity(this,
 							(int)System.currentTimeMillis(), resultIntent, 0);
 			    	mBuilder.setContentIntent(pendingIntent);    	    	
 			    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
-			    	sayIt("Alert. Alert.  You are arriving at your destination!");
+			    	
+			    	// 5. Send a voice alert
+			    	if(voice.toLowerCase()=="y") {
+			    		sayIt("Alert. Alert.  You are arriving at your destination!");
+			    	}
 	    		}
 	        }
 			if(mDontReenter>0) {
@@ -193,7 +247,19 @@ public class LocationService extends Service implements LocationListener  {
 			}
 		}
 	}
-	
+	/*
+	 * This routine is called each time the timer pops, which, as you remember, occurs at a frequence that is related to
+	 * how fast we're moving.  
+	 * Note how I use _jdFY as a variable to keep this routine from being re-entered, which would happen if, say, it took
+	 * more time to be notified by GPS, than what time it took for the next pop.
+	 * The first thing we do is to initiate the request to GPS to be notified.  As soon as we're notified, we call the routine that
+	 * checks to see if we're within the dx for notification (which right now is hardcoded to 500 meters 
+	 * (see HomeManager.ALARM_RADIUS_IN_METERS), and starts the notification process, if so.
+	 * Then we immediately tell the GPS to stop notifying us (so we don't waste the battery). And we record our location
+	 * so that the next time this routine is called we'll compare the two and thereby know whether to decrease or increase
+	 * the timer-pop frequency.
+	 *   
+	 */
 	private void doS() {
 		if(_jdFY==0) {
 			_jdFY++;
@@ -234,8 +300,6 @@ public class LocationService extends Service implements LocationListener  {
 							}
 						} catch (Exception ee) {
 							if(mLastKnownLocation == null) {
-								int bkHere=3;
-								int bkThere=4;
 							}
 						}
 					}

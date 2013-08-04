@@ -21,6 +21,15 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+/*
+ * This is a utility class whose sole purpose is to be able to create a voice alert ... no matter what state the phone's in,
+ * except powered off.
+ * In order to do this, I tried many techniques.  You have to make this an Activity in order for it to work, which is why it
+ * appears whenever the voice alert happens.  Then it goes away.
+ * 
+ *   Note that there is also code here for popping up a dialog box, too; but this isn't used in this application.  
+ */
+
 public class VoiceHelper extends Activity {
 	private static final int MY_DATA_CHECK_CODE = 12229000;
 	private static final String NOTIFICATIONUTERENCE = "322220001";
@@ -32,6 +41,11 @@ public class VoiceHelper extends Activity {
 	private CountDownTimer _mCountDownTimer=null;
 	private Stack<LinearLayout> _notificationPopups=new Stack<LinearLayout>();
 	
+	/*
+	 * When we're all done (after the TextToSpeech object informs me that its done speaking), then I can
+	 * proceed to close things up.  It's important that we do so.  We don't want to close, though, if there's
+	 * a popup window being shown too.  The whole point of the popup window is that the user sees it on his screen.
+	 */
 	private void doneCode() {
 		try {
 			if (_mCountDownTimer!= null) {
@@ -96,9 +110,7 @@ public class VoiceHelper extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		_countDoing=0;
-		/*
-		((PowerManager)getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "TAG").acquire();
-		*/
+		/* This makes it happen even if the system is sleeping or locked */
 		screenLock = ((PowerManager)getSystemService(POWER_SERVICE)).newWakeLock(
 			     PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
 			screenLock.acquire();
@@ -138,11 +150,14 @@ public class VoiceHelper extends Activity {
 				@Override
 				public void onClick(View v) {
 					removeView();
-					if(_countDoing<=0) { // not in the middle of speaking
+					if(_countDoing<=0) { // Don't close the whole window if we're still in the middle of speaking
 						finish();
 					}
 				}
 			});
+			/*
+			 * This is how you popup a dialog even if you're not the window at the front
+			 */
 		    WindowManager.LayoutParams lp=new WindowManager.LayoutParams(
 					WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, 10, 10,
 					WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY | WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,

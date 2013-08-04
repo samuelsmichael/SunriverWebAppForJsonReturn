@@ -27,9 +27,11 @@ import android.os.Looper;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -39,6 +41,8 @@ public class Home extends Activity implements HomeImplementer {
 	private LocationManager mLocationManager = null;
 	private MapFragment mMapFragment;
 	static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
+	public static final String PREFS_NAME = "MyPrefsFile";
+	static final float SOMEKINDOFFACTOR=720; // this factor is the "number of meters" under which when the user presses a train, we assume he meant to press the train, at zoom level 11.
 	private Marker mPreviousMarker;
 
 	private HomeManager getHomeManager() {
@@ -52,7 +56,6 @@ public class Home extends Activity implements HomeImplementer {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-		Intent intent = getIntent();
 		final EditText locationAddress = (EditText) findViewById(R.id.editText);
 		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
 
@@ -70,7 +73,7 @@ public class Home extends Activity implements HomeImplementer {
 	protected void onResume() {
 		super.onResume();
 		if (checkPlayServices()) {
-			setUpMapIfNeeded();
+			setupMapIfNeeded();
 		}
 		getHomeManager().initialize(Home.this);
 	}
@@ -78,8 +81,16 @@ public class Home extends Activity implements HomeImplementer {
 	@Override
 	protected void onRestart() {
 		super.onRestart();
+		/* Checking for the installation of Play Services on the user's phone.
+		 * I do it here (onRestart occurs both on initial startup, and on whenever
+		 * Android "pages" your app back into memory after having taken it out
+		 * due to memory squeeze) because if, when the program first verifies for
+		 * the presence of Play Store and gets a dialog box that says that it's 
+		 * not installed, and the user then goes and fetches it; then, we re-check here.
+		 * 
+		 */
 		if (checkPlayServices()) {
-			setUpMapIfNeeded();
+			setupMapIfNeeded();
 		}
 		getHomeManager().initialize(Home.this);
 	}
@@ -103,9 +114,15 @@ public class Home extends Activity implements HomeImplementer {
 				mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
 				findInitialLocation();
 			}
+		} else {
+			mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
 		}
 	}
 
+	/* The Play Services API has to be installed on the user's machine in order
+	 * for the map to show up. I check for it here, and if it isn't present,
+	 * then a dialog is presented to the user allowing him to fetch it.
+	 */
 	private boolean checkPlayServices() {
 		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (status != ConnectionResult.SUCCESS) {
@@ -126,13 +143,18 @@ public class Home extends Activity implements HomeImplementer {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case REQUEST_CODE_RECOVER_PLAY_SERVICES:
-			if (resultCode != RESULT_CANCELED) {
+			if (resultCode == RESULT_CANCELED) {
+				//TODO: Perhaps we could warn the user that the map feature won't work without Play Services on his machine.
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-
+/*
+ * This is for the Android system menu.  I'm not sure what we'd put there,
+ * but if we ever think of something, here's where we'd do it.
+ * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+ */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -142,18 +164,40 @@ public class Home extends Activity implements HomeImplementer {
 
 	@Override
 	/*
-	 * Javadoc If this method is passed null, this means that there is no
-	 * location.
-	 */
-	/*
-	 * (non-Javadoc)
+	 * This method is called by the system (only on the UI thread, of course (See class AsyncTask for way of doing this.)) 
+	 * once an address has been fetched, either by means of the user keying in an address, or long-pressing the map. 
+	 * It manages the displaying and un-displaying of the UI controls appropriately, positioning the map to
+	 * that location, and dropping a red pin.
+	 *  
+	 * If this method is passed null, this signifies that there is no
+	 * location; either because none was found, or that the user cancelled the
+	 * pop-up that asked him to choose from the list of many addresses found, or
+	 * that the alert has been generated, and we're thereby disarming the system..
 	 * 
-	 * @see
-	 * com.sdouglas.android.commuteralert.HomeImplementer#heresYourAddress(android
-	 * .location.Address, java.lang.String)
 	 */
-	public void heresYourAddress(Address address, String readableAddress) {
+	public void heresYourAddress(Address address, String readableAddress) { 
 		final Button disarmButton = (Button) findViewById(R.id.btnDisarm);
+		final CheckBox vibration = (CheckBox) findViewById(R.id.cbVibrate);
+		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
+		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
+		
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+				0);
+		if(settings.getString("vibrate", "y").toLowerCase().equals("y")) {
+			vibration.setChecked(true);
+		} else {
+			vibration.setChecked(false);
+		}
+		if(settings.getString("sound", "y").toLowerCase().equals("y")) {
+			sound.setChecked(true);
+		} else {
+			sound.setChecked(false);
+		}
+		if(settings.getString("voice", "y").toLowerCase().equals("y")) {
+			voice.setChecked(true);
+		} else {
+			voice.setChecked(false);
+		}
 		if (address != null) {
 			setControlsVisibility(true, readableAddress);
 			positionMapToLocation((double)address.getLatitude(),(double)address.getLongitude());			
@@ -165,10 +209,57 @@ public class Home extends Activity implements HomeImplementer {
 			public void onClick(View v) {
 				getHomeManager().disarmLocationService();
 				setControlsVisibility(false, "");
+
+			}
+		});
+		vibration.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+						0);
+				String oldValue=settings.getString("vibration", "n");
+				SharedPreferences.Editor editor = settings.edit();
+				if(oldValue.equals("n")) {
+					editor.putString("vibration","y");
+				} else {
+					editor.putString("vibration","n");
+				}
+				editor.commit();
+			}
+		});
+		sound.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+						0);
+				String oldValue=settings.getString("sound", "n");
+				SharedPreferences.Editor editor = settings.edit();
+				if(oldValue.equals("n")) {
+					editor.putString("sound","y");
+				} else {
+					editor.putString("sound","n");
+				}
+				editor.commit();
+			}
+		});
+		voice.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				SharedPreferences settings = getSharedPreferences(PREFS_NAME,
+						0);
+				String oldValue=settings.getString("voice", "n");
+				SharedPreferences.Editor editor = settings.edit();
+				if(oldValue.equals("n")) {
+					editor.putString("voice","y");
+				} else {
+					editor.putString("voice","n");
+				}
+				editor.commit();
 			}
 		});
 	}
 
+	/*
+	 * Some controls are more appropriate to show than others, depending on whether the system is armed or not.
+	 * And while we're at it, the "your destination" pin is either removed, or moved.
+	 */
 	private void setControlsVisibility(Boolean isArmed, String readableAddress) {
 		final TextView currentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
 		final Button disarmButton = (Button) findViewById(R.id.btnDisarm);
@@ -176,12 +267,20 @@ public class Home extends Activity implements HomeImplementer {
 		final EditText locationAddress = (EditText) findViewById(R.id.editText);
 		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
 		final TextView systemStatus = (TextView) findViewById(R.id.tvSystemStatus2);
+		final CheckBox vibration = (CheckBox) findViewById(R.id.cbVibrate);
+		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
+		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
+		
+		// Hide the previous pin; otherwise they just continue to accumulate.
 		if (mPreviousMarker != null && mPreviousMarker.isVisible()) {
 			mPreviousMarker.setVisible(false);
 		}
 		currentLocation.setText(readableAddress);
 		currentLocation.setTextColor(Color.BLUE);
 		if (isArmed) {
+			vibration.setVisibility(View.GONE);
+			sound.setVisibility(View.GONE);
+			voice.setVisibility(View.GONE);
 			disarmButton.setVisibility(View.VISIBLE);
 			systemIsArmed.setVisibility(View.VISIBLE);
 			locationAddress.setVisibility(View.GONE);
@@ -189,6 +288,9 @@ public class Home extends Activity implements HomeImplementer {
 			systemStatus.setText("Armed");
 			systemStatus.setTextColor(Color.RED);
 		} else {
+			vibration.setVisibility(View.VISIBLE);
+			sound.setVisibility(View.VISIBLE);
+			voice.setVisibility(View.VISIBLE);
 			disarmButton.setVisibility(View.GONE);
 			systemIsArmed.setVisibility(View.GONE);
 			locationAddress.setVisibility(View.VISIBLE);
@@ -220,7 +322,10 @@ public class Home extends Activity implements HomeImplementer {
 
 	/*
 	 * I am using an AsyncTask here because its onPostExecute insures that I can
-	 * update the UI
+	 * update the UI; and as this whole thing is initiated via a background thread
+	 * (we have to make a web call to Google Services in order to fetch the train
+	 * stations, and such calls are not allowed by Android to be made in the UI thread), 
+	 * we will need to "get back on" the UI thread in order to display it.
 	 */
 	class ShowMap
 			extends
@@ -233,14 +338,24 @@ public class Home extends Activity implements HomeImplementer {
 				return null;
 			}
 		}
-
+		/*
+		 * The class LocationAndAssociatedTrainStations is a combination of two objects -- the list
+		 * of addresses of the trains stations, and the Location object defining where I am at currently.
+		 * Due to the fact that the AsyncTask class can only handle one object passed into it,
+		 * I was constrained to create a class that holds both of these pieces of information; both of
+		 * which are required by this method.
+		 */
 		protected void onPostExecute(LocationAndAssociatedTrainStations result) {
 			final LocationAndAssociatedTrainStations resultF = result;
 			if (result != null) {
+				// position map to location (duh)
 				positionMapToLocation(result.mLocation.getLatitude(),result.mLocation.getLongitude());
+				// turn on the little "take me to my current location" icon
 				mMap.setMyLocationEnabled(true);
+				// the instruction on how to use the map needs to be shown
 				TextView tvId1 = (TextView)findViewById(R.id.tvId1);
 				tvId1.setVisibility(View.VISIBLE);
+				// now create Markers for all of the trains.
 				BitmapDescriptor bmd = BitmapDescriptorFactory
 						.fromResource(R.drawable.train1);
 				for (int i = 0; i < result.mAddresses.size(); i++) {
@@ -252,18 +367,26 @@ public class Home extends Activity implements HomeImplementer {
 							.title(address.getAddressLine(0)).icon(bmd));
 					marker.showInfoWindow();
 				}
+				// define an "onMapLongClick" listener that
+				// 1. Moves the marker (hides the old one and creates the new one)
+				// 2. If he touches near the train, assume he meant to touch the train.
+				// 3. Initiate what needs to be done to arm the system.
 				mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 					public void onMapLongClick(LatLng point) {
+						LatLng useThisOne=null;
 						if (mPreviousMarker != null) {
 							mPreviousMarker.setVisible(false);
 						}
 						/*
-						 * Let's do a "snap-to-grid" thing. If they long-touched
-						 * near to one of the trains, then make it that one
-						 * instead ... assuming that s/he has "fat fingers".
+						 * Do a "snap-to-grid" kind of thing.  If the guy's pressing near the train, let's snap him to the train.
 						 */
-						LatLng useThisOne = point;
+						
+						float zoomLevel=mMap.getCameraPosition().zoom;
+						float errorMarginMetersUnderWhichWeAssumeHePressedTheTrain=0f;
+						errorMarginMetersUnderWhichWeAssumeHePressedTheTrain=(float) (SOMEKINDOFFACTOR * (1f/(Math.pow(2f,(zoomLevel-12f)))));
 						Address useThisAddress = null;
+						// Drop a train bitmap as a marker at each place on the map
+						// If he's near a train, then assume he meant to press the train.
 						for (int i = 0; i < resultF.mAddresses.size(); i++) {
 							LatLng latlng2 = new LatLng(resultF.mAddresses.get(
 									i).getLatitude(), resultF.mAddresses.get(i)
@@ -272,13 +395,17 @@ public class Home extends Activity implements HomeImplementer {
 							Location.distanceBetween(point.latitude,
 									point.longitude, latlng2.latitude,
 									latlng2.longitude, results);
-							if (results[0] < 600f) {
+							if (results[0] < errorMarginMetersUnderWhichWeAssumeHePressedTheTrain ) {
 								useThisOne = latlng2;
 								useThisAddress = resultF.mAddresses.get(i);
 								break;
 							}
 						}
-
+						/*
+						 * All we're given is a point (latitude and longitude).  Is there an address
+						 * near it so we can use that description?
+						 * 
+						 */
 						try {
 							if (useThisAddress == null) {
 								Geocoder g = new Geocoder(Home.this);
@@ -291,6 +418,9 @@ public class Home extends Activity implements HomeImplementer {
 							}
 						} catch (Exception e) {
 						}
+						/*
+						 * If not, then just make up a description
+						 */
 						if (useThisAddress == null) {
 							useThisAddress = new Address(null);
 							useThisAddress.setLatitude(point.latitude);
@@ -298,8 +428,9 @@ public class Home extends Activity implements HomeImplementer {
 							useThisAddress.setAddressLine(1,
 									"Address for red marker, below");
 						}
+						// arm the system
 						getHomeManager().newLocation(useThisAddress);
-						// TODO: now do a reversegeo and arm my engine
+						
 					}
 				});
 			}
@@ -331,6 +462,9 @@ public class Home extends Activity implements HomeImplementer {
 		}
 	}
 
+	/*
+	 * This is what the Model calls; but I have to initiate an AsyncTask, because we're going to be updating in a non-UI thread
+	 */
 	public void heresTheTrainStationAddressesToDisplayOnMap(
 			ArrayList<Address> addresses, Location location) {
 		LocationAndAssociatedTrainStations t = new LocationAndAssociatedTrainStations(
@@ -338,6 +472,9 @@ public class Home extends Activity implements HomeImplementer {
 		new ShowMap().execute(t);
 	}
 
+	/* 
+	 * Here is where we're going to request our list of trains from.
+	 */
 	private void findInitialLocation() {
 		String provider = getProvider();
 		if (provider == null) {

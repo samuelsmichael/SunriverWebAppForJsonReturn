@@ -9,50 +9,10 @@
     tools:context=".Home" >
 
     <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="1dp"
-        android:focusableInTouchMode="false"
-        android:gravity="top"
-        android:orientation="horizontal" >
-
-        <Button
-            android:id="@+id/buttonAddress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/KeyAnAddress"
-            android:textSize="14sp" />
-
-        <EditText
-            android:id="@+id/editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="4dp"
-            android:layout_marginTop="4dp"
-            android:cursorVisible="true"
-            android:enabled="true"
-            android:focusable="true"
-            android:gravity="top"
-            android:hint="@string/hint_address"
-            android:inputType="textMultiLine|textPostalAddress"
-            android:lines="4"
-            android:padding="5dp"
-            android:textColorHint="#aaaaaa"
-            android:textSize="14sp" >
-
-            <requestFocus />
-        </EditText>
-    </LinearLayout>
-
-    <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLayout1"
+        
         android:layout_centerHorizontal="true"
         android:orientation="vertical" >
 
@@ -80,6 +40,79 @@
             
         </LinearLayout>
             
+	    <LinearLayout
+	        android:id="@+id/linearLayout1"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentTop="true"
+	        android:layout_centerHorizontal="true"
+	        android:layout_marginTop="1dp"
+	        android:focusableInTouchMode="false"
+	        android:gravity="top"
+	        android:orientation="horizontal" >
+	
+	
+	        <EditText
+	            android:id="@+id/editText"
+	            android:layout_width="150dp"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="center"
+	            android:layout_marginBottom="4dp"
+	            android:layout_marginTop="4dp"
+	            android:cursorVisible="true"
+	            android:enabled="true"
+	            android:focusable="true"
+	            android:gravity="top"
+	            android:hint="@string/hint_address"
+	            android:inputType="textMultiLine|textPostalAddress"
+	            android:lines="4"
+	            android:padding="5dp"
+	            android:textColorHint="#aaaaaa"
+	            android:textSize="14sp" >
+	
+	            <requestFocus />
+	        </EditText>
+	    
+	    	        <Button
+	            android:id="@+id/buttonAddress"
+	            android:layout_width="140dp"
+	            android:layout_height="80dp"
+	            android:text="@string/KeyAnAddress"
+	            android:textSize="13sp" />
+	        
+	    
+	    </LinearLayout>
+
+	    
+	    <LinearLayout
+	        android:id="@+id/checkBoxes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"            
+            android:orientation="horizontal"
+            >
+            <CheckBox
+	        android:id="@+id/cbVibrate"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:checked="true"
+	        android:text="Vibrate" />
+            <CheckBox
+	        android:id="@+id/cbSound"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:checked="true"
+	        android:text="Sound" />
+                        <CheckBox
+	        android:id="@+id/cbVoice"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:checked="true"
+	        android:text="Voice" />
+            
+        	        
+	    </LinearLayout>
+	    
+	    
         <TextView
             android:id="@+id/tvCurrentViewHeading"
             android:layout_width="wrap_content"
