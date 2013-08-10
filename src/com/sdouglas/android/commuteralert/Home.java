@@ -43,12 +43,12 @@ public class Home extends Activity implements HomeImplementer {
 	static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
 	public static final String PREFS_NAME = "MyPrefsFile";
 	static final float SOMEKINDOFFACTOR=720; // this factor is the "number of meters" under which when the user presses a train, we assume he meant to press the train, at zoom level 11.
-	static final int PURGECACHEDAYSOLD=0; // number of days, older than which items in the cache are purged.
+	static final int PURGECACHEDAYSOLD=100; // number of days, older than which items in the cache are purged.
 	private Marker mPreviousMarker;
 
 	private HomeManager getHomeManager() {
 		if (mHomeManager == null) {
-			mHomeManager = new HomeManager();
+			mHomeManager = new HomeManager(this);
 		}
 		return mHomeManager;
 	}
@@ -152,7 +152,7 @@ public class Home extends Activity implements HomeImplementer {
 		if (checkPlayServices()) {
 			setupMapIfNeeded();
 		}
-		getHomeManager().initialize(Home.this);
+		getHomeManager().initialize();
 	}
 
 	@Override
@@ -189,7 +189,7 @@ public class Home extends Activity implements HomeImplementer {
 		if (checkPlayServices()) {
 			setupMapIfNeeded();
 		}
-		getHomeManager().initialize(Home.this);
+		getHomeManager().initialize();
 	}
 	
 	/* Whenever the application starts up (onResume), or it gets "paged" back into memory (onRestart),

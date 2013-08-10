@@ -45,6 +45,13 @@ public class HomeManager {
 	 * ------------------
 	 */
 	
+	private HomeManager() { // We don't want any empty contructers;
+		
+	}
+	public HomeManager(Activity activity) {
+		mActivity=activity;
+	}
+	
 	public void close() {
 		if (mDbAdapter != null) {
 			try {
@@ -79,8 +86,7 @@ public class HomeManager {
 	 * (This is the mechanism by which I minimize the battery drainage). If I ascertain that we're not moving, 
 	 * then this frequency is low; otherwise, it's high, as more frequent updates to the location are required.
 	 */
-	public void initialize(Activity activity) {
-		mActivity = activity;
+	public void initialize() {
 		Intent intent = new Intent(mActivity, LocationService.class)
 				.setAction("JustInitializeLocationManager");
 
@@ -308,6 +314,8 @@ public class HomeManager {
 			nthAccessStartingAt1++;
 			getTrainStationsNear(location, runningList, nextPageToken,
 					nbrOfAccessesLeft,nthAccessStartingAt1);
+		} else { // We're done, so add to cache
+			getDbAdapter().createCacheItem(location, runningList);
 		}
 	}
 

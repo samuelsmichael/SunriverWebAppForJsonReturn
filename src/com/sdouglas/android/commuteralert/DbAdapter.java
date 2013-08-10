@@ -8,35 +8,23 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
 import java.util.Locale;
-import java.util.PriorityQueue;
 
 
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
-import android.telephony.TelephonyManager;
-import android.util.Log;
 
 public class DbAdapter {
-	public static String doubleApostophize(String str) 
-	{
-		if(str==null) {
-			return null;
-		}
-		return str.replaceAll("'", "''");
-	}
+	private static final int DATABASE_VERSION = 6;
+
 	public static final DateFormat mDateFormat = new SimpleDateFormat(
 	"yyyy-MM-dd HH:mm:ss.S");
 
@@ -53,20 +41,9 @@ public class DbAdapter {
 	private SQLiteDatabase mDb;
 	
 	
-	/**
-	 * Database creation sql statement 
-	 */
-	private static final String CREATE_TABLE_LOCATION = "create table location (_id integer primary key autoincrement, "
-				+ "latitude double not null, longitude double not null, datecreated datetime not null "
-		+ "phoneid text not null,commonname text not null );";
-	private static final String CREATE_TABLE_STATION = "create table station (_id integer primary key autoincrement, "
-		+ "_fid integer not null, latitude double not null, longitude double not null, name text not null );";
-	
-	private static final String DATABASE_NAME = "data";
 	private static final String DATABASE_TABLE_LOCATION = "location";
 	private static final String DATABASE_TABLE_STATION = "station";
 
-	private static final int DATABASE_VERSION = 1;
 
 	/* Public interface ---------------------------------------------------------------------- */
 	/**
@@ -86,15 +63,7 @@ public class DbAdapter {
 	 */
 	public synchronized void createCacheItem(Location location, ArrayList<Address> addresses) {
 		// Create a new map of values, where column names are the keys
-		/*
-		 * 	public static final String KEY_ROWID = "_id";
-	public static final String KEY_LATITUDE = "latitude";
-	public static final String KEY_LONGITUDE = "longitude";
-	public static final String KEY_FOREIGNID = "_fid";
-	public static final String KEY_NAME = "name";
-	public static final String KEY_DATECREATED = "datecreated";
 
-		 */
 		ContentValues values = new ContentValues();
 		values.put(KEY_LATITUDE, location.getLatitude());
 		values.put(KEY_LONGITUDE, location.getLongitude());
@@ -112,6 +81,7 @@ public class DbAdapter {
 			values.put(KEY_LATITUDE, address.getLatitude());
 			values.put(KEY_LONGITUDE, address.getLongitude());
 			values.put(KEY_FOREIGNID, newRowId);
+			values.put(KEY_NAME, address.getAddressLine(0));
 			getSqlDb().insert(
 					DATABASE_TABLE_STATION,
 			         null,
@@ -159,8 +129,8 @@ public class DbAdapter {
 				double locationLongitude=cu.getDouble(cu.getColumnIndex(KEY_LONGITUDE));
 				double locationLatitude=cu.getDouble(cu.getColumnIndex(KEY_LATITUDE));
 	    		Location location = new Location(getProvider());
-	    		location.setLatitude(locationLongitude);
-	    		location.setLongitude(locationLatitude);
+	    		location.setLatitude(locationLatitude);
+	    		location.setLongitude(locationLongitude);
 				double dx=(double)myLocation.distanceTo(location);
 				if (dx<=HomeManager.CLOSE_TO_RADIUS_IN_METERS) {
 					rowIdToUse=cu.getInt(cu.getColumnIndex(KEY_ROWID));
@@ -169,6 +139,7 @@ public class DbAdapter {
 			}
 			cu.close();
 			if(rowIdToUse!=0) {
+				String whereClause = KEY_FOREIGNID + " = " + String.valueOf(rowIdToUse);  
 				String[] projection2 = {
 						KEY_LATITUDE,
 						KEY_LONGITUDE,
@@ -177,7 +148,7 @@ public class DbAdapter {
 				cu = getSqlDb().query(
 						DATABASE_TABLE_STATION,  				// The table to query
 					    projection2,                             // The columns to return
-					    null,                                	// The columns for the WHERE clause
+					    whereClause,                                	// The columns for the WHERE clause
 					    null,                            		// The values for the WHERE clause
 					    null,                                   // don't group the rows
 					    null,                                   // don't filter by row groups
@@ -227,8 +198,9 @@ public class DbAdapter {
 		    };
 		
 		String sortOrder = null;
-		String whereClause = KEY_DATECREATED + " <= " + mDateFormat.format(agedThreshhold);  
+		String whereClause = KEY_DATECREATED + " <= '" + mDateFormat.format(agedThreshhold) + "'";  
 
+		try {
 		Cursor cu = getSqlDb().query(
 			DATABASE_TABLE_LOCATION,  				// The table to query
 		    projection,             	            // The columns to return
@@ -245,12 +217,24 @@ public class DbAdapter {
 			}
 		}
 		cu.close();
+		} catch (Exception ee) {
+			int bkhere=3;
+			int bkhere2=bkhere;
+		}
 	}
 
 	public void close() {
 		mDbHelper.close();
 		mDbHelper = null;
 		mDb = null;
+	}
+
+	public static String doubleApostophize(String str) 
+	{
+		if(str==null) {
+			return null;
+		}
+		return str.replaceAll("'", "''");
 	}
 	
 	/* Private interface ---------------------------------------------------------------------- */
@@ -269,6 +253,20 @@ public class DbAdapter {
 	}
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
+		/**
+		 * Database creation sql statement 
+		 */
+		private static final String CREATE_TABLE_LOCATION = "create table location (" +
+				"_id integer primary key autoincrement, " +
+				"latitude double not null, " +
+				"longitude double not null, datecreated datetime not null); ";
+		private static final String CREATE_TABLE_STATION = "create table station (" +
+				"_id integer primary key autoincrement, " +
+				"_fid integer not null, " +
+				"latitude double not null, " +
+				"longitude double not null, name text not null ); ";
+		
+		private static final String DATABASE_NAME = "data";
 
 		DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -277,10 +275,10 @@ public class DbAdapter {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			try {
-			db.execSQL(CREATE_TABLE_LOCATION);
+				db.execSQL(CREATE_TABLE_LOCATION);
 			} catch (Exception eieio33) {}
 			try {
-			db.execSQL(CREATE_TABLE_STATION);
+				db.execSQL(CREATE_TABLE_STATION);
 			} catch (Exception eieio33) {}
 		}
 
@@ -290,9 +288,21 @@ public class DbAdapter {
 				db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_LOCATION);
 				db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_STATION);
 			} else {
+				if (oldVersion==5) {
+					db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_LOCATION);
+					db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_STATION);
+				}
 			}
 			onCreate(db);
 		}
+
+		@Override
+		public void onOpen(SQLiteDatabase db) {
+			int bkhere=3;
+			int bkthere=bkhere;
+		}
+
+	
 	}
 	private SQLiteDatabase getSqlDb() {
 		if (mDb == null) {
