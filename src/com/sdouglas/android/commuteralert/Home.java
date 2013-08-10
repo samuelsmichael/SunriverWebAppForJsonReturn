@@ -2,7 +2,7 @@ package com.sdouglas.android.commuteralert;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.GregorianCalendar;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -43,6 +43,7 @@ public class Home extends Activity implements HomeImplementer {
 	static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
 	public static final String PREFS_NAME = "MyPrefsFile";
 	static final float SOMEKINDOFFACTOR=720; // this factor is the "number of meters" under which when the user presses a train, we assume he meant to press the train, at zoom level 11.
+	static final int PURGECACHEDAYSOLD=0; // number of days, older than which items in the cache are purged.
 	private Marker mPreviousMarker;
 
 	private HomeManager getHomeManager() {
@@ -55,6 +56,9 @@ public class Home extends Activity implements HomeImplementer {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		GregorianCalendar calendar=new GregorianCalendar();
+		calendar.add(GregorianCalendar.DATE, -PURGECACHEDAYSOLD);
+		getHomeManager().getDbAdapter().purgeCacheOfItemsOlderThan(calendar.getTime());
 		setContentView(R.layout.activity_home);
 		if(getIntent()!=null && getIntent().getAction().equals("showdisarmed")) {
 			setControlsVisibility(false, "");
@@ -114,6 +118,13 @@ public class Home extends Activity implements HomeImplementer {
 		});
 	}
 
+	@Override
+	public void onDestroy() {
+		mHomeManager.close();
+		super.onDestroy();
+	}
+	
+	
 	@Override
 	protected void onResume() {
 		super.onResume();

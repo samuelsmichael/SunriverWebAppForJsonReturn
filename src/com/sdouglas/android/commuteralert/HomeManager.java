@@ -16,7 +16,6 @@ import org.json.JSONObject;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,16 +32,27 @@ import java.util.Locale;
 
 public class HomeManager {
 	private Activity mActivity = null;
+	private DbAdapter mDbAdapter = null;
 	public static final String PREFS_NAME = "MyPrefsFile";
-	public static final int LIMIT_NBR_ACCESSES = 2;
+	public static final int LIMIT_NBR_ACCESSES = 100;
 	public static final String GOOGLE_API_KEY = "AIzaSyCiLgS6F41lPD-aHj7yMycVDv38gb1vd2o";
 	public static final int MODE_MULTI_PROCESS=4;
+	public static final float CLOSE_TO_RADIUS_IN_METERS = 1000;
 
 	/*
 	 * Public Interface
 	 * ----------------------------------------------------------
 	 * ------------------
 	 */
+	
+	public void close() {
+		if (mDbAdapter != null) {
+			try {
+				mDbAdapter.close();
+			} catch (Exception eee) {
+			}
+		}
+	}
 	public void manageKeyedInAddress(String locationAddress) {
 		try {
 			locationAddress = locationAddress.replace("\n", " ");
@@ -128,7 +138,12 @@ public class HomeManager {
 				.setAction("JustDisarm");
 		mActivity.startService(intent);
 	}
-
+	public DbAdapter getDbAdapter() {
+		if (mDbAdapter == null) {
+			mDbAdapter = new DbAdapter(mActivity);
+		}
+		return mDbAdapter;
+	}	
 	/*
 	 * Private Interface
 	 * --------------------------------------------------------
@@ -224,8 +239,16 @@ public class HomeManager {
 
 	public void getTrainStationsNear(Location location,
 			ArrayList<Address> runningList, String nextPageToken,
-			int nbrOfAccessesLeft) throws Exception {
+			int nbrOfAccessesLeft, int nthAccessStartingAt1) throws Exception {
 
+		if(nthAccessStartingAt1==1) {
+			// try the cache first
+			getDbAdapter().getStationsCloseTo(location, CLOSE_TO_RADIUS_IN_METERS, runningList);
+			if (runningList.size()>0) {
+				return;  
+			}
+		}
+		
 		String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
 				+ location.getLatitude()
 				+ ","
@@ -282,8 +305,9 @@ public class HomeManager {
 		}
 		if (nextPageToken != null && nbrOfAccessesLeft > 1) {
 			nbrOfAccessesLeft--;
+			nthAccessStartingAt1++;
 			getTrainStationsNear(location, runningList, nextPageToken,
-					nbrOfAccessesLeft);
+					nbrOfAccessesLeft,nthAccessStartingAt1);
 		}
 	}
 
@@ -293,6 +317,7 @@ public class HomeManager {
 	 * object manages this.
 	 */
 
+	
 	public class RetrieveAddressDataForMap extends
 			AsyncTask<Location, Void, List<Address>> {
 		private Location mLocation = null;
@@ -303,7 +328,7 @@ public class HomeManager {
 				ArrayList<Address> trainStationAddresses = new ArrayList<Address>();
 				try {
 					getTrainStationsNear(mLocation, trainStationAddresses,
-							null, LIMIT_NBR_ACCESSES);
+							null, LIMIT_NBR_ACCESSES,1);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
