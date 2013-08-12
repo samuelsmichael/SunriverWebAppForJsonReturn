@@ -117,7 +117,7 @@
             android:id="@+id/tvCurrentViewHeading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="The current location is:"
+            android:text="The current alarm location is:"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView

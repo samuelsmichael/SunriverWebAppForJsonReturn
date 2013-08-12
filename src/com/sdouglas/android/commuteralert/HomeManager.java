@@ -2,6 +2,7 @@ package com.sdouglas.android.commuteralert;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,9 +35,9 @@ public class HomeManager {
 	private Activity mActivity = null;
 	private DbAdapter mDbAdapter = null;
 	public static final String PREFS_NAME = "MyPrefsFile";
-	public static final int LIMIT_NBR_ACCESSES = 100;
+	public static final int LIMIT_NBR_ACCESSES = 35;
 	public static final String GOOGLE_API_KEY = "AIzaSyCiLgS6F41lPD-aHj7yMycVDv38gb1vd2o";
-	public static final int MODE_MULTI_PROCESS=4;
+
 	public static final float CLOSE_TO_RADIUS_IN_METERS = 1000;
 
 	/*
@@ -92,7 +93,7 @@ public class HomeManager {
 
 		mActivity.startService(intent);
 		Geocoder g = new Geocoder(mActivity);
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,MODE_MULTI_PROCESS);
+		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putInt("modifyingValue", 1);
 		editor.commit();
@@ -130,7 +131,7 @@ public class HomeManager {
 	 * 
 	 */
 	public void disarmLocationService() {
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, MODE_MULTI_PROCESS);
+		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putFloat("latitude", (float) 0);
 		editor.putFloat("longitude", (float) 0);
@@ -157,7 +158,7 @@ public class HomeManager {
 	 */
 
 	private void armLocationService(Address a) {
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,MODE_MULTI_PROCESS);
+		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putFloat("latitude", (float) a.getLatitude());
 		editor.putFloat("longitude", (float) a.getLongitude());
@@ -246,12 +247,25 @@ public class HomeManager {
 	public void getTrainStationsNear(Location location,
 			ArrayList<Address> runningList, String nextPageToken,
 			int nbrOfAccessesLeft, int nthAccessStartingAt1) throws Exception {
-
+		while (true) {
+			nextPageToken=getTrainStationsNearPrivate(location,runningList,nextPageToken,nbrOfAccessesLeft,nthAccessStartingAt1);
+			nbrOfAccessesLeft--;
+			nthAccessStartingAt1++;
+			if(nextPageToken==null) {
+				getDbAdapter().createCacheItem(location, runningList);
+				break;
+			}
+		}
+	}
+	
+	private String getTrainStationsNearPrivate(Location location,
+			ArrayList<Address> runningList, String nextPageToken,
+			int nbrOfAccessesLeft, int nthAccessStartingAt1) throws Exception { 
 		if(nthAccessStartingAt1==1) {
 			// try the cache first
 			getDbAdapter().getStationsCloseTo(location, CLOSE_TO_RADIUS_IN_METERS, runningList);
 			if (runningList.size()>0) {
-				return;  
+				return null;  
 			}
 		}
 		
@@ -261,7 +275,7 @@ public class HomeManager {
 				+ location.getLongitude()
 				+ "&token="
 				+ (nextPageToken == null ? "" : nextPageToken)
-				+ "&radius=50000&types=train_station&sensor=true&key="
+				+ "&radius=50000&types=train_station|subway_station&sensor=true&key="
 				+ GOOGLE_API_KEY;
 		URL u = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) u.openConnection();
@@ -285,14 +299,17 @@ public class HomeManager {
 		JSONObject jObj = new JSONObject(json);
 		nextPageToken = null;
 		try {
-			nextPageToken = jObj.getString("next_page_token");
-		} catch (Exception e) {
-		}
-		try {
 			String status = jObj.getString("status");
 			if (status == "OVER_QUERY_LIMIT") {
 				Thread.currentThread().wait(1000);
+				nbrOfAccessesLeft--;
+				nthAccessStartingAt1++;
+				return nextPageToken;
 			}
+		} catch (Exception e) {
+		}
+		try {
+			nextPageToken = jObj.getString("next_page_token");
 		} catch (Exception e) {
 		}
 		JSONArray results = jObj.getJSONArray("results");
@@ -310,13 +327,10 @@ public class HomeManager {
 			runningList.add(address);
 		}
 		if (nextPageToken != null && nbrOfAccessesLeft > 1) {
-			nbrOfAccessesLeft--;
-			nthAccessStartingAt1++;
-			getTrainStationsNear(location, runningList, nextPageToken,
-					nbrOfAccessesLeft,nthAccessStartingAt1);
-		} else { // We're done, so add to cache
-			getDbAdapter().createCacheItem(location, runningList);
-		}
+			return nextPageToken;
+		} else {
+			return null;
+		} 
 	}
 
 	/*  All web fetches have to be done on a background thread. (See

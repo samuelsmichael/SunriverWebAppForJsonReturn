@@ -53,6 +53,7 @@ public class Home extends Activity implements HomeImplementer {
 		return mHomeManager;
 	}
 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -60,9 +61,16 @@ public class Home extends Activity implements HomeImplementer {
 		calendar.add(GregorianCalendar.DATE, -PURGECACHEDAYSOLD);
 		getHomeManager().getDbAdapter().purgeCacheOfItemsOlderThan(calendar.getTime());
 		setContentView(R.layout.activity_home);
-		if(getIntent()!=null && getIntent().getAction().equals("showdisarmed")) {
+		if(getIntent()!=null && getIntent().getAction()!=null && getIntent().getAction().equals("showdisarmed")) {
 			setControlsVisibility(false, "");
 		}
+		if (getIntent()!=null && getIntent().getAction()!=null && getIntent().getAction().equals("dovoice")) {
+			String voiceData=getIntent().getStringExtra("voicedata");
+			Intent jdIntent=new Intent(this, VoiceHelper.class)
+				.putExtra("voicedata",voiceData);
+			startActivity(jdIntent);			
+			setControlsVisibility(false, "");
+  		}
 		final EditText locationAddress = (EditText) findViewById(R.id.editText);
 		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
 
@@ -79,7 +87,7 @@ public class Home extends Activity implements HomeImplementer {
 		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
 		vibrate.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_MULTI_PROCESS);
+				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
 				String oldValue=settings.getString("vibrate", "n");
 				SharedPreferences.Editor editor = settings.edit();
 				if(oldValue.equals("n")) {
@@ -92,7 +100,7 @@ public class Home extends Activity implements HomeImplementer {
 		});
 		sound.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_MULTI_PROCESS);
+				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
 				String oldValue=settings.getString("sound", "n");
 				SharedPreferences.Editor editor = settings.edit();
 				if(oldValue.equals("n")) {
@@ -105,7 +113,7 @@ public class Home extends Activity implements HomeImplementer {
 		});
 		voice.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_MULTI_PROCESS);
+				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
 				String oldValue=settings.getString("voice", "n");
 				SharedPreferences.Editor editor = settings.edit();
 				if(oldValue.equals("n")) {
@@ -128,26 +136,6 @@ public class Home extends Activity implements HomeImplementer {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
-		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
-		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_MULTI_PROCESS);
-		String vibrates=settings.getString("vibrate", "y");
-		if(vibrates.toLowerCase().equals("y")) {
-			vibrate.setChecked(true);
-		} else {
-			vibrate.setChecked(false);
-		}
-		if(settings.getString("sound", "y").toLowerCase().equals("y")) {
-			sound.setChecked(true);
-		} else {
-			sound.setChecked(false);
-		}
-		if(settings.getString("voice", "y").toLowerCase().equals("y")) {
-			voice.setChecked(true);
-		} else {
-			voice.setChecked(false);
-		}
 		
 		if (checkPlayServices()) {
 			setupMapIfNeeded();
@@ -158,26 +146,6 @@ public class Home extends Activity implements HomeImplementer {
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
-		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
-		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_MULTI_PROCESS);
-		String vibrates=settings.getString("vibrate", "y");
-		if(vibrates.toLowerCase().equals("y")) {
-			vibrate.setChecked(true);
-		} else {
-			vibrate.setChecked(false);
-		}
-		if(settings.getString("sound", "y").toLowerCase().equals("y")) {
-			sound.setChecked(true);
-		} else {
-			sound.setChecked(false);
-		}
-		if(settings.getString("voice", "y").toLowerCase().equals("y")) {
-			voice.setChecked(true);
-		} else {
-			voice.setChecked(false);
-		}
 		/* Checking for the installation of Play Services on the user's phone.
 		 * I do it here (onRestart occurs both on initial startup, and on whenever
 		 * Android "pages" your app back into memory after having taken it out
@@ -213,6 +181,9 @@ public class Home extends Activity implements HomeImplementer {
 			}
 		} else {
 			mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+//			mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(
+	//				40,
+		//			-105f)));
 		}
 	}
 
@@ -302,7 +273,7 @@ public class Home extends Activity implements HomeImplementer {
 		final EditText locationAddress = (EditText) findViewById(R.id.editText);
 		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
 		final TextView systemStatus = (TextView) findViewById(R.id.tvSystemStatus2);
-		final CheckBox vibration = (CheckBox) findViewById(R.id.cbVibrate);
+		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
 		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
 		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
 		
@@ -313,7 +284,7 @@ public class Home extends Activity implements HomeImplementer {
 		if (isArmed) {
 			currentLocation.setText(readableAddress);
 			currentLocation.setTextColor(Color.BLUE);
-			vibration.setVisibility(View.GONE);
+			vibrate.setVisibility(View.GONE);
 			sound.setVisibility(View.GONE);
 			voice.setVisibility(View.GONE);
 			disarmButton.setVisibility(View.VISIBLE);
@@ -323,7 +294,7 @@ public class Home extends Activity implements HomeImplementer {
 			systemStatus.setText("Armed");
 			systemStatus.setTextColor(Color.RED);
 		} else {
-			vibration.setVisibility(View.VISIBLE);
+			vibrate.setVisibility(View.VISIBLE);
 			sound.setVisibility(View.VISIBLE);
 			voice.setVisibility(View.VISIBLE);
 			disarmButton.setVisibility(View.GONE);
@@ -332,9 +303,27 @@ public class Home extends Activity implements HomeImplementer {
 			deriveFromAddress.setVisibility(View.VISIBLE);
 			systemStatus.setText("Disarmed");
 			systemStatus.setTextColor(Color.BLUE);
+			setACheckbox("vibrate", vibrate);
+			setACheckbox("sound", sound);
+			setACheckbox("voice",voice);
 		}
 	}
 
+	private void setACheckbox(String settingName, CheckBox checkbox) {
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+		SharedPreferences.Editor editor = settings.edit();
+		String theValue=settings.getString(settingName, "q");
+		if(theValue.equals("q")) {
+			theValue="y";
+			editor.putString("vibrate", theValue);
+		}
+		if (theValue.equals("n")) {
+			checkbox.setChecked(false);
+		} else {
+			checkbox.setChecked(true);
+		}
+		editor.commit();
+	}
 	private LocationManager getLocationManager() {
 		if (mLocationManager == null) {
 			mLocationManager = (android.location.LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -449,6 +438,9 @@ public class Home extends Activity implements HomeImplementer {
 										(double) point.longitude, 2);
 								if (addresses != null && addresses.size() > 0) {
 									useThisAddress = addresses.get(0);
+									/* Even though we've found a good displayable name, we still want to drop the pin in the exact right place.*/
+									useThisAddress.setLatitude(point.latitude);
+									useThisAddress.setLongitude(point.longitude);
 								}
 							}
 						} catch (Exception e) {
@@ -521,11 +513,11 @@ public class Home extends Activity implements HomeImplementer {
 						@Override
 						public void onLocationChanged(Location location) {
 							
-							/*
+							
 							// simulate Scott's address
 							location.setLatitude(40.658421);
 							location.setLongitude(-74.29959);
-							*/
+							
 							
 							getLocationManager().removeUpdates(this);
 							getHomeManager().new RetrieveAddressDataForMap()

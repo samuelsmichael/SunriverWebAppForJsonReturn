@@ -1,5 +1,6 @@
 package com.sdouglas.android.commuteralert;
 
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -28,6 +29,7 @@ public class LocationService extends Service implements LocationListener  {
     private static final int ARMED_NOTIFICATION_ID=3;
     private String mAddressInReadableForm;
     private static final float ALARM_RADIUS_IN_METERS=500f;
+    private static final String ALERT_TEXT="Alert. Alert.  You are arriving at your destination!";
 
 	private int _jdFY=0;
 
@@ -115,7 +117,7 @@ public class LocationService extends Service implements LocationListener  {
 		stopMyLocationsTimer2();
 	}
 	private int getModifyingValue() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_MULTI_PROCESS);
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return settings.getInt("modifyingValue", 1);
 	}
 	private void getmAlarmSender() {
@@ -154,20 +156,11 @@ public class LocationService extends Service implements LocationListener  {
 		return mNotificationManager;
 	}
 
-	// Have the system voice out the alert.
-	private void sayIt(String it) {
-		Intent jdIntent=new Intent(this, VoiceHelper.class)
-		.putExtra("voicedata",it);
-		jdIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		startActivity(jdIntent);		
-
-	}
-
 	int mDontReenter=0;
 	private void manageLocationNotifications(Location newLocation) {
 		if(mDontReenter==0) {
 			mDontReenter++;
-	        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_MULTI_PROCESS);
+	        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 	        float latitude = settings.getFloat("latitude", 0);
 	        float longitude = settings.getFloat("longitude", 0);
 			if(latitude!=0 && mLastKnownLocation != null) {
@@ -199,8 +192,9 @@ public class LocationService extends Service implements LocationListener  {
 	    	    	// and create one of our own
 	    	    	Notification.Builder mBuilder=new Notification.Builder(this)
 			    	.setSmallIcon(R.drawable.ic_launcher)
-			    	.setContentTitle("Alert. Alert.  You are arriving at your destination!")
+			    	.setContentTitle(ALERT_TEXT)
 			    	.setContentText(mAddressInReadableForm)
+			    	.setAutoCancel(true)
 			    	.setOngoing(false);
 			    	; 
 	    	    	if(vibration.toLowerCase().equals("y")) {
@@ -211,20 +205,22 @@ public class LocationService extends Service implements LocationListener  {
 	    	    	}
 		    	
 			    	// 4a. When the user presses the notification, we want to take him to our home page
-			    	Intent resultIntent = new Intent(this, Home.class);
-					PendingIntent pendingIntent = PendingIntent.getActivity(this,
-							(int)System.currentTimeMillis(), resultIntent, 0);
-			    	mBuilder.setContentIntent(pendingIntent);    	    	
 			    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
 			    	
 			    	// 5. Send a voice alert
-			    	if(voice.toLowerCase().equals("y")) {
-			    		sayIt("Alert. Alert.  You are arriving at your destination!");
-			    	}
-					Intent jdIntent=new Intent(this, Home.class)
-					.setAction("showdisarmed");
-					jdIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					startActivity(jdIntent);		
+			    	if(voice.toLowerCase(Locale.getDefault()).equals("y")) {
+						Intent intentDoVoice=new Intent(this, Home.class);
+						intentDoVoice.putExtra("voicedata",ALERT_TEXT);
+						intentDoVoice.setAction("dovoice");
+						intentDoVoice.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						intentDoVoice.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+						startActivity(intentDoVoice);	
+					} else {
+						Intent jdIntent=new Intent(this, Home.class)
+						.setAction("showdisarmed");
+						jdIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						startActivity(jdIntent);
+					}
 
 	    		}
 	        }

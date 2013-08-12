@@ -14,7 +14,6 @@ import android.graphics.PixelFormat;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -81,6 +80,11 @@ public class VoiceHelper extends Activity {
 				screenLock=null;
 			}
 		} catch (Exception e3) {}		
+		Intent intentBackToHome=new Intent(this, Home.class)
+		.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intentBackToHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		startActivity(intentBackToHome);	
+		
 	}
 	
 	@Override
@@ -109,7 +113,9 @@ public class VoiceHelper extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_voice_helper);
 		_countDoing=0;
+		setTitle("CommuterAlert");
 		/* This makes it happen even if the system is sleeping or locked */
 		screenLock = ((PowerManager)getSystemService(POWER_SERVICE)).newWakeLock(
 			     PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
@@ -171,6 +177,8 @@ public class VoiceHelper extends Activity {
 		}
 		//getLogger().log("VoiceHelper: 1 ... in onCreate",100);
 		if(wereDoingVoiceNotifications()) {
+			final TextView alertDescription = (TextView) findViewById(R.id.alertDescription);
+			alertDescription.setText(getIntent().getStringExtra("voicedata"));
 			if(mTts!=null && _imInited) {
 				//getLogger().log("VoiceHelper: 1a ... mTts!=null && _imInited",100);
 				speak(getIntent().getStringExtra("voicedata"));
