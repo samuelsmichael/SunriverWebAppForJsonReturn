@@ -36,6 +36,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class Home extends Activity implements HomeImplementer {
+	private LocationManager mLocationManager2=null;
 	private GoogleMap mMap = null;
 	private HomeManager mHomeManager;
 	private LocationManager mLocationManager = null;
@@ -177,7 +178,7 @@ public class Home extends Activity implements HomeImplementer {
 			if (mMap != null) {
 				// The Map is verified. It is now safe to manipulate the map.
 				mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-				findInitialLocation();
+				getCurrentLocation();
 			}
 		} else {
 			mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
@@ -331,11 +332,6 @@ public class Home extends Activity implements HomeImplementer {
 		return mLocationManager;
 	}
 
-	private String getProvider() {
-		Criteria criteria = new Criteria();
-		criteria.setAccuracy(Criteria.ACCURACY_FINE);
-		return getLocationManager().getBestProvider(criteria, false);
-	}
 	public void positionMapToLocation(double latitude, double longitude) {
 		if(mMap != null) {
 		mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(
@@ -499,49 +495,44 @@ public class Home extends Activity implements HomeImplementer {
 		new ShowMap().execute(t);
 	}
 
+	private String getProvider() {
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		return getLocationManager().getBestProvider(criteria, false);
+	}
+
 	/* 
 	 * Here is where we're going to request our list of trains from.
 	 */
-	private void findInitialLocation() {
-		String provider = getProvider();
-		if (provider == null) {
-			provider = LocationManager.GPS_PROVIDER;
-		}
-		if (getLocationManager().isProviderEnabled(provider)) {
-			getLocationManager().requestLocationUpdates(getProvider(), 2000, 1,
-					new LocationListener() {
-						@Override
-						public void onLocationChanged(Location location) {
-							
-							
-							// simulate Scott's address
+	private void getCurrentLocation() {
+		String provider=getProvider();
+        if(provider==null) {
+        	provider=LocationManager.GPS_PROVIDER;
+        }
+        if(getLocationManager().isProviderEnabled(provider)) {
+			getLocationManager().requestLocationUpdates(getProvider(), 1000, 2000, new LocationListener() {
+				@Override
+				public void onLocationChanged(Location location) {
+					// simulate Scott's address
 					//		location.setLatitude(40.658421);
-					//		location.setLongitude(-74.29959);
-							
-							
-							getLocationManager().removeUpdates(this);
-							getHomeManager().new RetrieveAddressDataForMap()
-									.execute(location);
-						}
+					//		location.setLongitude(-74.29959);					
+					getLocationManager().removeUpdates(this);
+					getHomeManager().new RetrieveAddressDataForMap()
+					.execute(location);					
 
-						@Override
-						public void onProviderDisabled(String provider) {
-						}
-
-						@Override
-						public void onProviderEnabled(String provider) {
-						}
-
-						@Override
-						public void onStatusChanged(String provider,
-								int status, Bundle extras) {
-							// INeedToo.mSingleton.log("Provider " + provider+
-							// " status changed to "+
-							// String.valueOf(status)+".", 1);
-						}
-					}, Looper.getMainLooper());
-		} else {
-			
-		}
+				}
+				@Override
+				public void onProviderDisabled(String provider) {
+				}
+				@Override
+				public void onProviderEnabled(String provider) {
+				}
+				@Override
+				public void onStatusChanged(String provider, int status, Bundle extras) {
+				}
+			},Looper.getMainLooper());					
+        } else {
+        }
 	}
+
 }
