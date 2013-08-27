@@ -19,7 +19,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 
-public abstract class LocationService extends Service implements LocationListener {
+public abstract class LocationService extends Service  {
 	protected abstract void disarmLocationManagement();
 	protected abstract void initializeLocationManager();
 	protected abstract void beginLocationListening();
@@ -44,42 +44,46 @@ public abstract class LocationService extends Service implements LocationListene
 		super.onStart(intent, startId);
 		Thread
 		.setDefaultUncaughtExceptionHandler(new CustomExceptionHandlerTimer(this));
-		if(intent!= null && intent.getAction()!=null && intent.getAction().equals("JustDisarm")) {
-			/*
-			 * I only maintain one NotificationManager because there are several scenarios where
-			 * it has to be used:
-			 * 	1. When an target is set, we want to put an "ongoing" notice in the notification tray
-			 *		so no matter where the user is on his phone, he can always see that his 
-			 *		system is armed. "Ongoing" means that it doesn't go away when the user 
-			 *		presses on it, nor when the user clicks the X to clear all notifications.
-			 *  2. When the user clicks the "disarm" button, we need to remove it.  This is 
-			 *  	done right here.
-			 *  3. When the alarm goes off, we want to first remove the "ongoing" notification,
-			 *  	and then set a new one ... only this new one needs to be "not ongoing", because
-			 *  	once the user presses it (or presses the X to clear all notifications), it should go away.
-			 */
-			disarmLocationManagement();
-	    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
+		if(intent!= null && intent.getAction()!=null && intent.getAction().equals("notifyuser")) {
+			notifyUser();
 		} else {
-			if(intent!=null  && intent.getAction()!=null && intent.getAction()=="JustInitializeLocationManager") {
-				initializeLocationManager();
+			if(intent!= null && intent.getAction()!=null && intent.getAction().equals("JustDisarm")) {
+				/*
+				 * I only maintain one NotificationManager because there are several scenarios where
+				 * it has to be used:
+				 * 	1. When an target is set, we want to put an "ongoing" notice in the notification tray
+				 *		so no matter where the user is on his phone, he can always see that his 
+				 *		system is armed. "Ongoing" means that it doesn't go away when the user 
+				 *		presses on it, nor when the user clicks the X to clear all notifications.
+				 *  2. When the user clicks the "disarm" button, we need to remove it.  This is 
+				 *  	done right here.
+				 *  3. When the alarm goes off, we want to first remove the "ongoing" notification,
+				 *  	and then set a new one ... only this new one needs to be "not ongoing", because
+				 *  	once the user presses it (or presses the X to clear all notifications), it should go away.
+				 */
+				disarmLocationManagement();
+		    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
 			} else {
-				if (intent!=null) {
-					mAddressInReadableForm=intent.getStringExtra("LocationAddress");
-			    	Notification.Builder mBuilder=new Notification.Builder(this)
-				    	.setSmallIcon(R.drawable.ic_launcher)
-				    	.setContentTitle("CommuterAlert is on")
-				    	.setContentText(mAddressInReadableForm)
-				    	.setOngoing(true);
-			    	// Creates an explicit intent for an Activity in your app
-			    	Intent resultIntent = new Intent(this, LocationServiceOriginal.class);
-					PendingIntent pendingIntent = PendingIntent.getActivity(this,
-							(int)System.currentTimeMillis(), resultIntent, 0);
-			    	mBuilder.setContentIntent(pendingIntent);    	    	
-			    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
+				if(intent!=null  && intent.getAction()!=null && intent.getAction()=="JustInitializeLocationManager") {
+					initializeLocationManager();
+				} else {
+					if (intent!=null) {
+						mAddressInReadableForm=intent.getStringExtra("LocationAddress");
+				    	Notification.Builder mBuilder=new Notification.Builder(this)
+					    	.setSmallIcon(R.drawable.ic_launcher)
+					    	.setContentTitle("CommuterAlert is on")
+					    	.setContentText(mAddressInReadableForm)
+					    	.setOngoing(true);
+				    	// Creates an explicit intent for an Activity in your app
+				    	Intent resultIntent = new Intent(this, LocationServiceGeofencing.class);
+						PendingIntent pendingIntent = PendingIntent.getActivity(this,
+								(int)System.currentTimeMillis(), resultIntent, 0);
+				    	mBuilder.setContentIntent(pendingIntent);    	    	
+				    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
+					}
+					// Start up the timer
+					beginLocationListening();
 				}
-				// Start up the timer
-				beginLocationListening();
 			}
 		}
 	}

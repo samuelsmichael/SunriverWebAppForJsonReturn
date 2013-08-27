@@ -88,7 +88,7 @@ public class HomeManager {
 	 * then this frequency is low; otherwise, it's high, as more frequent updates to the location are required.
 	 */
 	public void initialize() {
-		Intent intent = new Intent(mActivity, LocationServiceOriginal.class)
+		Intent intent = new Intent(mActivity, LocationServiceGeofencing.class)
 				.setAction("JustInitializeLocationManager");
 
 		mActivity.startService(intent);
@@ -141,7 +141,7 @@ public class HomeManager {
 		// I try to maintain only a single Android LocationManager, which is 
 		// in the class LocationService; so I need to tell LocationService to turn off,
 		// its requests to Android to give it location updates so as to conserve the battery.
-		Intent intent = new Intent(mActivity, LocationServiceOriginal.class)
+		Intent intent = new Intent(mActivity, LocationServiceGeofencing.class)
 				.setAction("JustDisarm");
 		mActivity.startService(intent);
 	}
@@ -499,7 +499,7 @@ public class HomeManager {
 		((HomeImplementer) mActivity).heresYourAddress(a,
 				getReadableFormOfAddress(a));
 		armLocationService(a);
-		Intent jdItent2 = new Intent(mActivity, LocationServiceOriginal.class)
+		Intent jdItent2 = new Intent(mActivity, LocationServiceGeofencing.class)
 				.putExtra("LocationAddress", getReadableFormOfAddress(a));
 		mActivity.startService(jdItent2);
 		((HomeImplementer) mActivity).dropPin(a);

@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.GregorianCalendar;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -27,6 +29,7 @@ import android.os.Looper;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.View;
@@ -35,7 +38,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class Home extends Activity implements HomeImplementer {
+public class Home extends Activity implements HomeImplementer,
+	GooglePlayServicesClient.ConnectionCallbacks,
+	GooglePlayServicesClient.OnConnectionFailedListener {
 	private LocationManager mLocationManager2=null;
 	private GoogleMap mMap = null;
 	private HomeManager mHomeManager;
@@ -46,6 +51,8 @@ public class Home extends Activity implements HomeImplementer {
 	static final float SOMEKINDOFFACTOR=720; // this factor is the "number of meters" under which when the user presses a train, we assume he meant to press the train, at zoom level 11.
 	static final int PURGECACHEDAYSOLD=100; // number of days, older than which items in the cache are purged.
 	private Marker mPreviousMarker;
+    public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private LocationClient mLocationClient;
 
 	private HomeManager getHomeManager() {
 		if (mHomeManager == null) {
@@ -72,6 +79,12 @@ public class Home extends Activity implements HomeImplementer {
 			startActivity(jdIntent);			
 			setControlsVisibility(false, "");
   		}
+        /*
+         * Create a new location client, using the enclosing class to
+         * handle callbacks.
+         */
+        mLocationClient = new LocationClient(this, this, this);		
+		
 		final EditText locationAddress = (EditText) findViewById(R.id.editText);
 		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
 
@@ -144,6 +157,26 @@ public class Home extends Activity implements HomeImplementer {
 		getHomeManager().initialize();
 	}
 
+    /*
+     * Called when the Activity becomes visible.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Connect the client.
+        mLocationClient.connect();
+    }	
+	
+    /*
+     * Called when the Activity is no longer visible.
+     */
+    @Override
+    protected void onStop() {
+        // Disconnecting the client invalidates it.
+        mLocationClient.disconnect();
+        super.onStop();
+    }    
+    
 	@Override
 	protected void onRestart() {
 		super.onRestart();
@@ -178,7 +211,6 @@ public class Home extends Activity implements HomeImplementer {
 			if (mMap != null) {
 				// The Map is verified. It is now safe to manipulate the map.
 				mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-				getCurrentLocation();
 			}
 		} else {
 			mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
@@ -505,6 +537,11 @@ public class Home extends Activity implements HomeImplementer {
 	 * Here is where we're going to request our list of trains from.
 	 */
 	private void getCurrentLocation() {
+		Location location=mLocationClient.getLastLocation();
+		getHomeManager().new RetrieveAddressDataForMap()
+		.execute(location);		
+		
+/*		
 		String provider=getProvider();
         if(provider==null) {
         	provider=LocationManager.GPS_PROVIDER;
@@ -533,6 +570,53 @@ public class Home extends Activity implements HomeImplementer {
 			},Looper.getMainLooper());					
         } else {
         }
+*/
+	}
+
+	
+
+	@Override
+	public void onConnectionFailed(ConnectionResult connectionResult) {
+        /*
+         * Google Play services can resolve some errors it detects.
+         * If the error has a resolution, try sending an Intent to
+         * start a Google Play services activity that can resolve
+         * error.
+         */
+        if (connectionResult.hasResolution()) {
+            try {
+                // Start an Activity that tries to resolve the error
+                connectionResult.startResolutionForResult(
+                        this,
+                        CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                /*
+                 * Thrown if Google Play services canceled the original
+                 * PendingIntent
+                 */
+            } catch (IntentSender.SendIntentException e) {
+                // Log the error
+                e.printStackTrace();
+            }
+        } else {
+            /*
+             * If no resolution is available, display a dialog to the
+             * user with the error.
+             */
+            showErrorDialog(connectionResult.getErrorCode());	
+        }
+	}
+
+
+	@Override
+	public void onConnected(Bundle arg0) {
+		getCurrentLocation();
+	}
+
+
+	@Override
+	public void onDisconnected() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

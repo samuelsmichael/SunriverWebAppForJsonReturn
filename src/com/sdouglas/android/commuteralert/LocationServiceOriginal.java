@@ -31,7 +31,7 @@ import android.os.Looper;
  *  		
  */
 
-public class LocationServiceOriginal extends LocationService {
+public class LocationServiceOriginal extends LocationService implements LocationListener {
 	private long MTIMEOALARMINTENSECONDINTERVALS=12;
 	private Timer mLocationsTimer2=null;
 	private LocationManager mLocationManager=null;
