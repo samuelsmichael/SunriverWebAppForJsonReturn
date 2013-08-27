@@ -35,7 +35,7 @@ public class HomeManager {
 	private Activity mActivity = null;
 	private DbAdapter mDbAdapter = null;
 	public static final String PREFS_NAME = "MyPrefsFile";
-	public static final int LIMIT_NBR_ACCESSES = 35;
+	public static final int LIMIT_NBR_ACCESSES = 100;
 	public static final String GOOGLE_API_KEY = "AIzaSyCiLgS6F41lPD-aHj7yMycVDv38gb1vd2o";
 
 	public static final float CLOSE_TO_RADIUS_IN_METERS = 1000;
@@ -275,7 +275,7 @@ public class HomeManager {
 				+ location.getLongitude()
 				+ "&token="
 				+ (nextPageToken == null ? "" : nextPageToken)
-				+ "&radius=50000&types=train_station|subway_station&sensor=true&key="
+				+ "&radius=50000&types=train_station&sensor=true&key="
 				+ GOOGLE_API_KEY;
 		URL u = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) u.openConnection();

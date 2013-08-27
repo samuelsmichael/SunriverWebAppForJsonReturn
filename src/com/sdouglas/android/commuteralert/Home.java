@@ -515,8 +515,8 @@ public class Home extends Activity implements HomeImplementer {
 							
 							
 							// simulate Scott's address
-							location.setLatitude(40.658421);
-							location.setLongitude(-74.29959);
+					//		location.setLatitude(40.658421);
+					//		location.setLongitude(-74.29959);
 							
 							
 							getLocationManager().removeUpdates(this);
