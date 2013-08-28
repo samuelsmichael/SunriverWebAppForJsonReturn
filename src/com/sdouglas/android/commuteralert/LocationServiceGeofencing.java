@@ -88,6 +88,7 @@ public class LocationServiceGeofencing extends LocationService {
         mPrefs = new SimpleGeofenceStore(this);		
 	    // Store a list of geofences to add
 	    List<Geofence> geofences=new ArrayList<Geofence>();
+	    mCurrentGeofences.clear();
 	}
 	protected void beginLocationListening() {
         mRequestType = GeofenceUtils.REQUEST_TYPE.ADD;
@@ -110,7 +111,8 @@ public class LocationServiceGeofencing extends LocationService {
             Geofence.GEOFENCE_TRANSITION_ENTER);
 
         // Store this flat version in SharedPreferences
-        mPrefs.setGeofence("1", mUIGeofence1);        
+        mPrefs.setGeofence("1", mUIGeofence1);   
+        mCurrentGeofences.add(mUIGeofence1.toGeofence());
 		
 		GeofenceRequestor geofences=new GeofenceRequestor(this);
 		geofences.addGeofences(mCurrentGeofences);

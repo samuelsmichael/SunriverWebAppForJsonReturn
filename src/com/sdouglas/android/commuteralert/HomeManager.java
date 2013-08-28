@@ -5,12 +5,23 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Looper;
 import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,14 +42,20 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class HomeManager {
+public class HomeManager implements
+			GooglePlayServicesClient.ConnectionCallbacks,
+			GooglePlayServicesClient.OnConnectionFailedListener {
 	private Activity mActivity = null;
 	private DbAdapter mDbAdapter = null;
+	private LocationManager mLocationManager = null;
+    private LocationClient mLocationClient;
+
 	public static final String PREFS_NAME = "MyPrefsFile";
 	public static final int LIMIT_NBR_ACCESSES = 100;
 	public static final String GOOGLE_API_KEY = "AIzaSyCiLgS6F41lPD-aHj7yMycVDv38gb1vd2o";
-
+    public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	public static final float CLOSE_TO_RADIUS_IN_METERS = 1000;
+	
 
 	/*
 	 * Public Interface
@@ -94,9 +111,6 @@ public class HomeManager {
 		mActivity.startService(intent);
 		Geocoder g = new Geocoder(mActivity);
 		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = settings.edit();
-		editor.putInt("modifyingValue", 1);
-		editor.commit();
 
 		float latitude = settings.getFloat("latitude", 0);
 		float longitude = settings.getFloat("longitude", 0);
@@ -505,4 +519,125 @@ public class HomeManager {
 		((HomeImplementer) mActivity).dropPin(a);
 	}
 
+	private LocationManager getLocationManager() {
+		if (mLocationManager == null) {
+			mLocationManager = (android.location.LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+		}
+		return mLocationManager;
+	}
+
+	private String getProvider() {
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		return getLocationManager().getBestProvider(criteria, false);
+	}
+
+	/*
+	 * I've got two methods of managing locations:
+	 * 		- Google's Play Services Location API, which is very robust and reliable, but requires the phone have Network Location on.
+	 *      - GPS, which is also robust and reliable, but requires the phone have GPS on.
+	 * This section of code is for ascertaining the type.  Also, once this is done, then we can initialize the map with the
+	 * trains.
+	 */
+	public void ascertainLocationMethod(Activity activity) {
+		mActivity=activity;
+        mLocationClient = new LocationClient(mActivity, this, this);		
+        mLocationClient.connect();
+	}
+
+	
+	/* 
+	 * Here is where we're going to request our list of trains from.
+	 */
+	private void getCurrentLocation() {
+		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = settings.edit();
+		
+		Location location=mLocationClient.getLastLocation();
+		if(location!=null) {
+			editor.putString("locationmanager", "networklocation");
+			editor.commit();
+			initialize();
+			new RetrieveAddressDataForMap()
+			.execute(location);
+		} else {
+			editor.putString("locationmanager", "gps");
+			editor.commit();
+		
+			String provider=getProvider();
+	        if(provider==null) {
+	        	provider=LocationManager.GPS_PROVIDER;
+	        }
+	        if(getLocationManager().isProviderEnabled(provider)) {
+				getLocationManager().requestLocationUpdates(getProvider(), 1000, 2000, new LocationListener() {
+					@Override
+					public void onLocationChanged(Location location) {
+						// simulate Scott's address
+						//		location.setLatitude(40.658421);
+						//		location.setLongitude(-74.29959);					
+						getLocationManager().removeUpdates(this);
+						initialize();
+						new RetrieveAddressDataForMap()
+						.execute(location);					
+	
+					}
+					@Override
+					public void onProviderDisabled(String provider) {
+					}
+					@Override
+					public void onProviderEnabled(String provider) {
+					}
+					@Override
+					public void onStatusChanged(String provider, int status, Bundle extras) {
+					}
+				},Looper.getMainLooper());					
+	        } else {
+	        }
+		}
+	}
+	
+	
+	@Override
+	public void onConnected(Bundle arg0) {
+		getCurrentLocation();
+        mLocationClient.disconnect();
+	}
+
+
+	@Override
+	public void onDisconnected() {
+		// TODO Auto-generated method stub		
+	}	
+
+	@Override
+	public void onConnectionFailed(ConnectionResult connectionResult) {
+        /*
+         * Google Play services can resolve some errors it detects.
+         * If the error has a resolution, try sending an Intent to
+         * start a Google Play services activity that can resolve
+         * error.
+         */
+        if (connectionResult.hasResolution()) {
+            try {
+                // Start an Activity that tries to resolve the error
+                connectionResult.startResolutionForResult(
+                        mActivity,
+                        CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                // TODO check activity result, and try to re-connect  
+                /*
+                 * Thrown if Google Play services canceled the original
+                 * PendingIntent
+                 */
+            } catch (IntentSender.SendIntentException e) {
+                // Log the error
+                e.printStackTrace();
+            }
+        } else {
+            /*
+             * If no resolution is available, display a dialog to the
+             * user with the error.
+             */
+        	((HomeImplementer) mActivity).showPlaystoreAPIErrorDialog(connectionResult.getErrorCode());	
+        }
+	}	
 }

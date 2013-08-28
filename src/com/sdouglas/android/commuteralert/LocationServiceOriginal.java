@@ -53,7 +53,12 @@ public class LocationServiceOriginal extends LocationService implements Location
 	
     protected void initializeLocationManager() {
         try {
-            String bestProvider = getProvider();
+    		SharedPreferences settings = getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
+    		SharedPreferences.Editor editor = settings.edit();
+    		editor.putInt("modifyingValue", 1);
+    		editor.commit();
+
+    		String bestProvider = getProvider();
             if(bestProvider==null) {
             	bestProvider=LocationManager.GPS_PROVIDER;
             }

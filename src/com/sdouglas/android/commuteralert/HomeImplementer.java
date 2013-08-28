@@ -9,4 +9,5 @@ public interface HomeImplementer {
 	void heresYourAddress(Address address, String readableAddress);
 	void heresTheTrainStationAddressesToDisplayOnMap(ArrayList<Address> addresses,Location location);
 	void dropPin(Address a);
+	void showPlaystoreAPIErrorDialog(int code);
 }
