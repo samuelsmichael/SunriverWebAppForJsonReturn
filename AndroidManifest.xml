@@ -42,7 +42,17 @@
             android:enabled="true"
             android:exported="false" >
         </service>
-
+        <service
+            android:name="com.sdouglas.android.commuteralert.LocationServiceOriginalEnhanced"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+                <service
+            android:name="com.sdouglas.android.commuteralert.LocationServiceOriginal"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+        
 
         <activity
             android:name="com.sdouglas.android.commuteralert.VoiceHelper"

@@ -75,7 +75,7 @@ public abstract class LocationService extends Service  {
 					    	.setContentText(mAddressInReadableForm)
 					    	.setOngoing(true);
 				    	// Creates an explicit intent for an Activity in your app
-				    	Intent resultIntent = new Intent(this, LocationServiceGeofencing.class);
+				    	Intent resultIntent = getLocationManagerIntent();
 						PendingIntent pendingIntent = PendingIntent.getActivity(this,
 								(int)System.currentTimeMillis(), resultIntent, 0);
 				    	mBuilder.setContentIntent(pendingIntent);    	    	
@@ -156,5 +156,17 @@ public abstract class LocationService extends Service  {
 			startActivity(jdIntent);
 		}
 	}
-	
+	private Intent getLocationManagerIntent() {
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
+		String locationManager = settings.getString("locationmanager","gps");
+		if(locationManager.equals("gps")) {
+			return 	new Intent(this, LocationServiceOriginalEnhanced.class);
+		} else {
+			if(locationManager.equals("networklocation")) {
+				return new Intent(this,LocationServiceGeofencing.class);
+			} else {
+				return 	new Intent(this, LocationServiceOriginal.class);				
+			}
+		}
+	}	
 }

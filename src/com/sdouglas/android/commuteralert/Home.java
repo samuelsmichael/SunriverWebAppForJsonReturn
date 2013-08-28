@@ -225,7 +225,7 @@ public class Home extends Activity implements HomeImplementer {
 		return true;
 	}
 
-	void showPlaystoreAPIErrorDialog(int code) {
+	public void showPlaystoreAPIErrorDialog(int code) {
 		GooglePlayServicesUtil.getErrorDialog(code, this,
 				REQUEST_CODE_RECOVER_PLAY_SERVICES).show();
 	}

@@ -66,6 +66,21 @@ public class HomeManager implements
 	private HomeManager() { // We don't want any empty contructers;
 		
 	}
+	
+	private Intent getLocationManagerIntent() {
+		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
+		String locationManager = settings.getString("locationmanager","gps");
+		if(locationManager.equals("gps")) {
+			return 	new Intent(mActivity, LocationServiceOriginalEnhanced.class);
+		} else {
+			if(locationManager.equals("networklocation")) {
+				return new Intent(mActivity,LocationServiceGeofencing.class);
+			} else {
+				return 	new Intent(mActivity, LocationServiceOriginal.class);				
+			}
+		}
+	}
+	
 	public HomeManager(Activity activity) {
 		mActivity=activity;
 	}
@@ -105,7 +120,7 @@ public class HomeManager implements
 	 * then this frequency is low; otherwise, it's high, as more frequent updates to the location are required.
 	 */
 	public void initialize() {
-		Intent intent = new Intent(mActivity, LocationServiceGeofencing.class)
+		Intent intent = getLocationManagerIntent()
 				.setAction("JustInitializeLocationManager");
 
 		mActivity.startService(intent);
@@ -155,7 +170,7 @@ public class HomeManager implements
 		// I try to maintain only a single Android LocationManager, which is 
 		// in the class LocationService; so I need to tell LocationService to turn off,
 		// its requests to Android to give it location updates so as to conserve the battery.
-		Intent intent = new Intent(mActivity, LocationServiceGeofencing.class)
+		Intent intent = getLocationManagerIntent()
 				.setAction("JustDisarm");
 		mActivity.startService(intent);
 	}
@@ -513,7 +528,7 @@ public class HomeManager implements
 		((HomeImplementer) mActivity).heresYourAddress(a,
 				getReadableFormOfAddress(a));
 		armLocationService(a);
-		Intent jdItent2 = new Intent(mActivity, LocationServiceGeofencing.class)
+		Intent jdItent2 = getLocationManagerIntent()
 				.putExtra("LocationAddress", getReadableFormOfAddress(a));
 		mActivity.startService(jdItent2);
 		((HomeImplementer) mActivity).dropPin(a);

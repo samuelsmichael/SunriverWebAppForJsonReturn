@@ -12,7 +12,9 @@ import com.google.android.gms.location.LocationClient.OnAddGeofencesResultListen
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -39,6 +41,9 @@ public class GeofenceRequestor
                     ConnectionCallbacks,
                     OnConnectionFailedListener {
 
+	public static final String PREFS_NAME = "MyPrefsFile";
+	
+	
     // Storage for a reference to the calling client
     private final Service mActivity;
 
@@ -258,6 +263,22 @@ public class GeofenceRequestor
         mLocationClient = null;
     }
 
+    
+	private Intent getLocationManagerIntent() {
+		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
+		String locationManager = settings.getString("locationmanager","gps");
+		if(locationManager.equals("gps")) {
+			return 	new Intent(mActivity, LocationServiceOriginalEnhanced.class);
+		} else {
+			if(locationManager.equals("networklocation")) {
+				return new Intent(mActivity,LocationServiceGeofencing.class);
+			} else {
+				return 	new Intent(mActivity, LocationServiceOriginal.class);				
+			}
+		}
+	}    
+    
+    
     /**
      * Get a PendingIntent to send with the request to add Geofences. Location Services issues
      * the Intent inside this PendingIntent whenever a geofence transition occurs for the current
@@ -277,7 +298,7 @@ public class GeofenceRequestor
         } else {
 
             // Create an Intent pointing to the IntentService
-            Intent intent = new Intent(mActivity, LocationServiceGeofencing.class)
+            Intent intent = getLocationManagerIntent()
             .setAction("notifyuser");
             /*
              * Return a PendingIntent to start the IntentService.
