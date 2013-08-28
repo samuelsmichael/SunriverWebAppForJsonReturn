@@ -6,7 +6,6 @@ import java.util.GregorianCalendar;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -18,20 +17,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.graphics.Color;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -43,7 +37,7 @@ public class Home extends Activity implements HomeImplementer {
 	private HomeManager mHomeManager;
 	private MapFragment mMapFragment;
 	static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-	public static final String PREFS_NAME = "MyPrefsFile";
+	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
 	static final float SOMEKINDOFFACTOR=720; // this factor is the "number of meters" under which when the user presses a train, we assume he meant to press the train, at zoom level 11.
 	static final int PURGECACHEDAYSOLD=100; // number of days, older than which items in the cache are purged.
 	private Marker mPreviousMarker;
@@ -133,6 +127,20 @@ public class Home extends Activity implements HomeImplementer {
 		});
 	}
 
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_settings:
+			Intent i2=new Intent(this,Preferences.class);
+			startActivity(i2);
+			return true;
+		}
+			
+		return super.onMenuItemSelected(featureId, item);
+	}	
+	
+	
 	@Override
 	public void onDestroy() {
 		mHomeManager.close();

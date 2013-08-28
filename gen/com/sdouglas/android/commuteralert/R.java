@@ -8,6 +8,10 @@
 package com.sdouglas.android.commuteralert;
 
 public final class R {
+    public static final class array {
+        public static final int entries_list_preference=0x7f080000;
+        public static final int entryvalues_list_preference=0x7f080001;
+    }
     public static final class attr {
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
@@ -129,20 +133,20 @@ containing a value of this type.
         public static final int zOrderOnTop=0x7f01000d;
     }
     public static final class color {
-        public static final int common_action_bar_splitter=0x7f040009;
+        public static final int common_action_bar_splitter=0x7f050009;
         /**  Sign-in Button Colors 
          */
-        public static final int common_signin_btn_dark_text_default=0x7f040000;
-        public static final int common_signin_btn_dark_text_disabled=0x7f040002;
-        public static final int common_signin_btn_dark_text_focused=0x7f040003;
-        public static final int common_signin_btn_dark_text_pressed=0x7f040001;
-        public static final int common_signin_btn_default_background=0x7f040008;
-        public static final int common_signin_btn_light_text_default=0x7f040004;
-        public static final int common_signin_btn_light_text_disabled=0x7f040006;
-        public static final int common_signin_btn_light_text_focused=0x7f040007;
-        public static final int common_signin_btn_light_text_pressed=0x7f040005;
-        public static final int common_signin_btn_text_dark=0x7f04000a;
-        public static final int common_signin_btn_text_light=0x7f04000b;
+        public static final int common_signin_btn_dark_text_default=0x7f050000;
+        public static final int common_signin_btn_dark_text_disabled=0x7f050002;
+        public static final int common_signin_btn_dark_text_focused=0x7f050003;
+        public static final int common_signin_btn_dark_text_pressed=0x7f050001;
+        public static final int common_signin_btn_default_background=0x7f050008;
+        public static final int common_signin_btn_light_text_default=0x7f050004;
+        public static final int common_signin_btn_light_text_disabled=0x7f050006;
+        public static final int common_signin_btn_light_text_focused=0x7f050007;
+        public static final int common_signin_btn_light_text_pressed=0x7f050005;
+        public static final int common_signin_btn_text_dark=0x7f05000a;
+        public static final int common_signin_btn_text_light=0x7f05000b;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -151,8 +155,8 @@ containing a value of this type.
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f070000;
-        public static final int activity_vertical_margin=0x7f070001;
+        public static final int activity_horizontal_margin=0x7f090000;
+        public static final int activity_vertical_margin=0x7f090001;
     }
     public static final class drawable {
         public static final int common_signin_btn_icon_dark=0x7f020000;
@@ -182,38 +186,39 @@ containing a value of this type.
         public static final int custom_bg_1=0x7f020018;
         public static final int custom_bg_2=0x7f020019;
         public static final int ic_launcher=0x7f02001a;
-        public static final int train1=0x7f02001b;
+        public static final int ic_menu_preferences=0x7f02001b;
+        public static final int train1=0x7f02001c;
     }
     public static final class id {
-        public static final int action_settings=0x7f05001c;
-        public static final int alertDescription=0x7f050014;
-        public static final int btnDisarm=0x7f050011;
-        public static final int buttonAddress=0x7f05000a;
-        public static final int cbSound=0x7f05000d;
-        public static final int cbVibrate=0x7f05000c;
-        public static final int cbVoice=0x7f05000e;
-        public static final int checkBoxes=0x7f05000b;
-        public static final int closeMe=0x7f05001b;
-        public static final int editText=0x7f050009;
-        public static final int hybrid=0x7f050004;
-        public static final int linearLayout1=0x7f050008;
-        public static final int linearLayout2=0x7f050005;
-        public static final int map=0x7f050013;
-        public static final int needDescription=0x7f05001a;
-        public static final int needName=0x7f050018;
-        public static final int none=0x7f050000;
-        public static final int normal=0x7f050001;
-        public static final int satellite=0x7f050002;
-        public static final int terrain=0x7f050003;
-        public static final int textView1=0x7f050006;
-        public static final int textViewJDDescription=0x7f050019;
-        public static final int textViewJDNeed=0x7f050015;
-        public static final int textViewJDNeed2=0x7f050017;
-        public static final int textViewJDNeedFor=0x7f050016;
-        public static final int tvCurrentLocation=0x7f050010;
-        public static final int tvCurrentViewHeading=0x7f05000f;
-        public static final int tvId1=0x7f050012;
-        public static final int tvSystemStatus2=0x7f050007;
+        public static final int action_settings=0x7f06001c;
+        public static final int alertDescription=0x7f060014;
+        public static final int btnDisarm=0x7f060011;
+        public static final int buttonAddress=0x7f06000a;
+        public static final int cbSound=0x7f06000d;
+        public static final int cbVibrate=0x7f06000c;
+        public static final int cbVoice=0x7f06000e;
+        public static final int checkBoxes=0x7f06000b;
+        public static final int closeMe=0x7f06001b;
+        public static final int editText=0x7f060009;
+        public static final int hybrid=0x7f060004;
+        public static final int linearLayout1=0x7f060008;
+        public static final int linearLayout2=0x7f060005;
+        public static final int map=0x7f060013;
+        public static final int needDescription=0x7f06001a;
+        public static final int needName=0x7f060018;
+        public static final int none=0x7f060000;
+        public static final int normal=0x7f060001;
+        public static final int satellite=0x7f060002;
+        public static final int terrain=0x7f060003;
+        public static final int textView1=0x7f060006;
+        public static final int textViewJDDescription=0x7f060019;
+        public static final int textViewJDNeed=0x7f060015;
+        public static final int textViewJDNeed2=0x7f060017;
+        public static final int textViewJDNeedFor=0x7f060016;
+        public static final int tvCurrentLocation=0x7f060010;
+        public static final int tvCurrentViewHeading=0x7f06000f;
+        public static final int tvId1=0x7f060012;
+        public static final int tvSystemStatus2=0x7f060007;
     }
     public static final class layout {
         public static final int activity_home=0x7f030000;
@@ -221,154 +226,158 @@ containing a value of this type.
         public static final int notificationpopup=0x7f030002;
     }
     public static final class menu {
-        public static final int home=0x7f090000;
-        public static final int voice_helper=0x7f090001;
+        public static final int home=0x7f0b0000;
+        public static final int voice_helper=0x7f0b0001;
     }
     public static final class string {
-        public static final int AddressField=0x7f060017;
-        public static final int KeyAnAddress=0x7f060019;
-        public static final int action_settings=0x7f060016;
-        public static final int add_geofences_already_requested_error=0x7f06001e;
-        public static final int add_geofences_result_failure=0x7f06001d;
+        public static final int AddressField=0x7f070017;
+        public static final int KeyAnAddress=0x7f070019;
+        public static final int action_settings=0x7f070016;
+        public static final int add_geofences_already_requested_error=0x7f07001e;
+        public static final int add_geofences_result_failure=0x7f07001d;
         /**  Messages 
          */
-        public static final int add_geofences_result_success=0x7f06001c;
-        public static final int app_name=0x7f060015;
+        public static final int add_geofences_result_success=0x7f07001c;
+        public static final int app_name=0x7f070015;
         /**   Title for notification shown when GooglePlayServices needs to be
         enabled for a application to work. [CHAR LIMIT=70] 
          */
-        public static final int auth_client_needs_enabling_title=0x7f060010;
+        public static final int auth_client_needs_enabling_title=0x7f070010;
         /**   Title for notification shown when GooglePlayServices needs to be
         installed for a application to work. [CHAR LIMIT=70] 
          */
-        public static final int auth_client_needs_installation_title=0x7f060011;
+        public static final int auth_client_needs_installation_title=0x7f070011;
         /**   Title for notification shown when GooglePlayServices needs to be
         udpated for a application to work. [CHAR LIMIT=70] 
          */
-        public static final int auth_client_needs_update_title=0x7f060012;
+        public static final int auth_client_needs_update_title=0x7f070012;
         /**   Title for notification shown when GooglePlayServices is unavailable [CHAR LIMIT=42] 
          */
-        public static final int auth_client_play_services_err_notification_msg=0x7f060013;
+        public static final int auth_client_play_services_err_notification_msg=0x7f070013;
         /**   Requested by string saying which app requested the notification. [CHAR LIMIT=42] 
          */
-        public static final int auth_client_requested_by_msg=0x7f060014;
+        public static final int auth_client_requested_by_msg=0x7f070014;
         /**   Title for notification shown when a bad version of GooglePlayServices
         has been installed and needs correction for an application to work.
         [CHAR LIMIT=70] 
          */
-        public static final int auth_client_using_bad_version_title=0x7f06000f;
+        public static final int auth_client_using_bad_version_title=0x7f07000f;
         /**  Button in confirmation dialog to enable Google Play services.  Clicking it
         will direct user to application settings of Google Play services where they
         can enable it [CHAR LIMIT=40] 
          */
-        public static final int common_google_play_services_enable_button=0x7f060006;
+        public static final int common_google_play_services_enable_button=0x7f070006;
         /**  Message in confirmation dialog informing user they need to enable
         Google Play services in application settings [CHAR LIMIT=NONE] 
          */
-        public static final int common_google_play_services_enable_text=0x7f060005;
+        public static final int common_google_play_services_enable_text=0x7f070005;
         /**  Title of confirmation dialog informing user they need to enable
         Google Play services in application settings [CHAR LIMIT=40] 
          */
-        public static final int common_google_play_services_enable_title=0x7f060004;
+        public static final int common_google_play_services_enable_title=0x7f070004;
         /**  Button in confirmation dialog for installing Google Play services [CHAR LIMIT=40] 
          */
-        public static final int common_google_play_services_install_button=0x7f060003;
+        public static final int common_google_play_services_install_button=0x7f070003;
         /**  (For phones) Message in confirmation dialog informing user that
         they need to install Google Play services (from Play Store) [CHAR LIMIT=NONE] 
          */
-        public static final int common_google_play_services_install_text_phone=0x7f060001;
+        public static final int common_google_play_services_install_text_phone=0x7f070001;
         /**  (For tablets) Message in confirmation dialog informing user that
         they need to install Google Play services (from Play Store) [CHAR LIMIT=NONE] 
          */
-        public static final int common_google_play_services_install_text_tablet=0x7f060002;
+        public static final int common_google_play_services_install_text_tablet=0x7f070002;
         /**  Title of confirmation dialog informing user that they need to install
         Google Play services (from Play Store) [CHAR LIMIT=40] 
          */
-        public static final int common_google_play_services_install_title=0x7f060000;
+        public static final int common_google_play_services_install_title=0x7f070000;
         /**  Message in confirmation dialog informing user there is an unknown issue in Google Play
         services [CHAR LIMIT=NONE] 
          */
-        public static final int common_google_play_services_unknown_issue=0x7f060009;
+        public static final int common_google_play_services_unknown_issue=0x7f070009;
         /**  Message in confirmation dialog informing user that Google Play services is not supported on their device [CHAR LIMIT=NONE] 
          */
-        public static final int common_google_play_services_unsupported_text=0x7f06000b;
+        public static final int common_google_play_services_unsupported_text=0x7f07000b;
         /**  Title of confirmation dialog informing user that Google Play services is not supported on their device [CHAR LIMIT=40] 
          */
-        public static final int common_google_play_services_unsupported_title=0x7f06000a;
+        public static final int common_google_play_services_unsupported_title=0x7f07000a;
         /**  Button in confirmation dialog for updating Google Play services [CHAR LIMIT=40] 
          */
-        public static final int common_google_play_services_update_button=0x7f06000c;
+        public static final int common_google_play_services_update_button=0x7f07000c;
         /**  Message in confirmation dialog informing user that they need to update
         Google Play services (from Play Store) [CHAR LIMIT=NONE] 
          */
-        public static final int common_google_play_services_update_text=0x7f060008;
+        public static final int common_google_play_services_update_text=0x7f070008;
         /**  Title of confirmation dialog informing user that they need to update
         Google Play services (from Play Store) [CHAR LIMIT=40] 
          */
-        public static final int common_google_play_services_update_title=0x7f060007;
+        public static final int common_google_play_services_update_title=0x7f070007;
         /**  Sign-in button text [CHAR LIMIT=15] 
          */
-        public static final int common_signin_button_text=0x7f06000d;
+        public static final int common_signin_button_text=0x7f07000d;
         /**  Long form sign-in button text [CHAR LIMIT=30] 
          */
-        public static final int common_signin_button_text_long=0x7f06000e;
-        public static final int connected=0x7f06001f;
-        public static final int connection_error_code=0x7f060045;
-        public static final int connection_error_disabled=0x7f060046;
-        public static final int connection_error_internal=0x7f060047;
-        public static final int connection_error_invalid=0x7f060048;
-        public static final int connection_error_invalid_account=0x7f060049;
-        public static final int connection_error_license_check_failed=0x7f06004a;
-        public static final int connection_error_message=0x7f06004b;
-        public static final int connection_error_misconfigured=0x7f06004c;
-        public static final int connection_error_missing=0x7f06004d;
-        public static final int connection_error_needs_resolution=0x7f06004e;
-        public static final int connection_error_network=0x7f06004f;
-        public static final int connection_error_outdated=0x7f060050;
-        public static final int connection_error_sign_in_required=0x7f060051;
-        public static final int connection_error_unknown=0x7f060052;
-        public static final int connection_failed=0x7f060020;
-        public static final int disconnected=0x7f060021;
-        public static final int geofence_input_error_latitude_invalid=0x7f060023;
-        public static final int geofence_input_error_longitude_invalid=0x7f060024;
-        public static final int geofence_input_error_missing=0x7f060022;
-        public static final int geofence_input_error_radius_invalid=0x7f060025;
-        public static final int geofence_transition_entered=0x7f060026;
-        public static final int geofence_transition_error_detail=0x7f060027;
-        public static final int geofence_transition_exited=0x7f060028;
-        public static final int geofence_transition_invalid_type=0x7f060029;
-        public static final int geofence_transition_notification_text=0x7f06002a;
-        public static final int geofence_transition_notification_title=0x7f06002b;
-        public static final int geofence_transition_unknown=0x7f06002c;
-        public static final int hello_world=0x7f06001b;
-        public static final int hint_address=0x7f060018;
-        public static final int invalid_action=0x7f06002d;
-        public static final int invalid_action_detail=0x7f06002e;
-        public static final int invalid_integer_id=0x7f06002f;
+        public static final int common_signin_button_text_long=0x7f07000e;
+        public static final int connected=0x7f07001f;
+        public static final int connection_error_code=0x7f070045;
+        public static final int connection_error_disabled=0x7f070046;
+        public static final int connection_error_internal=0x7f070047;
+        public static final int connection_error_invalid=0x7f070048;
+        public static final int connection_error_invalid_account=0x7f070049;
+        public static final int connection_error_license_check_failed=0x7f07004a;
+        public static final int connection_error_message=0x7f07004b;
+        public static final int connection_error_misconfigured=0x7f07004c;
+        public static final int connection_error_missing=0x7f07004d;
+        public static final int connection_error_needs_resolution=0x7f07004e;
+        public static final int connection_error_network=0x7f07004f;
+        public static final int connection_error_outdated=0x7f070050;
+        public static final int connection_error_sign_in_required=0x7f070051;
+        public static final int connection_error_unknown=0x7f070052;
+        public static final int connection_failed=0x7f070020;
+        public static final int default_value_list_preference=0x7f070053;
+        public static final int dialog_title_list_preference=0x7f070055;
+        public static final int disconnected=0x7f070021;
+        public static final int geofence_input_error_latitude_invalid=0x7f070023;
+        public static final int geofence_input_error_longitude_invalid=0x7f070024;
+        public static final int geofence_input_error_missing=0x7f070022;
+        public static final int geofence_input_error_radius_invalid=0x7f070025;
+        public static final int geofence_transition_entered=0x7f070026;
+        public static final int geofence_transition_error_detail=0x7f070027;
+        public static final int geofence_transition_exited=0x7f070028;
+        public static final int geofence_transition_invalid_type=0x7f070029;
+        public static final int geofence_transition_notification_text=0x7f07002a;
+        public static final int geofence_transition_notification_title=0x7f07002b;
+        public static final int geofence_transition_unknown=0x7f07002c;
+        public static final int hello_world=0x7f07001b;
+        public static final int hint_address=0x7f070018;
+        public static final int invalid_action=0x7f07002d;
+        public static final int invalid_action_detail=0x7f07002e;
+        public static final int invalid_integer_id=0x7f07002f;
         /**  Number patterns 
          */
-        public static final int lat_lng_pattern=0x7f060043;
-        public static final int latitude_error_message=0x7f060030;
-        public static final int longitude_error_message=0x7f060031;
-        public static final int no_resolution=0x7f060032;
-        public static final int play_services_available=0x7f060033;
-        public static final int radius_error_message=0x7f060034;
-        public static final int radius_pattern=0x7f060044;
-        public static final int register_geofence=0x7f060035;
-        public static final int remove_geofences_already_requested_error=0x7f060037;
-        public static final int remove_geofences_id_failure=0x7f060036;
-        public static final int remove_geofences_id_success=0x7f060038;
-        public static final int remove_geofences_intent_failure=0x7f060039;
-        public static final int remove_geofences_intent_success=0x7f06003a;
-        public static final int title_activity_voice_helper=0x7f06001a;
-        public static final int transition_entered=0x7f06003b;
-        public static final int transition_exited=0x7f06003c;
-        public static final int transition_unknown=0x7f06003d;
-        public static final int unknown=0x7f06003e;
-        public static final int unknown_activity_request_code=0x7f06003f;
-        public static final int unregister_geofence=0x7f060040;
-        public static final int unregister_geofence1=0x7f060041;
-        public static final int unregister_geofence2=0x7f060042;
+        public static final int lat_lng_pattern=0x7f070043;
+        public static final int latitude_error_message=0x7f070030;
+        public static final int longitude_error_message=0x7f070031;
+        public static final int no_resolution=0x7f070032;
+        public static final int play_services_available=0x7f070033;
+        public static final int radius_error_message=0x7f070034;
+        public static final int radius_pattern=0x7f070044;
+        public static final int register_geofence=0x7f070035;
+        public static final int remove_geofences_already_requested_error=0x7f070037;
+        public static final int remove_geofences_id_failure=0x7f070036;
+        public static final int remove_geofences_id_success=0x7f070038;
+        public static final int remove_geofences_intent_failure=0x7f070039;
+        public static final int remove_geofences_intent_success=0x7f07003a;
+        public static final int summary_list_preference=0x7f070056;
+        public static final int title_activity_voice_helper=0x7f07001a;
+        public static final int title_list_preference=0x7f070054;
+        public static final int transition_entered=0x7f07003b;
+        public static final int transition_exited=0x7f07003c;
+        public static final int transition_unknown=0x7f07003d;
+        public static final int unknown=0x7f07003e;
+        public static final int unknown_activity_request_code=0x7f07003f;
+        public static final int unregister_geofence=0x7f070040;
+        public static final int unregister_geofence1=0x7f070041;
+        public static final int unregister_geofence2=0x7f070042;
     }
     public static final class style {
         /** 
@@ -392,11 +401,14 @@ containing a value of this type.
     
  API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f080000;
+        public static final int AppBaseTheme=0x7f0a0000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f080001;
+        public static final int AppTheme=0x7f0a0001;
+    }
+    public static final class xml {
+        public static final int preferences=0x7f040000;
     }
     public static final class styleable {
         /** Attributes that can be used with a MapAttrs.

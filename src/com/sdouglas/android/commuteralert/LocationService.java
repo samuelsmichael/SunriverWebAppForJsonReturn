@@ -24,7 +24,7 @@ public abstract class LocationService extends Service  {
 	protected abstract void initializeLocationManager();
 	protected abstract void beginLocationListening();
 
-    public static final String PREFS_NAME = "MyPrefsFile";
+	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
     private NotificationManager mNotificationManager=null;
     private static final int ARMED_NOTIFICATION_ID=3;
     private String mAddressInReadableForm;

@@ -119,11 +119,13 @@ public class LocationServiceOriginal extends LocationService implements Location
 	        float longitude = settings.getFloat("longitude", 0);
 	        
 			if(latitude!=0 && mLastKnownLocation != null) {
+				float distance = Float.valueOf(settings.getString("LocationDistance", "502"));
 	    		Location location = new Location(getProvider());
 	    		location.setLatitude(Double.valueOf(latitude));
 	    		location.setLongitude(Double.valueOf(longitude));
 	    		float dx = mLastKnownLocation.distanceTo(location);
-	    		if(dx<ALARM_RADIUS_IN_METERS) { //TODO: parameterize this
+	    		
+	    		if(dx<distance) { 
 	    			notifyUser();
 	    		}
 	        }

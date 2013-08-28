@@ -99,12 +99,13 @@ public class LocationServiceGeofencing extends LocationService {
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
 		float latitude = settings.getFloat("latitude", 0);
 		float longitude = settings.getFloat("longitude", 0);
+		float distance = Float.valueOf(settings.getString("LocationDistance", "501"));
         mUIGeofence1 = new SimpleGeofence(
             "1",
             // Get latitude, longitude, and radius from the UI
             Double.valueOf(latitude),
             Double.valueOf(longitude),
-            Float.valueOf(500),
+            Float.valueOf(distance),
             // Set the expiration time
             Geofence.NEVER_EXPIRE,
             // Only detect entry transitions

@@ -41,7 +41,8 @@ public class GeofenceRequestor
                     ConnectionCallbacks,
                     OnConnectionFailedListener {
 
-	public static final String PREFS_NAME = "MyPrefsFile";
+	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
+
 	
 	
     // Storage for a reference to the calling client

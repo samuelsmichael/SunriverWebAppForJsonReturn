@@ -109,4 +109,11 @@
     <string name="connection_error_sign_in_required">The user is not signed in</string>
     <string name="connection_error_unknown">An unknown error occurred</string>    
     
+    <string name="default_value_list_preference">500</string>
+    <string name="title_list_preference">Location Distance</string>
+    <string name="dialog_title_list_preference">Choose one</string>
+    <string name="summary_list_preference">Approximately how close do you want to be to a
+		Location before receiving a notification?</string>    
+    
+    
 </resources>

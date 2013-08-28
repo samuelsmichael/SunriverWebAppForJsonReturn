@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<PreferenceScreen
+	  xmlns:android="http://schemas.android.com/apk/res/android">
+		<PreferenceCategory
+			android:title="Locations"
+		>
+            
+    		<ListPreference
+	            android:key="LocationDistance"
+	            android:defaultValue="@string/default_value_list_preference"
+	            android:title="@string/title_list_preference"
+	            android:summary="@string/summary_list_preference"
+	            android:entries="@array/entries_list_preference"
+	            android:entryValues="@array/entryvalues_list_preference"
+	            android:dialogTitle="@string/dialog_title_list_preference" />
+			
+		</PreferenceCategory>
+</PreferenceScreen>
+

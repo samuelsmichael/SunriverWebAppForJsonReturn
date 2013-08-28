@@ -2,9 +2,11 @@ package com.sdouglas.android.commuteralert;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.location.Address;
@@ -16,6 +18,8 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -49,8 +53,12 @@ public class HomeManager implements
 	private DbAdapter mDbAdapter = null;
 	private LocationManager mLocationManager = null;
     private LocationClient mLocationClient;
+    private GeofenceSampleReceiver mBroadcastReceiver;
+    // An intent filter for the broadcast receiver
+    private IntentFilter mIntentFilter;
+    
 
-	public static final String PREFS_NAME = "MyPrefsFile";
+	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
 	public static final int LIMIT_NBR_ACCESSES = 100;
 	public static final String GOOGLE_API_KEY = "AIzaSyCiLgS6F41lPD-aHj7yMycVDv38gb1vd2o";
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -126,6 +134,22 @@ public class HomeManager implements
 		mActivity.startService(intent);
 		Geocoder g = new Geocoder(mActivity);
 		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
+        // Create a new broadcast receiver to receive updates from the listeners and service
+        mBroadcastReceiver = new GeofenceSampleReceiver();
+        
+        // Create an intent filter for the broadcast receiver
+        mIntentFilter = new IntentFilter();
+
+        // Action for broadcast Intents containing various types of geofencing errors
+        mIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCE_ERROR);
+
+        // All Location Services sample apps use this category
+        mIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+
+        
+        // Register the broadcast receiver to receive status updates
+        LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcastReceiver, mIntentFilter);
+		
 
 		float latitude = settings.getFloat("latitude", 0);
 		float longitude = settings.getFloat("longitude", 0);
@@ -655,4 +679,57 @@ public class HomeManager implements
         	((HomeImplementer) mActivity).showPlaystoreAPIErrorDialog(connectionResult.getErrorCode());	
         }
 	}	
+    /**
+     * Define a Broadcast receiver that receives updates from connection listeners and
+     * the geofence transition service.
+     */
+    public class GeofenceSampleReceiver extends BroadcastReceiver {
+        /*
+         * Define the required method for broadcast receivers
+         * This method is invoked when a broadcast Intent triggers the receiver
+         */
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            // Check the action code and determine what to do
+            String action = intent.getAction();
+
+            // Intent contains information about errors in adding or removing geofences
+            if (TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCE_ERROR)) {
+
+                handleGeofenceError(context, intent);
+
+            // Intent contains information about successful addition or removal of geofences
+            } 
+        }
+
+        /**
+         * Flip back to "gps" mode because "networklocation" isn't working well
+         */
+        private void handleGeofenceError(Context context, Intent intent) {
+    		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    		SharedPreferences.Editor editor = settings.edit();
+			editor.putString("locationmanager", "gps");
+			editor.commit();
+			float latitude = settings.getFloat("latitude", 0);
+			float longitude = settings.getFloat("longitude", 0);
+			String addressDescription=settings.getString("locationString", "");
+
+			Intent intent3 = getLocationManagerIntent()
+					.setAction("JustInitializeLocationManager");
+
+			mActivity.startService(intent3);			
+			
+			Address a=new Address(Locale.getDefault());
+			a.setLatitude((double)latitude);
+			a.setLongitude((double)longitude);
+			a.setAddressLine(0, addressDescription);
+			Intent jdItent2 = getLocationManagerIntent()
+					.putExtra("LocationAddress", getReadableFormOfAddress(a));
+			mActivity.startService(jdItent2);
+        }
+    }
+	
+	
+	
 }
