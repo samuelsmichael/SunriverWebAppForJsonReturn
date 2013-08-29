@@ -38,12 +38,12 @@ public class VoiceHelper extends Activity {
 	private Boolean _imInited=false;
 	private TextToSpeech mTts=null;
 	private static WindowManager mWindowManager;
-	private CountDownTimer _mCountDownTimer=null;
 	private Stack<LinearLayout> _notificationPopups=new Stack<LinearLayout>();
 	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
 	private SharedPreferences mSharedPreferences; 
     private static String ALERT_TEXT="Alert! Alert! You are arriving at your destination.";
 	private WakeLock screenLock=null;
+	private Boolean closeRequestedSoStopLooping=false;
 	
 	/*
 	 * When we're all done (after the TextToSpeech object informs me that its done speaking), then I can
@@ -51,12 +51,6 @@ public class VoiceHelper extends Activity {
 	 * a popup window being shown too.  The whole point of the popup window is that the user sees it on his screen.
 	 */
 	private void doneCode() {
-		try {
-			if (_mCountDownTimer!= null) {
-				_mCountDownTimer.cancel();
-				_mCountDownTimer=null;
-			}
-		} catch (Exception ee33) {}
 		if(mTts!=null) {
 			try {
 				mTts.stop();
@@ -130,13 +124,14 @@ public class VoiceHelper extends Activity {
 		
 		
 		if(wereDoingPopupNotifications()) {
+			_theText=getVoiceAndPopupText();
 			LinearLayout notificationPopup=null;
 			
 			LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			notificationPopup = (LinearLayout)vi.inflate(R.layout.notificationpopup, null);
 			
 			TextView needDescription = (TextView) notificationPopup.findViewById(R.id.needDescription);
-			needDescription.setText(getVoiceAndPopupText());
+			needDescription.setText(_theText);
 			Button closeMe=(Button)notificationPopup.findViewById(R.id.closeMe);
 			if(mWindowManager==null) {
 			    mWindowManager = (WindowManager)getSystemService(WINDOW_SERVICE);
@@ -146,9 +141,10 @@ public class VoiceHelper extends Activity {
 				@Override
 				public void onClick(View v) {
 					removeView();
-					if(_countDoing<=0) { // Don't close the whole window if we're still in the middle of speaking
+					closeRequestedSoStopLooping=true;
+				//	if(_countDoing<=0) { // Don't close the whole window if we're still in the middle of speaking  (why not?)
 						finish();
-					}
+				//	}
 				}
 			});
 			/*
@@ -167,11 +163,11 @@ public class VoiceHelper extends Activity {
 		}
 		//getLogger().log("VoiceHelper: 1 ... in onCreate",100);
 		if(wereDoingVoiceNotifications()) {
+			_theText=getVoiceAndPopupText();
 			if(mTts!=null && _imInited) {
 				//getLogger().log("VoiceHelper: 1a ... mTts!=null && _imInited",100);
-				speak(getVoiceAndPopupText());
+				speak();
 			} else {
-				_theText=getVoiceAndPopupText();
 		//		getLogger().log("VoiceHelper: 1b ... mTts==null || !_imInited. _theTExt="+_theText,100);
 				Intent checkIntent = new Intent();
 				checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
@@ -179,15 +175,9 @@ public class VoiceHelper extends Activity {
 			}
 		}
 	}
-	private synchronized void speak(String words) {
+	private synchronized void speak() {
 	//	getLogger().log("VoiceHelper: 4 ... speak("+words+")",100);
-		_mCountDownTimer=new CountDownTimer(20000, 1000) { // ya got 30 seconds to get all this done
-		     public void onTick(long millisUntilFinished) {}
-		     public void onFinish() {
-		    	 _mCountDownTimer=null;
-		    	 doneSpeaking();
-		     }
-	    }.start();
+		String words=_theText;
 		HashMap<String,String> hm = new HashMap<String,String>();
 		hm.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, NOTIFICATIONUTERENCE);
 		mTts.speak(words, TextToSpeech.QUEUE_ADD, hm);
@@ -195,29 +185,26 @@ public class VoiceHelper extends Activity {
 //		getLogger().log("VoiceHelper: 5 ... end speak(...) _countDoing="+String.valueOf(_countDoing),100);
 	}
 	private synchronized void doneSpeaking() {
-		try {
-			if (_mCountDownTimer!= null) {
-				_mCountDownTimer.cancel();
-				_mCountDownTimer=null;
-			}
-		} catch (Exception ee33) {}
 		if(_countDoing>0) {
 			_countDoing--;
 		}
 
-//		getLogger().log("VoiceHelper: 7 ... doneSpeaking. Now _countDoing="+String.valueOf(_countDoing),100);
+		if(!closeRequestedSoStopLooping) {
+			speak();
+		} else {
 		
-		if(_countDoing<=0) {
-			try {
-				mTts.stop();
-				//getLogger().log("VoiceHelper: 10 ... done mTts.stop",100);
-				mTts.shutdown();
-				//getLogger().log("VoiceHelper: 11 ... done mTts.shutdown",100);
-				mTts=null;
-				
-			} catch (Exception eeee) {}
-			if(!wereDoingPopupNotifications()||_notificationPopups.empty()) {
-				finish();
+			if(_countDoing<=0) {
+				try {
+					mTts.stop();
+					//getLogger().log("VoiceHelper: 10 ... done mTts.stop",100);
+					mTts.shutdown();
+					//getLogger().log("VoiceHelper: 11 ... done mTts.shutdown",100);
+					mTts=null;
+					
+				} catch (Exception eeee) {}
+				if(!wereDoingPopupNotifications()||_notificationPopups.empty()) {
+					finish();
+				}
 			}
 		}
 	}
@@ -249,7 +236,7 @@ public class VoiceHelper extends Activity {
 											doneSpeaking();
 										}
 									});
-									speak(VoiceHelper.this._theText);
+									speak();
 								} catch (Exception ee) {
 									//getLogger().log("VoiceHelper: 3b ... onInit NOT TextToSpeech.SUCCESS",100);
 									removeView();

@@ -80,9 +80,9 @@ public abstract class LocationService extends Service  {
 								(int)System.currentTimeMillis(), resultIntent, 0);
 				    	mBuilder.setContentIntent(pendingIntent);    	    	
 				    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
+						// Start up the timer
+						beginLocationListening();
 					}
-					// Start up the timer
-					beginLocationListening();
 				}
 			}
 		}
