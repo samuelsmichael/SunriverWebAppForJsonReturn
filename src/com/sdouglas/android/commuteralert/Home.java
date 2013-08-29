@@ -82,12 +82,12 @@ public class Home extends Activity implements HomeImplementer {
 		vibrate.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
-				String oldValue=settings.getString("vibrate", "n");
+				Boolean oldValue=settings.getBoolean("vibrate", false);
 				SharedPreferences.Editor editor = settings.edit();
-				if(oldValue.equals("n")) {
-					editor.putString("vibrate","y");
+				if(oldValue) {
+					editor.putBoolean("vibrate",true);
 				} else {
-					editor.putString("vibrate","n");
+					editor.putBoolean("vibrate",false);
 				}
 				editor.commit();
 			}
@@ -95,12 +95,12 @@ public class Home extends Activity implements HomeImplementer {
 		sound.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
-				String oldValue=settings.getString("sound", "n");
+				Boolean oldValue=settings.getBoolean("sound", false);
 				SharedPreferences.Editor editor = settings.edit();
-				if(oldValue.equals("n")) {
-					editor.putString("sound","y");
+				if(oldValue) {
+					editor.putBoolean("sound",true);
 				} else {
-					editor.putString("sound","n");
+					editor.putBoolean("sound",false);
 				}
 				editor.commit();
 			}
@@ -111,9 +111,9 @@ public class Home extends Activity implements HomeImplementer {
 				String oldValue=settings.getString("voice", "n");
 				SharedPreferences.Editor editor = settings.edit();
 				if(oldValue.equals("n")) {
-					editor.putString("voice","y");
+					editor.putBoolean("voice",true);
 				} else {
-					editor.putString("voice","n");
+					editor.putBoolean("voice",false);
 				}
 				editor.commit();
 			}
@@ -336,16 +336,8 @@ public class Home extends Activity implements HomeImplementer {
 	private void setACheckbox(String settingName, CheckBox checkbox) {
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
-		String theValue=settings.getString(settingName, "q");
-		if(theValue.equals("q")) {
-			theValue="y";
-			editor.putString("vibrate", theValue);
-		}
-		if (theValue.equals("n")) {
-			checkbox.setChecked(false);
-		} else {
-			checkbox.setChecked(true);
-		}
+		Boolean theValue=settings.getBoolean(settingName, true);
+		checkbox.setChecked(theValue);
 		editor.commit();
 	}
 	public void positionMapToLocation(double latitude, double longitude) {

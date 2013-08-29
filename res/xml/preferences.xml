@@ -13,6 +13,7 @@
 	            android:dialogTitle="@string/dialog_title_list_preference" />
 			
 		</PreferenceCategory>
+
 		<PreferenceCategory
 			android:title="Notifications"
 		>
@@ -41,6 +42,8 @@
 			  	android:summary="If you choose Voice Notification (above), this is the text that will be spoken."
 			  ></EditTextPreference>
 			  			  			  			  
-		</PreferenceCategory>
+		</PreferenceCategory>		
+		
+		
 </PreferenceScreen>
 

@@ -96,7 +96,7 @@ public class VoiceHelper extends Activity {
 	}
 	
 	private Boolean wereDoingVoiceNotifications() {
-		return mSharedPreferences.getString("voice", "y").equals("y");
+		return mSharedPreferences.getBoolean("voice", false);
 	}
 	private Boolean wereDoingPopupNotifications() {
 		return true;

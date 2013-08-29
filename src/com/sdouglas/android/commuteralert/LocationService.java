@@ -127,15 +127,15 @@ public abstract class LocationService extends Service  {
     	.setOngoing(false);
     	;
     	
-		String vibrate=settings.getString("vibrate", "y");
-		String voice=settings.getString("voice", "y");
-		String sound=settings.getString("sound", "y");
+		Boolean vibrate=settings.getBoolean("vibrate", true);
+		Boolean voice=settings.getBoolean("voice", true);
+		Boolean sound=settings.getBoolean("sound", true);
     	
     	
-    	if(vibrate.toLowerCase(Locale.getDefault()).equals("y")) {
+    	if(vibrate) {
     		mBuilder.setVibrate(new long[] {100,1000,100,1000,100,1000});
     	}
-    	if(sound.toLowerCase(Locale.getDefault()).equals("y")) {
+    	if(sound) {
     		mBuilder.setDefaults(Notification.DEFAULT_SOUND);
     	}
 	
