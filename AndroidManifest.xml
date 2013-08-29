@@ -57,7 +57,7 @@
         
 
         <activity
-            android:name="com.sdouglas.android.commuteralert.VoiceHelper"
+            android:name="com.sdouglas.android.commuteralert.VoiceHelper" android:theme="@style/Theme.Transparent"
             android:label="@string/title_activity_voice_helper" >
         </activity>
         <!-- Live   

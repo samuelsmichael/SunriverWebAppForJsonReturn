@@ -2,9 +2,7 @@
 	<PreferenceScreen
 	  xmlns:android="http://schemas.android.com/apk/res/android">
 		<PreferenceCategory
-			android:title="Locations"
-		>
-            
+			android:title="Locations">            
     		<ListPreference
 	            android:key="LocationDistance"
 	            android:defaultValue="@string/default_value_list_preference"
@@ -14,6 +12,35 @@
 	            android:entryValues="@array/entryvalues_list_preference"
 	            android:dialogTitle="@string/dialog_title_list_preference" />
 			
+		</PreferenceCategory>
+		<PreferenceCategory
+			android:title="Notifications"
+		>
+			  <CheckBoxPreference
+			  	android:key="sound"
+			  	android:defaultValue="true"
+			  	android:title="Notifications Use Sound"
+			  	android:summary="Check this box if you want to receive an audible when you are notified."
+			  ></CheckBoxPreference>
+			  <CheckBoxPreference
+			  	android:defaultValue="true"
+			  	android:key="vibrate"
+			  	android:title="Notifications Vibrate"
+			  	android:summary="Check this box if you want your phone to vibrate when you are notified."
+			  ></CheckBoxPreference>
+			  <CheckBoxPreference
+			  	android:key="voice"
+			  	android:defaultValue="true"
+			  	android:title="@string/defaultvoicenotification_title"
+			  	android:summary="@string/defaultvoicenotification_summary"
+			  ></CheckBoxPreference>
+			  <EditTextPreference
+			  	android:key="voicetext"
+			  	android:defaultValue="Alert! Alert! You are arriving at your destination."
+			  	android:title="Voice Text"
+			  	android:summary="If you choose Voice Notification (above), this is the text that will be spoken."
+			  ></EditTextPreference>
+			  			  			  			  
 		</PreferenceCategory>
 </PreferenceScreen>
 

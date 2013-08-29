@@ -10,6 +10,7 @@ import android.os.PowerManager.WakeLock;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
@@ -39,6 +40,10 @@ public class VoiceHelper extends Activity {
 	private static WindowManager mWindowManager;
 	private CountDownTimer _mCountDownTimer=null;
 	private Stack<LinearLayout> _notificationPopups=new Stack<LinearLayout>();
+	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
+	private SharedPreferences mSharedPreferences; 
+    private static String ALERT_TEXT="Alert! Alert! You are arriving at your destination.";
+	private WakeLock screenLock=null;
 	
 	/*
 	 * When we're all done (after the TextToSpeech object informs me that its done speaking), then I can
@@ -80,10 +85,6 @@ public class VoiceHelper extends Activity {
 				screenLock=null;
 			}
 		} catch (Exception e3) {}		
-		Intent intentBackToHome=new Intent(this, Home.class)
-		.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intentBackToHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		startActivity(intentBackToHome);	
 		
 	}
 	
@@ -101,21 +102,23 @@ public class VoiceHelper extends Activity {
 	}
 	
 	private Boolean wereDoingVoiceNotifications() {
-		return true;
+		return mSharedPreferences.getString("voice", "y").equals("y");
 	}
 	private Boolean wereDoingPopupNotifications() {
-		return false;
+		return true;
 	}
 	
 	
-	private WakeLock screenLock=null;
+	private String getVoiceAndPopupText() {
+		return mSharedPreferences.getString("voicetext", ALERT_TEXT);
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_voice_helper);
+		setTitle("Commuter Alert");
+		mSharedPreferences=getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 		_countDoing=0;
-		setTitle("CommuterAlert");
 		/* This makes it happen even if the system is sleeping or locked */
 		screenLock = ((PowerManager)getSystemService(POWER_SERVICE)).newWakeLock(
 			     PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
@@ -132,21 +135,8 @@ public class VoiceHelper extends Activity {
 			LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			notificationPopup = (LinearLayout)vi.inflate(R.layout.notificationpopup, null);
 			
-			String lesNeedsPopup=getIntent().getStringExtra("lesNeedsPopup");
-			String lesNeedsPopupDescription=getIntent().getStringExtra("lesNeedsPopupDescription");
-			String laLocationName=getIntent().getStringExtra("laLocationName");
-			
-			TextView jdNeed=(TextView)notificationPopup.findViewById(R.id.textViewJDNeed);
-			TextView jdNeed2=(TextView)notificationPopup.findViewById(R.id.textViewJDNeed2);
-			jdNeed.setText("Needs at:");
-			jdNeed2.setText(" ");
-			
 			TextView needDescription = (TextView) notificationPopup.findViewById(R.id.needDescription);
-			needDescription.setText(lesNeedsPopupDescription);
-			TextView needName = (TextView) notificationPopup.findViewById(R.id.needName);
-			needName.setText(lesNeedsPopup);
-			TextView needForName = (TextView) notificationPopup.findViewById(R.id.textViewJDNeedFor);
-			needForName.setText(laLocationName);
+			needDescription.setText(getVoiceAndPopupText());
 			Button closeMe=(Button)notificationPopup.findViewById(R.id.closeMe);
 			if(mWindowManager==null) {
 			    mWindowManager = (WindowManager)getSystemService(WINDOW_SERVICE);
@@ -177,13 +167,11 @@ public class VoiceHelper extends Activity {
 		}
 		//getLogger().log("VoiceHelper: 1 ... in onCreate",100);
 		if(wereDoingVoiceNotifications()) {
-			final TextView alertDescription = (TextView) findViewById(R.id.alertDescription);
-			alertDescription.setText(getIntent().getStringExtra("voicedata"));
 			if(mTts!=null && _imInited) {
 				//getLogger().log("VoiceHelper: 1a ... mTts!=null && _imInited",100);
-				speak(getIntent().getStringExtra("voicedata"));
+				speak(getVoiceAndPopupText());
 			} else {
-				_theText=getIntent().getStringExtra("voicedata");
+				_theText=getVoiceAndPopupText();
 		//		getLogger().log("VoiceHelper: 1b ... mTts==null || !_imInited. _theTExt="+_theText,100);
 				Intent checkIntent = new Intent();
 				checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);

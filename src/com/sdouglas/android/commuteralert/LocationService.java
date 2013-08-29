@@ -23,12 +23,12 @@ public abstract class LocationService extends Service  {
 	protected abstract void disarmLocationManagement();
 	protected abstract void initializeLocationManager();
 	protected abstract void beginLocationListening();
+    private static String ALERT_TEXT="Alert! Alert! You are arriving at your destination.";
 
 	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
     private NotificationManager mNotificationManager=null;
     private static final int ARMED_NOTIFICATION_ID=3;
     private String mAddressInReadableForm;
-    private static final String ALERT_TEXT="Alert. Alert.  You are arriving at your destination!";
 
 
 	public LocationService() {
@@ -104,6 +104,7 @@ public abstract class LocationService extends Service  {
 		/* This is it!  We've arrived. Time to wake up our sleeping passenger.*/
     	
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String voicetext=settings.getString("voicetext", ALERT_TEXT);
 		
 		// 1. Remove the "ongoing" item in the notifications bar 
     	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
@@ -120,7 +121,7 @@ public abstract class LocationService extends Service  {
         // 4. Produce a notification in Android's Notification Bar
     	Notification.Builder mBuilder=new Notification.Builder(this)
     	.setSmallIcon(R.drawable.ic_launcher)
-    	.setContentTitle(ALERT_TEXT)
+    	.setContentTitle(voicetext)
     	.setContentText(mAddressInReadableForm)
     	.setAutoCancel(true)
     	.setOngoing(false);
@@ -142,19 +143,10 @@ public abstract class LocationService extends Service  {
     	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
     	
     	// 5. Send a voice alert
-    	if(voice.toLowerCase(Locale.getDefault()).equals("y")) {
-			Intent intentDoVoice=new Intent(this, Home.class);
-			intentDoVoice.putExtra("voicedata",ALERT_TEXT);
-			intentDoVoice.setAction("dovoice");
-			intentDoVoice.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			intentDoVoice.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-			startActivity(intentDoVoice);	
-		} else {
-			Intent jdIntent=new Intent(this, Home.class)
-			.setAction("showdisarmed");
-			jdIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(jdIntent);
-		}
+		Intent jdIntent=new Intent(this, VoiceHelper.class)
+			.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+			.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		startActivity(jdIntent);
 	}
 	private Intent getLocationManagerIntent() {
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);

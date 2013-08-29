@@ -60,13 +60,6 @@ public class Home extends Activity implements HomeImplementer {
 		if(getIntent()!=null && getIntent().getAction()!=null && getIntent().getAction().equals("showdisarmed")) {
 			setControlsVisibility(false, "");
 		}
-		if (getIntent()!=null && getIntent().getAction()!=null && getIntent().getAction().equals("dovoice")) {
-			String voiceData=getIntent().getStringExtra("voicedata");
-			Intent jdIntent=new Intent(this, VoiceHelper.class)
-				.putExtra("voicedata",voiceData);
-			startActivity(jdIntent);			
-			setControlsVisibility(false, "");
-  		}
         /*
          * Create a new location client, using the enclosing class to
          * handle callbacks.
