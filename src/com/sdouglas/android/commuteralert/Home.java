@@ -60,11 +60,7 @@ public class Home extends Activity implements HomeImplementer {
 		if(getIntent()!=null && getIntent().getAction()!=null && getIntent().getAction().equals("showdisarmed")) {
 			setControlsVisibility(false, "");
 		}
-        /*
-         * Create a new location client, using the enclosing class to
-         * handle callbacks.
-         */
-		
+
 		final EditText locationAddress = (EditText) findViewById(R.id.editText);
 		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
 
@@ -79,42 +75,26 @@ public class Home extends Activity implements HomeImplementer {
 		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
 		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
 		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
+		final SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+		final SharedPreferences.Editor editor = settings.edit();
+		vibrate.setChecked(settings.getBoolean("vibrate", true));
+		sound.setChecked(settings.getBoolean("sound", true));
+		voice.setChecked(settings.getBoolean("voice", true));
 		vibrate.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
-				Boolean oldValue=settings.getBoolean("vibrate", false);
-				SharedPreferences.Editor editor = settings.edit();
-				if(oldValue) {
-					editor.putBoolean("vibrate",true);
-				} else {
-					editor.putBoolean("vibrate",false);
-				}
+				editor.putBoolean("vibrate",((CheckBox)v).isChecked());
 				editor.commit();
 			}
 		});
 		sound.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
-				Boolean oldValue=settings.getBoolean("sound", false);
-				SharedPreferences.Editor editor = settings.edit();
-				if(oldValue) {
-					editor.putBoolean("sound",true);
-				} else {
-					editor.putBoolean("sound",false);
-				}
+				editor.putBoolean("sound",((CheckBox)v).isChecked());
 				editor.commit();
 			}
 		});
 		voice.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
-				String oldValue=settings.getString("voice", "n");
-				SharedPreferences.Editor editor = settings.edit();
-				if(oldValue.equals("n")) {
-					editor.putBoolean("voice",true);
-				} else {
-					editor.putBoolean("voice",false);
-				}
+				editor.putBoolean("voice",((CheckBox)v).isChecked());
 				editor.commit();
 			}
 		});

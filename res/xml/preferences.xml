@@ -20,8 +20,8 @@
 			  <CheckBoxPreference
 			  	android:key="sound"
 			  	android:defaultValue="true"
-			  	android:title="Notifications Use Sound"
-			  	android:summary="Check this box if you want to receive an audible when you are notified."
+			  	android:title="Notifications Use Music"
+			  	android:summary="Check this box if you want to receive music when you are notified."
 			  ></CheckBoxPreference>
 			  <CheckBoxPreference
 			  	android:defaultValue="true"

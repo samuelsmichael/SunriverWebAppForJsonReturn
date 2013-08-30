@@ -75,7 +75,7 @@ public abstract class LocationService extends Service  {
 					    	.setContentText(mAddressInReadableForm)
 					    	.setOngoing(true);
 				    	// Creates an explicit intent for an Activity in your app
-				    	Intent resultIntent = getLocationManagerIntent();
+				    	Intent resultIntent = new Intent(this,Home.class);
 						PendingIntent pendingIntent = PendingIntent.getActivity(this,
 								(int)System.currentTimeMillis(), resultIntent, 0);
 				    	mBuilder.setContentIntent(pendingIntent);    	    	
@@ -118,47 +118,10 @@ public abstract class LocationService extends Service  {
         editor.putString("locationString","");
         editor.commit();
         
-        // 4. Produce a notification in Android's Notification Bar
-    	Notification.Builder mBuilder=new Notification.Builder(this)
-    	.setSmallIcon(R.drawable.ic_launcher)
-    	.setContentTitle(voicetext)
-    	.setContentText(mAddressInReadableForm)
-    	.setAutoCancel(true)
-    	.setOngoing(false);
-    	;
-    	
-		Boolean vibrate=settings.getBoolean("vibrate", true);
-		Boolean voice=settings.getBoolean("voice", true);
-		Boolean sound=settings.getBoolean("sound", true);
-    	
-    	
-    	if(vibrate) {
-    		mBuilder.setVibrate(new long[] {100,1000,100,1000,100,1000});
-    	}
-    	if(sound) {
-    		mBuilder.setDefaults(Notification.DEFAULT_SOUND);
-    	}
-	
-    	// 4a. When the user presses the notification, we want to take him to our home page
-    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
-    	
-    	// 5. Send a voice alert
+    	// 4. Send the alert
 		Intent jdIntent=new Intent(this, VoiceHelper.class)
 			.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 			.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		startActivity(jdIntent);
 	}
-	private Intent getLocationManagerIntent() {
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
-		String locationManager = settings.getString("locationmanager","gps");
-		if(locationManager.equals("gps")) {
-			return 	new Intent(this, LocationServiceOriginalEnhanced.class);
-		} else {
-			if(locationManager.equals("networklocation")) {
-				return new Intent(this,LocationServiceGeofencing.class);
-			} else {
-				return 	new Intent(this, LocationServiceOriginal.class);				
-			}
-		}
-	}	
 }
