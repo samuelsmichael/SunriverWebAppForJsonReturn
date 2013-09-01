@@ -33,7 +33,7 @@ import android.widget.TextView;
  *   Note that there is also code here for popping up a dialog box, too; but this isn't used in this application.  
  */
 
-public class VoiceHelper extends Activity {
+public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnCompletionListener {
 	private static final int MY_DATA_CHECK_CODE = 12229000;
 	private static final String NOTIFICATIONUTERENCE = "322220001";
 	private String _theText;
@@ -56,7 +56,7 @@ public class VoiceHelper extends Activity {
 	 * proceed to close things up.  It's important that we do so.  We don't want to close, though, if there's
 	 * a popup window being shown too.  The whole point of the popup window is that the user sees it on his screen.
 	 */
-	private void doneCode() {
+	private synchronized void doneCode() {
 		if(mTts!=null) {
 			try {
 				mTts.stop();
@@ -67,6 +67,12 @@ public class VoiceHelper extends Activity {
 				
 			} catch (Exception eeee) {}
 		}		
+		if(mAudioManager!=null && mOriginalVolumn!=-100) {
+			mAudioManager.abandonAudioFocus(this);
+			mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mOriginalVolumn, 0);
+			mAudioManager=null;
+			mOriginalVolumn=-100;
+		}
 		try {
 			  if (mMediaPlayer != null){
 				  mMediaPlayer.release();
@@ -75,9 +81,6 @@ public class VoiceHelper extends Activity {
 				
 			}
 		mMediaPlayer=null;
-		if(mAudioManager!=null) {
-			mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mOriginalVolumn, 0);
-		}
 		try {
 			int jdcount=0;
 			//getLogger().log("VoiceHelper: 12a (finish) ... _notificationPopups.count: " + String.valueOf(_notificationPopups.size()),100);
@@ -174,47 +177,17 @@ public class VoiceHelper extends Activity {
 	private void playMusic() {
 	    new Thread(new Runnable() {
 	        public void run() {
-				getMediaPlayer().start(); // no need to call prepare(); create() does that for you			
 				mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-				if(mOriginalVolumn!=-100) {
+				if(mOriginalVolumn==-100) {
 					mOriginalVolumn=mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 				}
 				mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
-/*				int result = mAudioManager.requestAudioFocus(new OnAudioFocusChangeListener() {
-
-					@Override
-					public void onAudioFocusChange(int focusChange) {
-					    switch (focusChange) {
-				        case AudioManager.AUDIOFOCUS_GAIN:
-				        	if(!(getMediaPlayer().isPlaying())) mMediaPlayer.start();
-				            mMediaPlayer.setVolume(1.0f, 1.0f);
-				            break;
-				        case AudioManager.AUDIOFOCUS_LOSS:
-				            // Lost focus for an unbounded amount of time: stop playback and release media player
-				        	
-				            if (getMediaPlayer().isPlaying()) mMediaPlayer.stop();
-				            mMediaPlayer.release();
-				            mMediaPlayer=null;
-				            break;
-
-				        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-				            // Lost focus for a short time, but we have to stop
-				            // playback. We don't release the media player because playback
-				            // is likely to resume
-				            if (getMediaPlayer().isPlaying()) mMediaPlayer.pause();
-				            break;
-
-				        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-				            // Lost focus for a short time, but it's ok to keep playing
-				            // at an attenuated level
-				            if (getMediaPlayer().isPlaying()) mMediaPlayer.setVolume(0.1f, 0.1f);
-				            break;
-					    }						
-					}
-					
-				}, AudioManager.STREAM_MUSIC,
-				    AudioManager.AUDIOFOCUS_GAIN);
-				    */
+				int result = mAudioManager.requestAudioFocus(VoiceHelper.this,
+						AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+				if(result==AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+	                getMediaPlayer().setVolume(1.0f, 1.0f);
+					getMediaPlayer().start(); // no need to call prepare(); create() does that for you			
+				}
 	        }	        
 	    }).start();		
 	    
@@ -223,17 +196,7 @@ public class VoiceHelper extends Activity {
 		if(mMediaPlayer==null) {
 			mMediaPlayer = MediaPlayer.create(VoiceHelper.this,R.raw.rossini_william_tell);
 			mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-			mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
-				@Override
-				public void onCompletion(MediaPlayer mp) {
-					if(!closeRequestedSoStopLooping) {
-						mMediaPlayer.release();
-						playMusic();
-					}
-				}
-				
-			});
+			mMediaPlayer.setOnCompletionListener(this);
 		}
 		return mMediaPlayer;
 	}
@@ -365,4 +328,43 @@ public class VoiceHelper extends Activity {
 		}		
 		super.onActivityResult(requestCode, resultCode, data);
 	}
+	/* Audio onFocusChange listener methods */
+	@Override
+	public void onAudioFocusChange(int focusChange) {
+	    switch (focusChange) {
+        case AudioManager.AUDIOFOCUS_GAIN:
+        	if(!(getMediaPlayer().isPlaying())) {
+                mMediaPlayer.setVolume(1.0f, 1.0f);
+        		mMediaPlayer.start();
+        	}
+            break;
+        case AudioManager.AUDIOFOCUS_LOSS:
+            // Lost focus for an unbounded amount of time: stop playback and release media player
+        	
+            if (getMediaPlayer().isPlaying()) mMediaPlayer.stop();
+            mMediaPlayer.release();
+            mMediaPlayer=null;
+            break;
+
+        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+            // Lost focus for a short time, but we have to stop
+            // playback. We don't release the media player because playback
+            // is likely to resume
+            if (getMediaPlayer().isPlaying()) mMediaPlayer.pause();
+            break;
+
+        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+            // Lost focus for a short time, but it's ok to keep playing
+            // at an attenuated level
+            if (getMediaPlayer().isPlaying()) mMediaPlayer.setVolume(0.1f, 0.1f);
+            break;
+	    }						
+	}
+	@Override
+	public void onCompletion(MediaPlayer mp) {
+		if(!closeRequestedSoStopLooping) {
+			getMediaPlayer().seekTo(0);
+			getMediaPlayer().start();
+		}
+	}	
 }

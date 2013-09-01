@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -249,7 +250,7 @@ public class HomeManager implements
 		List<Address> addressList = new ArrayList<Address>();
 		streetAddress = URLEncoder.encode(streetAddress, "UTF-8");
 		String url = "http://maps.googleapis.com/maps/api/geocode/json?address="
-				+ streetAddress + "&sensor=true";
+				+ streetAddress + "&sensor=false";
 		URL u = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) u.openConnection();
 		conn.setRequestMethod("POST");
@@ -481,7 +482,7 @@ public class HomeManager implements
 						longitudes[i] = addressList.get(i).getLongitude();
 					}
 					AlertDialog.Builder builder = new AlertDialog.Builder(
-							mActivity);
+							mActivity,AlertDialog.THEME_TRADITIONAL);
 					builder.setTitle("More than one location found. Pick one.");
 					builder.setNegativeButton("Cancel",
 							new DialogInterface.OnClickListener() {
@@ -494,7 +495,7 @@ public class HomeManager implements
 											Toast.LENGTH_SHORT).show();
 								}
 							});
-					builder.setItems(addresses,
+					builder.setSingleChoiceItems(addresses,0,
 							new DialogInterface.OnClickListener() {
 
 								@Override
