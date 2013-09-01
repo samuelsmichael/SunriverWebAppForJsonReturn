@@ -27,6 +27,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -128,7 +129,7 @@ public class HomeManager implements
 	 * (This is the mechanism by which I minimize the battery drainage). If I ascertain that we're not moving, 
 	 * then this frequency is low; otherwise, it's high, as more frequent updates to the location are required.
 	 */
-	public void initialize() {
+	public void initialize(LatLng whereImAt) {
 		Intent intent = getLocationManagerIntent()
 				.setAction("JustInitializeLocationManager");
 
@@ -173,7 +174,7 @@ public class HomeManager implements
 			} catch (IOException e) {
 			}
 		} else {
-			((HomeImplementer) mActivity).heresYourAddress(null, null);
+			((HomeImplementer) mActivity).heresYourAddress(null, null,whereImAt);
 		}
 	}
 
@@ -551,7 +552,7 @@ public class HomeManager implements
 
 	public void newLocation(Address a) {
 		((HomeImplementer) mActivity).heresYourAddress(a,
-				getReadableFormOfAddress(a));
+				getReadableFormOfAddress(a),null);
 		armLocationService(a);
 		Intent jdItent2 = getLocationManagerIntent()
 				.putExtra("LocationAddress", getReadableFormOfAddress(a));
@@ -597,7 +598,7 @@ public class HomeManager implements
 		if(location!=null) {
 			editor.putString("locationmanager", "networklocation");
 			editor.commit();
-			initialize();
+			initialize(new LatLng(location.getLatitude(), location.getLongitude()));
 			new RetrieveAddressDataForMap()
 			.execute(location);
 		} else {
@@ -616,7 +617,7 @@ public class HomeManager implements
 						//		location.setLatitude(40.658421);
 						//		location.setLongitude(-74.29959);					
 						getLocationManager().removeUpdates(this);
-						initialize();
+						initialize(new LatLng(location.getLatitude(), location.getLongitude()));
 						new RetrieveAddressDataForMap()
 						.execute(location);					
 	

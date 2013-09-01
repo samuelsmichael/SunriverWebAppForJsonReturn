@@ -190,20 +190,21 @@ containing a value of this type.
         public static final int train1=0x7f02001c;
     }
     public static final class id {
-        public static final int action_settings=0x7f070016;
+        public static final int action_settings=0x7f070017;
         public static final int btnDisarm=0x7f070011;
         public static final int buttonAddress=0x7f07000a;
         public static final int cbSound=0x7f07000d;
         public static final int cbVibrate=0x7f07000c;
         public static final int cbVoice=0x7f07000e;
         public static final int checkBoxes=0x7f07000b;
-        public static final int closeMe=0x7f070015;
+        public static final int closeMe=0x7f070016;
         public static final int editText=0x7f070009;
         public static final int hybrid=0x7f070004;
         public static final int linearLayout1=0x7f070008;
         public static final int linearLayout2=0x7f070005;
         public static final int map=0x7f070013;
-        public static final int needDescription=0x7f070014;
+        public static final int map2=0x7f070014;
+        public static final int needDescription=0x7f070015;
         public static final int none=0x7f070000;
         public static final int normal=0x7f070001;
         public static final int satellite=0x7f070002;
@@ -216,11 +217,13 @@ containing a value of this type.
     }
     public static final class layout {
         public static final int activity_home=0x7f030000;
-        public static final int notificationpopup=0x7f030001;
+        public static final int activity_home2=0x7f030001;
+        public static final int notificationpopup=0x7f030002;
     }
     public static final class menu {
         public static final int home=0x7f0c0000;
-        public static final int voice_helper=0x7f0c0001;
+        public static final int home2=0x7f0c0001;
+        public static final int voice_helper=0x7f0c0002;
     }
     public static final class raw {
         public static final int rossini_william_tell=0x7f050000;
@@ -366,6 +369,7 @@ containing a value of this type.
         public static final int remove_geofences_intent_failure=0x7f08003b;
         public static final int remove_geofences_intent_success=0x7f08003c;
         public static final int summary_list_preference=0x7f080058;
+        public static final int title_activity_home2=0x7f080059;
         public static final int title_activity_voice_helper=0x7f08001c;
         public static final int title_list_preference=0x7f080056;
         public static final int transition_entered=0x7f08003d;

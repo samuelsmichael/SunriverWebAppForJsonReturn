@@ -247,7 +247,7 @@ public class Home extends Activity implements HomeImplementer {
 	 * that the alert has been generated, and we're thereby disarming the system..
 	 * 
 	 */
-	public void heresYourAddress(Address address, String readableAddress) { 
+	public void heresYourAddress(Address address, String readableAddress, LatLng latlng) { 
 		final Button disarmButton = (Button) findViewById(R.id.btnDisarm);
 		
 		if (address != null) {
