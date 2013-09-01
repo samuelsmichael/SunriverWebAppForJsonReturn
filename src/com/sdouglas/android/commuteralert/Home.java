@@ -22,8 +22,13 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,6 +46,10 @@ public class Home extends Activity implements HomeImplementer {
 	static final float SOMEKINDOFFACTOR=720; // this factor is the "number of meters" under which when the user presses a train, we assume he meant to press the train, at zoom level 11.
 	static final int PURGECACHEDAYSOLD=100; // number of days, older than which items in the cache are purged.
 	private Marker mPreviousMarker;
+	private static final int DIALOG_NICKNAME = 2;
+	private long mNickNameDialogId=-100;
+	private DbAdapter mDbAdapter=null;
+
 
 	private HomeManager getHomeManager() {
 		if (mHomeManager == null) {
@@ -132,7 +141,15 @@ public class Home extends Activity implements HomeImplementer {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+		SharedPreferences.Editor editor = settings.edit();
+		mNickNameDialogId=settings.getLong("nicknameid", -100);
+		if(mNickNameDialogId!=-100) {
+			editor.putLong("nicknameid", -100);
+			editor.commit();
+			showDialog(DIALOG_NICKNAME);
+		}
+
 		if (checkPlayServices()) {
 			setupMapIfNeeded();
 		}
@@ -284,6 +301,7 @@ public class Home extends Activity implements HomeImplementer {
 		final TextView systemIsArmed = (TextView) findViewById(R.id.tvCurrentViewHeading);
 		final EditText locationAddress = (EditText) findViewById(R.id.editText);
 		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
+		final Button buttonHistory = (Button) findViewById(R.id.buttonHistory);
 		final TextView systemStatus = (TextView) findViewById(R.id.tvSystemStatus2);
 		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
 		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
@@ -303,6 +321,7 @@ public class Home extends Activity implements HomeImplementer {
 			systemIsArmed.setVisibility(View.VISIBLE);
 			locationAddress.setVisibility(View.GONE);
 			deriveFromAddress.setVisibility(View.GONE);
+			buttonHistory.setVisibility(View.GONE);
 			systemStatus.setText("Armed");
 			systemStatus.setTextColor(Color.RED);
 		} else {
@@ -313,6 +332,7 @@ public class Home extends Activity implements HomeImplementer {
 			systemIsArmed.setVisibility(View.GONE);
 			locationAddress.setVisibility(View.VISIBLE);
 			deriveFromAddress.setVisibility(View.VISIBLE);
+			buttonHistory.setVisibility(View.VISIBLE);
 			systemStatus.setText("Disarmed");
 			systemStatus.setTextColor(Color.BLUE);
 			setACheckbox("vibrate", vibrate);
@@ -490,6 +510,60 @@ public class Home extends Activity implements HomeImplementer {
 		LocationAndAssociatedTrainStations t = new LocationAndAssociatedTrainStations(
 				location, addresses);
 		new ShowMap().execute(t);
+	}
+	@Override
+	protected Dialog onCreateDialog(int dialogId) {
+		AlertDialog dialog=null;
+		switch (dialogId) {
+		case DIALOG_NICKNAME:
+			double longitude=0;
+			double latitude = 0;
+			String name="";
+			String nickName="";
+			String nameToUseForSelectIt="";
+			Cursor cu=getDbAdapter().getHistoryItemFromId(mNickNameDialogId );
+			while(cu.moveToNext()) {
+				longitude=cu.getDouble(cu.getColumnIndex("longitude"));
+				latitude=cu.getDouble(cu.getColumnIndex("latitude"));
+				nickName=cu.getString(cu.getColumnIndex(DbAdapter.KEY_HISTORY_NICKNAME));
+				name=cu.getString(cu.getColumnIndex(DbAdapter.KEY_NAME));
+			}
+			nameToUseForSelectIt=nickName;
+			if(nameToUseForSelectIt==null || nameToUseForSelectIt.trim().equals("")) {
+				nameToUseForSelectIt=name;
+			}
+			cu.close();
+
+			LayoutInflater li=this.getLayoutInflater();
+			View view=li.inflate(R.layout.activity_history_setnickname,null);
+			final EditText editTextNickname=(EditText)view.findViewById(R.id.editTextNickname);
+			AlertDialog.Builder builder=new AlertDialog.Builder(this)
+				.setView(view)
+				.setTitle("Rename " + nameToUseForSelectIt)
+				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				})
+				.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						getDbAdapter().setHistoryItemNickname(mNickNameDialogId, editTextNickname.getText().toString());
+					}
+				});
+				editTextNickname.setText(nameToUseForSelectIt);
+				dialog=builder.create();
+			break;
+		default:
+			break;
+		}
+		return dialog;
+	}
+	private DbAdapter getDbAdapter() {
+		if (mDbAdapter == null) {
+			mDbAdapter = new DbAdapter(this);
+		}
+		return mDbAdapter;
 	}
 
 }

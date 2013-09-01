@@ -81,10 +81,10 @@
 	            android:textSize="13sp" />
 	    	        <Button
 	            android:id="@+id/buttonHistory"
-	            android:layout_width="20dp"
-	            android:layout_height="30dp"
+	            android:layout_width="64dp"
+	            android:layout_height="80dp"
 	            android:text="History"
-	            android:textSize="12sp" />
+	            android:textSize="11sp" />
 	    	        	        
 	    
 	    </LinearLayout>

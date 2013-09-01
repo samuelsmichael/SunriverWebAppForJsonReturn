@@ -45,7 +45,7 @@ public class DbAdapter {
 	
 	private static final String DATABASE_TABLE_LOCATION = "location";
 	private static final String DATABASE_TABLE_STATION = "station";
-	private static final String DATABASE_TABLE_HISTORY = "history";
+	public static final String DATABASE_TABLE_HISTORY = "history";
 
 
 	/* Public interface ---------------------------------------------------------------------- */
@@ -58,6 +58,38 @@ public class DbAdapter {
 	 */
 	public DbAdapter(Activity activity) {
 		this.mActivity = activity;
+	}
+	
+	public synchronized void setHistoryItemNickname(long id, String nickname) {
+		ContentValues values = new ContentValues();
+		values.put(KEY_HISTORY_NICKNAME, nickname);
+		String whereClause2=KEY_ROWID + "=" + id;
+		getSqlDb().update(DATABASE_TABLE_HISTORY, values, whereClause2, null);
+	}
+	public synchronized Cursor getHistoryItemFromId(long id) {
+		// Define a projection that specifies which columns from the database
+		// you will actually use after this query.
+		
+		String[] projection = {
+			KEY_ROWID,
+			KEY_LATITUDE,
+			KEY_LONGITUDE,
+			KEY_NAME,
+			KEY_HISTORY_NICKNAME
+		    };
+
+		String whereClause = KEY_ROWID + " = " + id;
+
+		Cursor cu = getSqlDb().query(
+			DATABASE_TABLE_HISTORY,  				// The table to query
+		    projection,                             // The columns to return
+		    whereClause,                           	// The columns for the WHERE clause
+		    null,                            		// The values for the WHERE clause
+		    null,                                   // don't group the rows
+		    null,                                   // don't filter by row groups
+		    null	                                // The sort order
+		    );
+		return cu;
 	}
 	/*
 	 * Create cache information for a location.
@@ -168,12 +200,30 @@ public class DbAdapter {
 						address.setAddressLine(0, name);
 						addressList.add(address);
 					}
+					cu.close();
+				} else {
+					cu.close();
 				}
 			}
+		} else {
+			cu.close();
 		}
 	}
 	
 	public synchronized Cursor getHistoryInMostUsedDescendingOrder() {
+		String query=
+				"SELECT IFNULL("+KEY_HISTORY_NICKNAME +","+KEY_NAME+") as "+KEY_NAME+", " +
+						KEY_HISTORY_COUNT+"," +
+						KEY_LATITUDE+"," +
+						KEY_LONGITUDE+"," +
+						KEY_ROWID +
+		" FROM " +DATABASE_TABLE_HISTORY+ " ORDER BY " + KEY_HISTORY_COUNT + " ASC ";
+		return
+		getSqlDb().rawQuery(query,null);
+		
+		/*
+
+		
 		String[] projection = {
 				KEY_NAME,
 				KEY_HISTORY_NICKNAME,
@@ -193,6 +243,7 @@ public class DbAdapter {
 			    sortOrder	                                // don't do sort order
 			    );
 		return cu;
+		*/
 	}
 
 	public synchronized void writeOrUpdateHistory(Address address) {
@@ -307,8 +358,6 @@ public class DbAdapter {
 		}
 		cu.close();
 		} catch (Exception ee) {
-			int bkhere=3;
-			int bkhere2=bkhere;
 		}
 	}
 
