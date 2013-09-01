@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.os.Vibrator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +51,7 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 	private MediaPlayer mMediaPlayer=null;
 	private int mOriginalVolumn=-100;
 	private AudioManager mAudioManager=null;
+	private Vibrator vibrator=null;
 	
 	/*
 	 * When we're all done (after the TextToSpeech object informs me that its done speaking), then I can
@@ -67,6 +69,10 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 				
 			} catch (Exception eeee) {}
 		}		
+		if (vibrator != null) {
+			vibrator.cancel();
+			vibrator=null;
+		}
 		if(mAudioManager!=null && mOriginalVolumn!=-100) {
 			mAudioManager.abandonAudioFocus(this);
 			mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mOriginalVolumn, 0);
@@ -151,6 +157,27 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 		
 		if(wereDoingMusic()) {
 			playMusic();
+		}
+		
+		if (wereVibrating()) {
+			// Get instance of Vibrator from current Context
+			vibrator= (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+			// Start without a delay
+			// Vibrate for 1000 milliseconds
+			// Sleep for 150 milliseconds
+			final long[] pattern = {0, 1000, 150};
+
+			// The '0' here means to repeat indefinitely
+			// '-1' would play the vibration once
+		    new Thread(new Runnable() {
+		        public void run() {
+		        	vibrator.vibrate(pattern, 0);
+		        }	        
+		    }).start();		
+
+			
+			
 		}
 		
 		//getLogger().log("VoiceHelper: 1 ... in onCreate",100);
