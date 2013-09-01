@@ -75,11 +75,17 @@
 	    
 	    	        <Button
 	            android:id="@+id/buttonAddress"
-	            android:layout_width="140dp"
+	            android:layout_width="130dp"
 	            android:layout_height="80dp"
 	            android:text="@string/KeyAnAddress"
 	            android:textSize="13sp" />
-	        
+	    	        <Button
+	            android:id="@+id/buttonHistory"
+	            android:layout_width="20dp"
+	            android:layout_height="30dp"
+	            android:text="History"
+	            android:textSize="12sp" />
+	    	        	        
 	    
 	    </LinearLayout>
 

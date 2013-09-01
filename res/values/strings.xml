@@ -75,5 +75,6 @@
     <string name="summary_list_preference">Approximately how close do you want to be to a
 		Location before receiving a notification?</string>
     <string name="title_activity_home2">Commuter Alert</string>
+    <string name="title_activity_history_list">History List</string>
 
 </resources>

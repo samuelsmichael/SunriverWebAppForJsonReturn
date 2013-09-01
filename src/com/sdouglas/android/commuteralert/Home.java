@@ -63,6 +63,14 @@ public class Home extends Activity implements HomeImplementer {
 
 		final EditText locationAddress = (EditText) findViewById(R.id.editText);
 		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
+		final Button history = (Button) findViewById(R.id.buttonHistory);
+		history.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent=new Intent(Home.this,HistoryList.class);
+				startActivity(intent);
+			}
+		});
 
 		/* User clicks the button after having keyed in an address */
 		deriveFromAddress.setOnClickListener(new View.OnClickListener() {
@@ -440,6 +448,7 @@ public class Home extends Activity implements HomeImplementer {
 									"Address for red marker, below");
 						}
 						// arm the system
+						getHomeManager().getDbAdapter().writeOrUpdateHistory(useThisAddress);
 						getHomeManager().newLocation(useThisAddress);
 						
 					}

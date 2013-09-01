@@ -23,7 +23,7 @@ import android.location.Location;
 import android.location.LocationManager;
 
 public class DbAdapter {
-	private static final int DATABASE_VERSION = 6;
+	private static final int DATABASE_VERSION = 8;
 
 	public static final DateFormat mDateFormat = new SimpleDateFormat(
 	"yyyy-MM-dd HH:mm:ss.S");
@@ -34,6 +34,8 @@ public class DbAdapter {
 	public static final String KEY_FOREIGNID = "_fid";
 	public static final String KEY_NAME = "name";
 	public static final String KEY_DATECREATED = "datecreated";
+	public static final String KEY_HISTORY_COUNT="historycount";
+	public static final String KEY_HISTORY_NICKNAME="historynickname";
 
 	private LocationManager mLocationManager=null;
 	private final Activity mActivity;
@@ -43,6 +45,7 @@ public class DbAdapter {
 	
 	private static final String DATABASE_TABLE_LOCATION = "location";
 	private static final String DATABASE_TABLE_STATION = "station";
+	private static final String DATABASE_TABLE_HISTORY = "history";
 
 
 	/* Public interface ---------------------------------------------------------------------- */
@@ -169,7 +172,93 @@ public class DbAdapter {
 			}
 		}
 	}
+	
+	public synchronized Cursor getHistoryInMostUsedDescendingOrder() {
+		String[] projection = {
+				KEY_NAME,
+				KEY_HISTORY_NICKNAME,
+				KEY_HISTORY_COUNT,
+				KEY_LATITUDE,
+				KEY_LONGITUDE,
+				KEY_ROWID
+			    };
+		String sortOrder = KEY_HISTORY_COUNT +" DESC";
+		Cursor cu = getSqlDb().query(
+				DATABASE_TABLE_HISTORY,  				// The table to query
+			    projection,             	            // The columns to return
+			    null, 					                // The columns for the WHERE clause
+			    null,                            		// The values for the WHERE clause
+			    null,                                   // don't group the rows
+			    null,                                   // don't filter by row groups
+			    sortOrder	                                // don't do sort order
+			    );
+		return cu;
+	}
 
+	public synchronized void writeOrUpdateHistory(Address address) {
+		new Thread(new MyRunnable2(address)).run();
+	}
+	
+	private class MyRunnable2 implements Runnable {
+		private Address mAddress;
+		public MyRunnable2(Address address ) {
+			mAddress=address;
+		}
+		@Override
+		public void run() {
+			internalWriteOrUpdateHistory(mAddress);
+		}
+	}
+	
+	/* User has selected a destination Address
+	 * 1. Look for a record (by latitude and longitude
+	 * 2. If found, increment its count, otherwise, create a new record
+	 */
+	private synchronized void internalWriteOrUpdateHistory(Address address) {
+		String[] projection = {
+				KEY_ROWID,
+				KEY_HISTORY_COUNT
+			    };	
+		String sortOrder = null;
+		String whereClause = KEY_LATITUDE + " = " + address.getLatitude() + 
+				" AND " + KEY_LONGITUDE + " = " + address.getLongitude();
+		try {
+			Cursor cu = getSqlDb().query(
+				DATABASE_TABLE_HISTORY,  				// The table to query
+			    projection,             	            // The columns to return
+			    whereClause,			                // The columns for the WHERE clause
+			    null,                            		// The values for the WHERE clause
+			    null,                                   // don't group the rows
+			    null,                                   // don't filter by row groups
+			    null	                                // don't do sort order
+			    );
+			if(cu.getCount()>0) {	
+				while(cu.moveToNext()) {
+					int oldCount=cu.getInt(cu.getColumnIndex(KEY_HISTORY_COUNT));
+					ContentValues values = new ContentValues();
+					values.put(KEY_HISTORY_COUNT, oldCount++);
+					String whereClause2=KEY_ROWID + "=" + cu.getInt(cu.getColumnIndex(KEY_ROWID));
+					getSqlDb().update(DATABASE_TABLE_HISTORY, values, whereClause2, null);
+				}
+			} else {
+				ContentValues values = new ContentValues();
+				values.put(KEY_LATITUDE, address.getLatitude());
+				values.put(KEY_LONGITUDE, address.getLongitude());
+				values.put(KEY_DATECREATED, mDateFormat.format(new GregorianCalendar()
+				.getTime()));
+				values.put(KEY_HISTORY_COUNT, 1);
+				values.put(KEY_NAME, address.getAddressLine(0));
+
+				// Insert the new row, returning the primary key value of the new row
+				long newRowId = getSqlDb().insert(
+						DATABASE_TABLE_HISTORY,
+				         null,
+				         values);
+			}
+			cu.close();
+		} catch (Exception e) {}
+	}
+	
 	private class MyRunnable implements Runnable {
 		private Date mAgedThreshhold;
 		public MyRunnable(Date agedThreshhold ) {
@@ -265,6 +354,15 @@ public class DbAdapter {
 				"_fid integer not null, " +
 				"latitude double not null, " +
 				"longitude double not null, name text not null ); ";
+		private static final String CREATE_TABLE_HISTORY = "create table history (" +
+				"_id integer primary key autoincrement, " +
+				"latitude double not null, " +
+				"longitude double not null, " + 
+				"name string not null, " +
+				"datecreated datetime not null, " +
+				"historycount int not null,"  +
+				"historynickname string null); ";
+				
 		
 		private static final String DATABASE_NAME = "data";
 
@@ -280,10 +378,14 @@ public class DbAdapter {
 			try {
 				db.execSQL(CREATE_TABLE_STATION);
 			} catch (Exception eieio33) {}
+			try {
+				db.execSQL(CREATE_TABLE_HISTORY);
+			} catch (Exception eieio33) {}
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			/*
 			if(oldVersion <= 0) {
 				db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_LOCATION);
 				db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_STATION);
@@ -291,7 +393,15 @@ public class DbAdapter {
 				if (oldVersion==5) {
 					db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_LOCATION);
 					db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_STATION);
+				} else {
+					if (oldVersion<=6) {
+						db.execSQL(CREATE_TABLE_HISTORY);
+					}
 				}
+			}
+			*/
+			if(newVersion<=8) {
+				db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_HISTORY);
 			}
 			onCreate(db);
 		}

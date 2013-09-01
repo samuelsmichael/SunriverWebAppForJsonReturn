@@ -55,9 +55,10 @@ public class HomeManager implements
 	private DbAdapter mDbAdapter = null;
 	private LocationManager mLocationManager = null;
     private LocationClient mLocationClient;
-    private GeofenceSampleReceiver mBroadcastReceiver;
+    private MyBroadcastReceiver mBroadcastReceiver;
     // An intent filter for the broadcast receiver
     private IntentFilter mIntentFilter;
+    private static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
     
 
 	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
@@ -73,7 +74,7 @@ public class HomeManager implements
 	 * ------------------
 	 */
 	
-	private HomeManager() { // We don't want any empty contructers;
+	private HomeManager() { // We don't want any empty contructors;
 		
 	}
 	
@@ -137,13 +138,15 @@ public class HomeManager implements
 		Geocoder g = new Geocoder(mActivity);
 		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
         // Create a new broadcast receiver to receive updates from the listeners and service
-        mBroadcastReceiver = new GeofenceSampleReceiver();
+        mBroadcastReceiver = new MyBroadcastReceiver();
         
         // Create an intent filter for the broadcast receiver
         mIntentFilter = new IntentFilter();
 
         // Action for broadcast Intents containing various types of geofencing errors
         mIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCE_ERROR);
+        // Action for broadcast Intents to arm the address
+        mIntentFilter.addAction(ACTION_HERES_AN_ADDRESS_TO_ARM);
 
         // All Location Services sample apps use this category
         mIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
@@ -503,6 +506,8 @@ public class HomeManager implements
 								public void onClick(DialogInterface dialog,
 										int which) {
 									Address a = addressList.get(which);
+									/* Write address to history*/
+									getDbAdapter().writeOrUpdateHistory(a);
 									HomeManager.this.newLocation(a);
 								}
 							});
@@ -510,6 +515,8 @@ public class HomeManager implements
 					alert.show();
 				} else {
 					Address a = addressList.get(0);
+					/* Write address to history*/
+					getDbAdapter().writeOrUpdateHistory(a);
 					newLocation(a);
 				}
 			} else {
@@ -685,7 +692,7 @@ public class HomeManager implements
      * Define a Broadcast receiver that receives updates from connection listeners and
      * the geofence transition service.
      */
-    public class GeofenceSampleReceiver extends BroadcastReceiver {
+    public class MyBroadcastReceiver extends BroadcastReceiver {
         /*
          * Define the required method for broadcast receivers
          * This method is invoked when a broadcast Intent triggers the receiver
@@ -702,7 +709,17 @@ public class HomeManager implements
                 handleGeofenceError(context, intent);
 
             // Intent contains information about successful addition or removal of geofences
-            } 
+            } else {
+            	if(TextUtils.equals(action, ACTION_HERES_AN_ADDRESS_TO_ARM)) {
+            		Address address=new Address(Locale.getDefault());
+            		address.setLatitude(intent.getDoubleExtra("latitude", 0));
+            		address.setLongitude(intent.getDoubleExtra("longitude", 0));
+            		address.setAddressLine(0, intent.getStringExtra("name"));
+            		if(address.getLatitude()!=0 && address.getLongitude()!=0) {
+            			HomeManager.this.newLocation(address);
+            		}
+            	}            	
+            }
         }
 
         /**

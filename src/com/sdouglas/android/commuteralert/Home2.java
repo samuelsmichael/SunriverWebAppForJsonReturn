@@ -164,6 +164,7 @@ public class Home2 extends Activity implements HomeImplementer {
 	@Override
 	public void heresYourAddress(Address address, String readableAddress,
 			LatLng whereImAt) {
+		
 		if(address==null) {
 			if(whereImAt!=null) {
 				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
