@@ -34,6 +34,7 @@ import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -163,6 +164,18 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 		getMenuInflater().inflate(R.menu.home2, menu);
 		return true;
 	}
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_settings:
+			Intent i2=new Intent(this,Preferences.class);
+			startActivity(i2);
+			return true;
+		}
+			
+		return super.onMenuItemSelected(featureId, item);
+	}	
+	
 
 	/* Do a check to see if the map object (mMap) has
 	 * already been created.  If not, then we have to prepare for displaying it,
@@ -305,7 +318,7 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 				mMap.setMyLocationEnabled(true);
 				// now create Markers for all of the trains.
 				BitmapDescriptor bmd = BitmapDescriptorFactory
-						.fromResource(R.drawable.train1);
+						.fromResource(R.drawable.train4);
 				for (int i = 0; i < result.mAddresses.size(); i++) {
 					Address address = result.mAddresses.get(i);
 					Marker marker = mMap.addMarker(new MarkerOptions()

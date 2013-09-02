@@ -56,7 +56,11 @@ int drawable custom_bg_1 0x7f020018
 int drawable custom_bg_2 0x7f020019
 int drawable ic_launcher 0x7f02001a
 int drawable ic_menu_preferences 0x7f02001b
-int drawable train1 0x7f02001c
+int drawable ic_menu_settings_holo_light 0x7f02001c
+int drawable train1 0x7f02001d
+int drawable train2 0x7f02001e
+int drawable train3 0x7f02001f
+int drawable train4 0x7f020020
 int id action_settings 0x7f070030
 int id btnDisarm 0x7f070014
 int id buttonAddress 0x7f07000c
