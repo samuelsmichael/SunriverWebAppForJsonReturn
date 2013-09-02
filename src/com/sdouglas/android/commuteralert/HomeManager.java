@@ -20,12 +20,10 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -58,7 +56,7 @@ public class HomeManager implements
     private MyBroadcastReceiver mBroadcastReceiver;
     // An intent filter for the broadcast receiver
     private IntentFilter mIntentFilter;
-    private static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
+    public static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
     
 
 	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
@@ -172,8 +170,10 @@ public class HomeManager implements
 			try {
 				List<Address> addresses = g.getFromLocation((double) latitude,
 						(double) longitude, 8);
-				if (addresses != null && addresses.size() > 0)
+				if (addresses != null && addresses.size() > 0) {
+					((HomeImplementer)mActivity).positionMapToLocation(addresses.get(0).getLatitude(), addresses.get(0).getLongitude());
 					newLocation(addresses.get(0));
+				}
 			} catch (IOException e) {
 			}
 		} else {
@@ -391,6 +391,11 @@ public class HomeManager implements
 		} 
 	}
 
+	public class LocationAndWantsSurroundingTrainStations {
+		public Location mLocation;
+		public WantsSurroundingTrainStations mClient;
+	}
+	
 	/*  All web fetches have to be done on a background thread. (See
 	 * https://developer.android.com/training/multiple-threads
 	 * /communicate-ui.html for a discussion about this.)  The "AsyncTask" 
@@ -399,12 +404,14 @@ public class HomeManager implements
 
 	
 	public class RetrieveAddressDataForMap extends
-			AsyncTask<Location, Void, List<Address>> {
+			AsyncTask<LocationAndWantsSurroundingTrainStations, Void, List<Address>> {
 		private Location mLocation = null;
+		private WantsSurroundingTrainStations mClient=null;
 
-		protected List<Address> doInBackground(Location... locationsParm) {
+		protected List<Address> doInBackground(LocationAndWantsSurroundingTrainStations... locationsParm) {
 			if (locationsParm != null) {
-				mLocation = locationsParm[0];
+				mLocation = locationsParm[0].mLocation;
+				mClient=locationsParm[0].mClient;
 				ArrayList<Address> trainStationAddresses = new ArrayList<Address>();
 				try {
 					getTrainStationsNear(mLocation, trainStationAddresses,
@@ -420,8 +427,7 @@ public class HomeManager implements
 
 		protected void onPostExecute(List<Address> result) {
 			if (mLocation != null && result != null) {
-				((HomeImplementer) mActivity)
-						.heresTheTrainStationAddressesToDisplayOnMap(
+				mClient.hereAreTheTrainStationAddresses(
 								(ArrayList) result, mLocation);
 			}
 		}
@@ -606,8 +612,11 @@ public class HomeManager implements
 			editor.putString("locationmanager", "networklocation");
 			editor.commit();
 			initialize(new LatLng(location.getLatitude(), location.getLongitude()));
+			LocationAndWantsSurroundingTrainStations client=new LocationAndWantsSurroundingTrainStations();
+			client.mClient=(WantsSurroundingTrainStations)mActivity;
+			client.mLocation=location;
 			new RetrieveAddressDataForMap()
-			.execute(location);
+			.execute(client);
 		} else {
 			editor.putString("locationmanager", "gps");
 			editor.commit();
@@ -625,8 +634,11 @@ public class HomeManager implements
 						//		location.setLongitude(-74.29959);					
 						getLocationManager().removeUpdates(this);
 						initialize(new LatLng(location.getLatitude(), location.getLongitude()));
+						LocationAndWantsSurroundingTrainStations client=new LocationAndWantsSurroundingTrainStations();
+						client.mClient=(WantsSurroundingTrainStations)mActivity;
+						client.mLocation=location;
 						new RetrieveAddressDataForMap()
-						.execute(location);					
+						.execute(client);					
 	
 					}
 					@Override
@@ -718,7 +730,7 @@ public class HomeManager implements
             		if(address.getLatitude()!=0 && address.getLongitude()!=0) {
             			HomeManager.this.newLocation(address);
             		}
-            	}            	
+            	}    
             }
         }
 

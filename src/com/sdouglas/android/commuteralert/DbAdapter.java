@@ -174,7 +174,8 @@ public class DbAdapter {
 			}
 			cu.close();
 			if(rowIdToUse!=0) {
-				String whereClause = KEY_FOREIGNID + " = " + String.valueOf(rowIdToUse);  
+				String whereClause = KEY_FOREIGNID + " = " + String.valueOf(rowIdToUse);
+				sortOrder = KEY_NAME + " ASC ";
 				String[] projection2 = {
 						KEY_LATITUDE,
 						KEY_LONGITUDE,
@@ -187,7 +188,7 @@ public class DbAdapter {
 					    null,                            		// The values for the WHERE clause
 					    null,                                   // don't group the rows
 					    null,                                   // don't filter by row groups
-					    null	                               	// The sort order
+					    sortOrder                              	// The sort order
 					    );
 				if(cu.getCount()>0) {
 					while(cu.moveToNext()) {
@@ -217,7 +218,7 @@ public class DbAdapter {
 						KEY_LATITUDE+"," +
 						KEY_LONGITUDE+"," +
 						KEY_ROWID +
-		" FROM " +DATABASE_TABLE_HISTORY+ " ORDER BY " + KEY_HISTORY_COUNT + " ASC ";
+		" FROM " +DATABASE_TABLE_HISTORY+ " ORDER BY " + KEY_HISTORY_COUNT + " DESC ";
 		return
 		getSqlDb().rawQuery(query,null);
 		

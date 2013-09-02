@@ -190,31 +190,51 @@ containing a value of this type.
         public static final int train1=0x7f02001c;
     }
     public static final class id {
-        public static final int action_settings=0x7f07001c;
+        public static final int action_settings=0x7f070030;
         public static final int btnDisarm=0x7f070014;
         public static final int buttonAddress=0x7f07000c;
         public static final int buttonHistory=0x7f07000d;
+        public static final int buttonSearch=0x7f070019;
         public static final int cancelhistory=0x7f070005;
         public static final int cbSound=0x7f070010;
         public static final int cbVibrate=0x7f07000f;
         public static final int cbVoice=0x7f070011;
         public static final int checkBoxes=0x7f07000e;
-        public static final int closeMe=0x7f070019;
+        public static final int closeMe=0x7f07002c;
         public static final int editText=0x7f07000b;
         public static final int editTextNickname=0x7f070006;
-        public static final int history_renameit=0x7f07001b;
-        public static final int history_selectit=0x7f07001a;
+        public static final int history_renameit=0x7f07002f;
+        public static final int history_selectit=0x7f07002e;
         public static final int hybrid=0x7f070004;
+        public static final int jedis=0x7f070029;
         public static final int linearLayout1=0x7f07000a;
         public static final int linearLayout2=0x7f070007;
+        public static final int llh1=0x7f07001a;
         public static final int map=0x7f070016;
         public static final int map2=0x7f070017;
-        public static final int needDescription=0x7f070018;
+        public static final int needDescription=0x7f07002b;
         public static final int none=0x7f070000;
         public static final int normal=0x7f070001;
         public static final int satellite=0x7f070002;
+        public static final int searchButtonAddressOrIntersection=0x7f070024;
+        public static final int searchButtonBack=0x7f07002a;
+        public static final int searchButtonHistory=0x7f070028;
+        public static final int searchButtonTrainStations=0x7f070026;
+        public static final int searchCity=0x7f07001c;
+        public static final int searchIntersection=0x7f070023;
+        public static final int searchState=0x7f07001e;
+        public static final int switchArmed=0x7f070018;
         public static final int terrain=0x7f070003;
         public static final int textView1=0x7f070008;
+        public static final int textView2=0x7f07001b;
+        public static final int textView3=0x7f07001d;
+        public static final int textView4=0x7f07001f;
+        public static final int textView5=0x7f070020;
+        public static final int textView6=0x7f070021;
+        public static final int textView7=0x7f070022;
+        public static final int textView8=0x7f070025;
+        public static final int textView9=0x7f070027;
+        public static final int textViewRRName=0x7f07002d;
         public static final int tvCurrentLocation=0x7f070013;
         public static final int tvCurrentViewHeading=0x7f070012;
         public static final int tvId1=0x7f070015;
@@ -225,13 +245,16 @@ containing a value of this type.
         public static final int activity_history_setnickname=0x7f030001;
         public static final int activity_home=0x7f030002;
         public static final int activity_home2=0x7f030003;
-        public static final int notificationpopup=0x7f030004;
+        public static final int activity_search=0x7f030004;
+        public static final int notificationpopup=0x7f030005;
+        public static final int railroad_station_name=0x7f030006;
     }
     public static final class menu {
         public static final int history_contextmenu=0x7f0c0000;
         public static final int home=0x7f0c0001;
         public static final int home2=0x7f0c0002;
-        public static final int voice_helper=0x7f0c0003;
+        public static final int search=0x7f0c0003;
+        public static final int voice_helper=0x7f0c0004;
     }
     public static final class raw {
         public static final int rossini_william_tell=0x7f050000;
@@ -379,6 +402,7 @@ containing a value of this type.
         public static final int summary_list_preference=0x7f080058;
         public static final int title_activity_history_list=0x7f08005a;
         public static final int title_activity_home2=0x7f080059;
+        public static final int title_activity_search=0x7f08005b;
         public static final int title_activity_voice_helper=0x7f08001c;
         public static final int title_list_preference=0x7f080056;
         public static final int transition_entered=0x7f08003d;
@@ -417,6 +441,11 @@ containing a value of this type.
  All customizations that are NOT specific to a particular API-level can go here. 
          */
         public static final int AppTheme=0x7f0b0001;
+        /**  Any customizations for your app running on pre-3.0 devices here 
+ Any customizations for your app running on 3.0+ devices here 
+ Any customizations for your app running on 4.0+ devices here 
+         */
+        public static final int MyAppTheme=0x7f0b0003;
         public static final int Theme_Transparent=0x7f0b0002;
     }
     public static final class xml {

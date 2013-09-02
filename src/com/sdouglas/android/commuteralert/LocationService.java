@@ -75,7 +75,7 @@ public abstract class LocationService extends Service  {
 					    	.setContentText(mAddressInReadableForm)
 					    	.setOngoing(true);
 				    	// Creates an explicit intent for an Activity in your app
-				    	Intent resultIntent = new Intent(this,Home.class);
+				    	Intent resultIntent = new Intent(this,Home2.class);
 						PendingIntent pendingIntent = PendingIntent.getActivity(this,
 								(int)System.currentTimeMillis(), resultIntent, 0);
 				    	mBuilder.setContentIntent(pendingIntent);    	    	
@@ -121,7 +121,8 @@ public abstract class LocationService extends Service  {
     	// 4. Send the alert
 		Intent jdIntent=new Intent(this, VoiceHelper.class)
 			.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-			.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+			.setAction("doit");
 		startActivity(jdIntent);
 	}
 }

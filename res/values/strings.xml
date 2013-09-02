@@ -76,5 +76,6 @@
 		Location before receiving a notification?</string>
     <string name="title_activity_home2">Commuter Alert</string>
     <string name="title_activity_history_list">History List</string>
+    <string name="title_activity_search">Searchy</string>
 
 </resources>

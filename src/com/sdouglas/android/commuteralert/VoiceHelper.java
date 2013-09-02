@@ -142,63 +142,67 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setTitle("Commuter Alert");
-		mSharedPreferences=getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-		_theText=getVoiceAndPopupText();
-		_countDoing=0;
-		/* This makes it happen even if the system is sleeping or locked */
-		screenLock = ((PowerManager)getSystemService(POWER_SERVICE)).newWakeLock(
-			     PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
-			screenLock.acquire();
-		
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-		
-		if(wereDoingMusic()) {
-			playMusic();
-		}
-		
-		if (wereVibrating()) {
-			// Get instance of Vibrator from current Context
-			vibrator= (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
-			// Start without a delay
-			// Vibrate for 1000 milliseconds
-			// Sleep for 150 milliseconds
-			final long[] pattern = {0, 1000, 150};
-
-			// The '0' here means to repeat indefinitely
-			// '-1' would play the vibration once
-		    new Thread(new Runnable() {
-		        public void run() {
-		        	vibrator.vibrate(pattern, 0);
-		        }	        
-		    }).start();		
-
-			
-			
-		}
-		
-		//getLogger().log("VoiceHelper: 1 ... in onCreate",100);
-		if(wereDoingVoiceNotifications()) {
-			_theText=getVoiceAndPopupText();
-			if(mTts!=null && _imInited) {
-				//getLogger().log("VoiceHelper: 1a ... mTts!=null && _imInited",100);
-				speak();
-			} else {
-		//		getLogger().log("VoiceHelper: 1b ... mTts==null || !_imInited. _theTExt="+_theText,100);
-				Intent checkIntent = new Intent();
-				checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-				startActivityForResult(checkIntent,MY_DATA_CHECK_CODE);
-			}
+		if(getIntent()==null || !getIntent().getAction().equals("doit")) {
+			this.finish();
 		} else {
-			/*
-			 * If I'm doing text-to-speech, then I need to wait until the mTts is initialized before
-			 * popping up the window; otherwise, the dialog that may need to come up which asks 
-			 * which provider ... that dialog doesn't shows (it's hidden).
-			 */
-			doPopupNotifications();
+			setTitle("Commuter Alert");
+			mSharedPreferences=getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+			_theText=getVoiceAndPopupText();
+			_countDoing=0;
+			/* This makes it happen even if the system is sleeping or locked */
+			screenLock = ((PowerManager)getSystemService(POWER_SERVICE)).newWakeLock(
+				     PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
+				screenLock.acquire();
+			
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+			
+			if(wereDoingMusic()) {
+				playMusic();
+			}
+			
+			if (wereVibrating()) {
+				// Get instance of Vibrator from current Context
+				vibrator= (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	
+				// Start without a delay
+				// Vibrate for 1000 milliseconds
+				// Sleep for 150 milliseconds
+				final long[] pattern = {0, 1000, 150};
+	
+				// The '0' here means to repeat indefinitely
+				// '-1' would play the vibration once
+			    new Thread(new Runnable() {
+			        public void run() {
+			        	vibrator.vibrate(pattern, 0);
+			        }	        
+			    }).start();		
+	
+				
+				
+			}
+			
+			//getLogger().log("VoiceHelper: 1 ... in onCreate",100);
+			if(wereDoingVoiceNotifications()) {
+				_theText=getVoiceAndPopupText();
+				if(mTts!=null && _imInited) {
+					//getLogger().log("VoiceHelper: 1a ... mTts!=null && _imInited",100);
+					speak();
+				} else {
+			//		getLogger().log("VoiceHelper: 1b ... mTts==null || !_imInited. _theTExt="+_theText,100);
+					Intent checkIntent = new Intent();
+					checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+					startActivityForResult(checkIntent,MY_DATA_CHECK_CODE);
+				}
+			} else {
+				/*
+				 * If I'm doing text-to-speech, then I need to wait until the mTts is initialized before
+				 * popping up the window; otherwise, the dialog that may need to come up which asks 
+				 * which provider ... that dialog doesn't shows (it's hidden).
+				 */
+				doPopupNotifications();
+			}
 		}
 	}
 	private void playMusic() {

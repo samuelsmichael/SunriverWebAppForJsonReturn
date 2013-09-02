@@ -1,26 +1,45 @@
 package com.sdouglas.android.commuteralert;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.sdouglas.android.commuteralert.HomeManager.MyBroadcastReceiver;
 
 import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 
-public class Home2 extends Activity implements HomeImplementer {
+public class Home2 extends Activity implements HomeImplementer, WantsSurroundingTrainStations {
 	private GoogleMap mMap = null;
 	private MapFragment mMapFragment;
 	static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
@@ -29,13 +48,58 @@ public class Home2 extends Activity implements HomeImplementer {
 	private static float DEFAULT_ZOOM = 11f;
 	private static float DEFAULT_TILT=0f;
 	private static float DEFAULT_BEARING=0f;
-	
+	private Marker mPreviousMarker;
+	static final float SOMEKINDOFFACTOR=720; // this factor is the "number of meters" under which when the user presses a train, we assume he meant to press the train, at zoom level 11.
+	static final int PURGECACHEDAYSOLD=100; // number of days, older than which items in the cache are purged.
+    private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK="ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
+    private MyBroadcastReceiver mBroadcastReceiver;
+    private IntentFilter mIntentFilter;
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        // Create a new broadcast receiver to receive updates from the listeners and service
+        mBroadcastReceiver = new MyBroadcastReceiver();
+        // Create an intent filter for the broadcast receiver
+        mIntentFilter = new IntentFilter();
+        // Action for broadcast Intents containing various types of geofencing errors
+        mIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCE_ERROR);
+        // Action for broadcast Intents to arm the address
+        mIntentFilter.addAction(ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK);
+        // All Location Services sample apps use this category
+        mIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+
+        
+        // Register the broadcast receiver to receive status updates
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mIntentFilter);
+		GregorianCalendar calendar=new GregorianCalendar();
+		calendar.add(GregorianCalendar.DATE, -PURGECACHEDAYSOLD);
+		getHomeManager().getDbAdapter().purgeCacheOfItemsOlderThan(calendar.getTime());
 		setContentView(R.layout.activity_home2);
+		final CompoundButton armedButton=(CompoundButton)findViewById(R.id.switchArmed); 
+		armedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				if(!isChecked) {
+					getHomeManager().disarmLocationService();
+					setControlState(false);
+				}
+			}
+			
+		});
+		final Button search =(Button)findViewById(R.id.buttonSearch);
+		search.setOnClickListener(new View.OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(Home2.this,SearchActivity.class);
+				startActivity(intent);
+			}
+			
+		});
 	}
 
 	@Override
@@ -166,25 +230,206 @@ public class Home2 extends Activity implements HomeImplementer {
 			LatLng whereImAt) {
 		
 		if(address==null) {
+			/* whereImAt!=null means that we've just initialized and are placing the map at this spot */
 			if(whereImAt!=null) {
 				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
 				positionMapToLocation(settings.getFloat("whereimatlat", (float)whereImAt.latitude) , settings.getFloat("whereimatlng", (float)whereImAt.longitude));
 			}
+			setControlState(false);
+		} else {
+			positionMapToLocation(address.getLatitude() , address.getLongitude());
+			setControlState(true);
 		}
-		// TODO Auto-generated method stub
-		
+	}
+	private void setControlState(boolean isArmed) {
+		// Hide the previous pin; otherwise they just continue to accumulate.
+		if (mPreviousMarker != null && mPreviousMarker.isVisible()) {
+			mPreviousMarker.setVisible(false);
+		}
+		final Button disarmButton = (Button) findViewById(R.id.buttonSearch);
+		final CompoundButton armedButton=(CompoundButton)findViewById(R.id.switchArmed); 
+		if (isArmed) {
+			armedButton.setChecked(true);
+			disarmButton.setVisibility(View.INVISIBLE);
+		} else {
+			armedButton.setChecked(false);
+			disarmButton.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	private class LocationAndAssociatedTrainStations {
+		public Location mLocation;
+		public ArrayList<Address> mAddresses;
+
+		LocationAndAssociatedTrainStations(Location location,
+				ArrayList<Address> addresses) {
+			mLocation = location;
+			mAddresses = addresses;
+		}
 	}
 
-	@Override
-	public void heresTheTrainStationAddressesToDisplayOnMap(
-			ArrayList<Address> addresses, Location location) {
-		// TODO Auto-generated method stub
-		
+	/*
+	 * I am using an AsyncTask here because its onPostExecute insures that I can
+	 * update the UI; and as this whole thing is initiated via a background thread
+	 * (we have to make a web call to Google Services in order to fetch the train
+	 * stations, and such calls are not allowed by Android to be made in the UI thread), 
+	 * we will need to "get back on" the UI thread in order to display it.
+	 */
+	class ShowMap
+			extends
+			AsyncTask<LocationAndAssociatedTrainStations, Void, LocationAndAssociatedTrainStations> {
+		protected LocationAndAssociatedTrainStations doInBackground(
+				LocationAndAssociatedTrainStations... location) {
+			try {
+				return location[0];
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		/*
+		 * The class LocationAndAssociatedTrainStations is a combination of two objects -- the list
+		 * of addresses of the trains stations, and the Location object defining where I am at currently.
+		 * Due to the fact that the AsyncTask class can only handle one object passed into it,
+		 * I was constrained to create a class that holds both of these pieces of information; both of
+		 * which are required by this method.
+		 */
+		protected void onPostExecute(LocationAndAssociatedTrainStations result) {
+			final LocationAndAssociatedTrainStations resultF = result;
+			if (result != null) {
+				// position map to location only if we're not armed
+				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+				if(settings.getFloat("latitude", 0)==0) {
+					positionMapToLocation(result.mLocation.getLatitude(),result.mLocation.getLongitude());
+				}
+				// turn on the little "take me to my current location" icon
+				mMap.setMyLocationEnabled(true);
+				// now create Markers for all of the trains.
+				BitmapDescriptor bmd = BitmapDescriptorFactory
+						.fromResource(R.drawable.train1);
+				for (int i = 0; i < result.mAddresses.size(); i++) {
+					Address address = result.mAddresses.get(i);
+					Marker marker = mMap.addMarker(new MarkerOptions()
+							.position(
+									new LatLng(address.getLatitude(), address
+											.getLongitude()))
+							.title(address.getAddressLine(0)).icon(bmd));
+					marker.showInfoWindow();
+				}
+				// define an "onMapLongClick" listener that
+				// 1. Moves the marker (hides the old one and creates the new one)
+				// 2. If he touches near the train, assume he meant to touch the train.
+				// 3. Initiate what needs to be done to arm the system.
+				mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+					public void onMapLongClick(LatLng point) {
+						LatLng useThisOne=null;
+						if (mPreviousMarker != null) {
+							mPreviousMarker.setVisible(false);
+						}
+						/*
+						 * Do a "snap-to-grid" kind of thing.  If the guy's pressing near the train, let's snap him to the train.
+						 */
+						
+						float zoomLevel=mMap.getCameraPosition().zoom;
+						float errorMarginMetersUnderWhichWeAssumeHePressedTheTrain=0f;
+						errorMarginMetersUnderWhichWeAssumeHePressedTheTrain=(float) (SOMEKINDOFFACTOR * (1f/(Math.pow(2f,(zoomLevel-12f)))));
+						Address useThisAddress = null;
+						// Drop a train bitmap as a marker at each place on the map
+						// If he's near a train, then assume he meant to press the train.
+						for (int i = 0; i < resultF.mAddresses.size(); i++) {
+							LatLng latlng2 = new LatLng(resultF.mAddresses.get(
+									i).getLatitude(), resultF.mAddresses.get(i)
+									.getLongitude());
+							float[] results = new float[3];
+							Location.distanceBetween(point.latitude,
+									point.longitude, latlng2.latitude,
+									latlng2.longitude, results);
+							if (results[0] < errorMarginMetersUnderWhichWeAssumeHePressedTheTrain ) {
+								useThisOne = latlng2;
+								useThisAddress = resultF.mAddresses.get(i);
+								break;
+							}
+						}
+						/*
+						 * All we're given is a point (latitude and longitude).  Is there an address
+						 * near it so we can use that description?
+						 * 
+						 */
+						try {
+							if (useThisAddress == null) {
+								Geocoder g = new Geocoder(Home2.this);
+								List<Address> addresses = g.getFromLocation(
+										(double) point.latitude,
+										(double) point.longitude, 2);
+								if (addresses != null && addresses.size() > 0) {
+									useThisAddress = addresses.get(0);
+									/* Even though we've found a good displayable name, we still want to drop the pin in the exact right place.*/
+									useThisAddress.setLatitude(point.latitude);
+									useThisAddress.setLongitude(point.longitude);
+								}
+							}
+						} catch (Exception e) {
+						}
+						/*
+						 * If not, then just make up a description
+						 */
+						if (useThisAddress == null) {
+							useThisAddress = new Address(null);
+							useThisAddress.setLatitude(point.latitude);
+							useThisAddress.setLongitude(point.longitude);
+							useThisAddress.setAddressLine(1,
+									"Address for red marker, below");
+						}
+						// arm the system
+						getHomeManager().getDbAdapter().writeOrUpdateHistory(useThisAddress);
+						getHomeManager().newLocation(useThisAddress);
+						
+					}
+				});
+			}
+		}
 	}
-
 	@Override
 	public void dropPin(Address a) {
-		// TODO Auto-generated method stub
-		
+		if (mMap != null) {
+			LatLng latlng=new LatLng(a.getLatitude(),a.getLongitude());
+			Marker marker = mMap
+					.addMarker(new MarkerOptions()
+							.position(latlng)
+							.title("Here's your destination")
+							.snippet(
+									"You will be notified when you are near it"));
+			marker.showInfoWindow();
+			mPreviousMarker = marker;
+		}
 	}
+		
+	/*
+	 * This is what the Model calls; but I have to initiate an AsyncTask, because we're going to be updating in a non-UI thread
+	 */
+	public void hereAreTheTrainStationAddresses(
+			ArrayList<Address> addresses, Location location) {
+		LocationAndAssociatedTrainStations t = new LocationAndAssociatedTrainStations(
+				location, addresses);
+		new ShowMap().execute(t);
+	}
+    /**
+     * Define a Broadcast receiver that receives updates from connection listeners and
+     * the geofence transition service.
+     */
+    public class MyBroadcastReceiver extends BroadcastReceiver {
+        /*
+         * Define the required method for broadcast receivers
+         * This method is invoked when a broadcast Intent triggers the receiver
+         */
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            // Check the action code and determine what to do
+            String action = intent.getAction();
+
+        	if(TextUtils.equals(action, ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK)) {
+        		getHomeManager().manageKeyedInAddress(intent.getStringExtra("SeekAddressString"));
+        	}
+        }
+    }
 }

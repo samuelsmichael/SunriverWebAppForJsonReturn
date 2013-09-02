@@ -37,7 +37,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class Home extends Activity implements HomeImplementer {
+public class Home extends Activity implements HomeImplementer, WantsSurroundingTrainStations {
 	private GoogleMap mMap = null;
 	private HomeManager mHomeManager;
 	private MapFragment mMapFragment;
@@ -66,10 +66,6 @@ public class Home extends Activity implements HomeImplementer {
 		calendar.add(GregorianCalendar.DATE, -PURGECACHEDAYSOLD);
 		getHomeManager().getDbAdapter().purgeCacheOfItemsOlderThan(calendar.getTime());
 		setContentView(R.layout.activity_home);
-		if(getIntent()!=null && getIntent().getAction()!=null && getIntent().getAction().equals("showdisarmed")) {
-			setControlsVisibility(false, "");
-		}
-
 		final EditText locationAddress = (EditText) findViewById(R.id.editText);
 		final Button deriveFromAddress = (Button) findViewById(R.id.buttonAddress);
 		final Button history = (Button) findViewById(R.id.buttonHistory);
@@ -505,7 +501,7 @@ public class Home extends Activity implements HomeImplementer {
 	/*
 	 * This is what the Model calls; but I have to initiate an AsyncTask, because we're going to be updating in a non-UI thread
 	 */
-	public void heresTheTrainStationAddressesToDisplayOnMap(
+	public void hereAreTheTrainStationAddresses(
 			ArrayList<Address> addresses, Location location) {
 		LocationAndAssociatedTrainStations t = new LocationAndAssociatedTrainStations(
 				location, addresses);
