@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.sdouglas.android.commuteralert.HomeManager.MyBroadcastReceiver;
+import com.sdouglas.android.commuteralert.SearchActivity.SearchRailroadStationsDialogFragment;
 
 import android.location.Address;
 import android.location.Geocoder;
@@ -25,12 +26,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -41,6 +45,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 public class Home2 extends Activity implements HomeImplementer, WantsSurroundingTrainStations {
+	private SecurityManager mSecurityManager=null;
 	private GoogleMap mMap = null;
 	private MapFragment mMapFragment;
 	static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
@@ -55,11 +60,17 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
     private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK="ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
     private MyBroadcastReceiver mBroadcastReceiver;
     private IntentFilter mIntentFilter;
-
+    private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n--Long press the screen at the desired location. \n\n or\n\n--Press the Search button.";
+    private static String SPLASH_SCREEN_MESSAGE = "To use Commuter Alert, select a location by either:\n\n--long pressing the map\n    at the desired location, or\n\n--pressing the Search button\n    located at the bottom-left\n    of the screen.";
+    public static String CURRENT_VERSION="2.00";
+    private boolean needToBringUpSplashScreen=false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if(!getSecurityManager().initializeVersion()) {
+			needToBringUpSplashScreen=true;
+		}
         // Create a new broadcast receiver to receive updates from the listeners and service
         mBroadcastReceiver = new MyBroadcastReceiver();
         // Create an intent filter for the broadcast receiver
@@ -79,6 +90,17 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 		getHomeManager().getDbAdapter().purgeCacheOfItemsOlderThan(calendar.getTime());
 		setContentView(R.layout.activity_home2);
 		final CompoundButton armedButton=(CompoundButton)findViewById(R.id.switchArmed); 
+		armedButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(((CompoundButton)v).isChecked()) {
+					SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+					if(settings.getFloat("latitude", 0)==0) {
+						new WarningAndInitialDialog("You must select a location before turning on the alert.",INSTRUCTIONS_MESSAGE,Home2.this).show();
+						armedButton.setChecked(false);
+					}
+				}				
+			}});
 		armedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
 
 			@Override
@@ -87,7 +109,7 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 				if(!isChecked) {
 					getHomeManager().disarmLocationService();
 					setControlState(false);
-				}
+				} 
 			}
 			
 		});
@@ -253,6 +275,10 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 			positionMapToLocation(address.getLatitude() , address.getLongitude());
 			setControlState(true);
 		}
+		if(needToBringUpSplashScreen) {
+			needToBringUpSplashScreen=false;
+			new WarningAndInitialDialog("Thank you for purchasing Commuter Alert!",SPLASH_SCREEN_MESSAGE,Home2.this).show();
+		}
 	}
 	private void setControlState(boolean isArmed) {
 		// Hide the previous pin; otherwise they just continue to accumulate.
@@ -415,6 +441,13 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 			mPreviousMarker = marker;
 		}
 	}
+	
+	private SecurityManager getSecurityManager() {
+		if (mSecurityManager==null) {
+			mSecurityManager=new SecurityManager(this);
+		}
+		return mSecurityManager;
+	}
 		
 	/*
 	 * This is what the Model calls; but I have to initiate an AsyncTask, because we're going to be updating in a non-UI thread
@@ -445,4 +478,29 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
         	}
         }
     }
-}
+    public static class WarningAndInitialDialog {
+    	private String mTitle;
+    	private String mMessage;
+    	private Activity mActivity;
+    	private WarningAndInitialDialog() {super();}
+		public WarningAndInitialDialog(String title, String message, Activity activity) {
+    		super();
+    		mTitle=title;
+    		mMessage=message;
+    		mActivity=activity;
+    	}
+        public void show() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+            builder.setTitle(mTitle)
+                   .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                       public void onClick(DialogInterface dialog, int id) {
+                       }
+                   })
+                   .setMessage(mMessage)
+                   ;
+            // Create the AlertDialog object and return it
+            
+            AlertDialog dialog= builder.create();
+            dialog.show();
+        }
+    }}

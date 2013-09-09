@@ -70,16 +70,14 @@
             android:theme="@style/Theme.Transparent" >
         </activity>
         <!--
-        Live   
-		<meta-data
+        Live   -->
+		<meta-data 
 		    android:name="com.google.android.maps.v2.API_KEY"
-		    android:value="AIzaSyDRB2FlpUa1eFKeiJJ2LBffATMy29bPBMQ"/>
-        -->
-        <!-- debugging -->
+		    android:value="AIzaSyDRB2FlpUa1eFKeiJJ2LBffATMy29bPBMQ"/>		        <!-- debugging  
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAVi8mSzoZJBV1qsxIeFXgguXTzcw9Voys" />
-
+-->
         <activity
             android:name="com.sdouglas.android.commuteralert.SearchActivity"
             android:label="@string/title_activity_search" >

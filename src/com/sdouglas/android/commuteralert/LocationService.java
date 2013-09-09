@@ -45,7 +45,9 @@ public abstract class LocationService extends Service  {
 		Thread
 		.setDefaultUncaughtExceptionHandler(new CustomExceptionHandlerTimer(this));
 		if(intent!= null && intent.getAction()!=null && intent.getAction().equals("notifyuser")) {
-			notifyUser();
+			try {
+				notifyUser();
+			} catch (Exception e) {}
 		} else {
 			if(intent!= null && intent.getAction()!=null && intent.getAction().equals("JustDisarm")) {
 				/*

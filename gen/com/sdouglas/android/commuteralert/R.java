@@ -188,10 +188,11 @@ containing a value of this type.
         public static final int ic_launcher=0x7f02001a;
         public static final int ic_menu_preferences=0x7f02001b;
         public static final int ic_menu_settings_holo_light=0x7f02001c;
-        public static final int train1=0x7f02001d;
-        public static final int train2=0x7f02001e;
-        public static final int train3=0x7f02001f;
-        public static final int train4=0x7f020020;
+        public static final int ic_popup_sync_1=0x7f02001d;
+        public static final int train1=0x7f02001e;
+        public static final int train2=0x7f02001f;
+        public static final int train3=0x7f020020;
+        public static final int train4=0x7f020021;
     }
     public static final class id {
         public static final int action_settings=0x7f070030;

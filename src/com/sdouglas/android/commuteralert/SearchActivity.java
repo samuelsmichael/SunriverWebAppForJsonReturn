@@ -251,6 +251,11 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 	@Override
 	public void onConnected(Bundle arg0) {
 		Location location=mLocationClient.getLastLocation();
+		// simulate Scott's address
+		//location.setLatitude(40.658421);
+		//location.setLongitude(-74.29959);	
+		//
+
 		LocationAndWantsSurroundingTrainStations client=new HomeManager(this).new LocationAndWantsSurroundingTrainStations();
 		client.mClient=(WantsSurroundingTrainStations)SearchActivity.this;
 		client.mLocation=location;

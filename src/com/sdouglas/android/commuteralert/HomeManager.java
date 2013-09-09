@@ -2,6 +2,7 @@ package com.sdouglas.android.commuteralert;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -60,7 +61,7 @@ public class HomeManager implements
     
 
 	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
-	public static final int LIMIT_NBR_ACCESSES = 100;
+	public static final int LIMIT_NBR_ACCESSES = 10;
 	public static final String GOOGLE_API_KEY = "AIzaSyCiLgS6F41lPD-aHj7yMycVDv38gb1vd2o";
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	public static final float CLOSE_TO_RADIUS_IN_METERS = 1000;
@@ -302,16 +303,35 @@ public class HomeManager implements
 		return addressList;
 	}
 
+	
 	public void getTrainStationsNear(Location location,
 			ArrayList<Address> runningList, String nextPageToken,
 			int nbrOfAccessesLeft, int nthAccessStartingAt1) throws Exception {
+		String rememberLastGoodNextPageToken=null;
+		int countRetries=0;
+		int priorRunningListCount=0;
 		while (true) {
 			nextPageToken=getTrainStationsNearPrivate(location,runningList,nextPageToken,nbrOfAccessesLeft,nthAccessStartingAt1);
 			nbrOfAccessesLeft--;
 			nthAccessStartingAt1++;
-			if(nextPageToken==null) {
-				getDbAdapter().createCacheItem(location, runningList);
-				break;
+			/* for some reason, Google returns nothing if called to quickly with "nextpage"*/
+			if(priorRunningListCount==runningList.size() &&
+					runningList.size()>0 && rememberLastGoodNextPageToken!=null && countRetries<2) {
+				countRetries++;
+				nextPageToken=rememberLastGoodNextPageToken;
+				Thread.currentThread().sleep(2500);
+				
+
+			} else {
+				countRetries=0;
+				if(nextPageToken!=null) {
+					rememberLastGoodNextPageToken=nextPageToken;
+				}
+				priorRunningListCount=runningList.size();
+				if(nextPageToken==null || nbrOfAccessesLeft<=0) {
+					getDbAdapter().createCacheItem(location, runningList);
+					break;
+				}
 			}
 		}
 	}
@@ -331,9 +351,9 @@ public class HomeManager implements
 				+ location.getLatitude()
 				+ ","
 				+ location.getLongitude()
-				+ "&token="
+				+ "&pagetoken="
 				+ (nextPageToken == null ? "" : nextPageToken)
-				+ "&radius=50000&types=train_station&sensor=true&key="
+				+ "&radius=50000&types=train_station|subway_station&sensor=true&key="
 				+ GOOGLE_API_KEY;
 		URL u = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) u.openConnection();
@@ -359,7 +379,7 @@ public class HomeManager implements
 		try {
 			String status = jObj.getString("status");
 			if (status == "OVER_QUERY_LIMIT") {
-				Thread.currentThread().wait(1000);
+				Thread.currentThread().sleep(1000);
 				nbrOfAccessesLeft--;
 				nthAccessStartingAt1++;
 				return nextPageToken;
@@ -385,6 +405,7 @@ public class HomeManager implements
 			runningList.add(address);
 		}
 		if (nextPageToken != null && nbrOfAccessesLeft > 1) {
+	//		Thread.currentThread().sleep(2500);
 			return nextPageToken;
 		} else {
 			return null;
@@ -609,6 +630,10 @@ public class HomeManager implements
 		
 		Location location=mLocationClient.getLastLocation();
 		if(location!=null) {
+			// simulate Scott's address
+				//	location.setLatitude(40.658421);
+					//location.setLongitude(-74.29959);	
+					//
 			editor.putString("locationmanager", "networklocation");
 			editor.commit();
 			initialize(new LatLng(location.getLatitude(), location.getLongitude()));
@@ -630,8 +655,9 @@ public class HomeManager implements
 					@Override
 					public void onLocationChanged(Location location) {
 						// simulate Scott's address
-						//		location.setLatitude(40.658421);
-						//		location.setLongitude(-74.29959);					
+						//location.setLatitude(40.658421);
+						//location.setLongitude(-74.29959);
+						//
 						getLocationManager().removeUpdates(this);
 						initialize(new LatLng(location.getLatitude(), location.getLongitude()));
 						LocationAndWantsSurroundingTrainStations client=new LocationAndWantsSurroundingTrainStations();

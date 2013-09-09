@@ -121,16 +121,17 @@
             android:layout_marginTop="9dp"
             android:layout_marginLeft="14dp"
             android:layout_marginRight="14dp" />
+
 	    <Button
 	        android:id="@+id/searchButtonAddressOrIntersection"
 	        style="?android:attr/buttonStyleSmall"
 	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="Address or Intersection"
-            android:gravity="center_horizontal"
-            android:layout_gravity="center_horizontal"
+	        android:layout_height="34dp"
+	        android:layout_gravity="center_horizontal"
 	        android:layout_marginTop="8dp"
-	    >
+	        android:gravity="center_horizontal"
+	        android:text="Address or Intersection" >
+
         </Button>     
 		<View
 			android:layout_width="fill_parent"
@@ -146,16 +147,17 @@
             android:layout_gravity="center_horizontal"
 	        android:layout_marginTop="8dp"
 	        android:textStyle="bold" />
+
 	    <Button
 	        android:id="@+id/searchButtonTrainStations"
 	        style="?android:attr/buttonStyleSmall"
 	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="Train Stations"
-            android:gravity="center_horizontal"
-            android:layout_gravity="center_horizontal"
+	        android:layout_height="34dp"
+	        android:layout_gravity="center_horizontal"
 	        android:layout_marginTop="8dp"
-	    ></Button>
+	        android:gravity="center_horizontal"
+	        android:text="Train Stations" >
+</Button>
 		<View
 			android:layout_width="fill_parent"
 			android:layout_height="2dip"
@@ -175,28 +177,29 @@
 	        android:id="@+id/searchButtonHistory"
 	        style="?android:attr/buttonStyleSmall"
 	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="Search History"
-            android:gravity="center_horizontal"
-            android:layout_gravity="center_horizontal"
+	        android:layout_height="34dp"
+	        android:layout_gravity="center_horizontal"
 	        android:layout_marginTop="8dp"
-	    ></Button>
+	        android:gravity="center_horizontal"
+	        android:text="Search History" >
+</Button>
 	</LinearLayout>
-         <LinearLayout
-                android:id="@+id/jedis"
-                android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-            >
-    	   	<Button
-	        android:id="@+id/searchButtonBack"
-	        style="?android:attr/buttonStyleSmall"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:text="Back"
-	    ></Button>
+    <LinearLayout
+           android:id="@+id/jedis"
+           android:orientation="horizontal"
+           android:layout_width="fill_parent"
+           android:layout_height="wrap_content"
+           android:layout_alignParentBottom="true"
+       >
 
- </LinearLayout>	
+	   	<Button
+	   	    android:id="@+id/searchButtonBack"
+	   	    style="?android:attr/buttonStyleSmall"
+	   	    android:layout_width="fill_parent"
+	   	    android:layout_height="34dp"
+	   	    android:text="Back" >
+</Button>
+
+ 	</LinearLayout>	
     
 </RelativeLayout>
