@@ -41,7 +41,6 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
     private LocationClient mLocationClient;
 	private static final int DIALOG_NICKNAME = 2;
 	private long mNickNameDialogId=-100;
-	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
 	private DbAdapter mDbAdapter=null;
     private MyBroadcastReceiver mBroadcastReceiver;
     private static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
@@ -113,7 +112,7 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 	@Override
 	protected void onResume() {
 		super.onResume();
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+		SharedPreferences settings = getSharedPreferences(getPREFS_NAME(),MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		mNickNameDialogId=settings.getLong("nicknameid", -100);
 		if(mNickNameDialogId!=-100) {
@@ -267,4 +266,7 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 		// TODO Auto-generated method stub
 		
 	}    
+	public String getPREFS_NAME() {
+		return getApplicationContext().getPackageName() + "_preferences";
+	}
 }

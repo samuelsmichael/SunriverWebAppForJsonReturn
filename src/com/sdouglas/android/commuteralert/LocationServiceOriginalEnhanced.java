@@ -30,7 +30,7 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 		mImGettingLocationUpdates=false;
 		mDontReenter=0;
 		mDontReenter2=0;
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(getPREFS_NAME(), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putInt("modifyingValue", 1);
 		editor.commit();
@@ -69,7 +69,7 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 	}
 	
 	private void modifyAlarmMinutes(Boolean increase) {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(getPREFS_NAME(), Context.MODE_PRIVATE);
         int modifyingValue = settings.getInt("modifyingValue", 1);		
 		SharedPreferences.Editor editor = settings.edit();
 		if(increase) {
@@ -92,7 +92,7 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 	private void manageLocationNotifications(Location newLocation) {
 		if(mDontReenter==0) {
 			mDontReenter++;
-	        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+	        SharedPreferences settings = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
 	        float latitude = settings.getFloat("latitude", 0);
 	        float longitude = settings.getFloat("longitude", 0);
 	        
@@ -170,7 +170,7 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 	
 	
 	private int getModifyingValue() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(getPREFS_NAME(), Context.MODE_PRIVATE);
         return settings.getInt("modifyingValue", 1);
 	}
 	private void startMyLocationsTimer2(long trigger, long interval) {

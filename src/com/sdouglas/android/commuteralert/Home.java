@@ -42,7 +42,7 @@ public class Home extends Activity implements HomeImplementer, WantsSurroundingT
 	private HomeManager mHomeManager;
 	private MapFragment mMapFragment;
 	static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
+
 	static final float SOMEKINDOFFACTOR=720; // this factor is the "number of meters" under which when the user presses a train, we assume he meant to press the train, at zoom level 11.
 	static final int PURGECACHEDAYSOLD=100; // number of days, older than which items in the cache are purged.
 	private Marker mPreviousMarker;
@@ -88,7 +88,7 @@ public class Home extends Activity implements HomeImplementer, WantsSurroundingT
 		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
 		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
 		final CheckBox voice = (CheckBox) findViewById(R.id.cbVoice);
-		final SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+		final SharedPreferences settings = getSharedPreferences(getPREFS_NAME(),MODE_PRIVATE);
 		final SharedPreferences.Editor editor = settings.edit();
 		vibrate.setChecked(settings.getBoolean("vibrate", true));
 		sound.setChecked(settings.getBoolean("sound", true));
@@ -137,7 +137,7 @@ public class Home extends Activity implements HomeImplementer, WantsSurroundingT
 	@Override
 	protected void onResume() {
 		super.onResume();
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+		SharedPreferences settings = getSharedPreferences(getPREFS_NAME(),MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		mNickNameDialogId=settings.getLong("nicknameid", -100);
 		if(mNickNameDialogId!=-100) {
@@ -338,7 +338,7 @@ public class Home extends Activity implements HomeImplementer, WantsSurroundingT
 	}
 
 	private void setACheckbox(String settingName, CheckBox checkbox) {
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+		SharedPreferences settings = getSharedPreferences(getPREFS_NAME(),MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		Boolean theValue=settings.getBoolean(settingName, true);
 		checkbox.setChecked(theValue);
@@ -561,5 +561,7 @@ public class Home extends Activity implements HomeImplementer, WantsSurroundingT
 		}
 		return mDbAdapter;
 	}
-
+	public String getPREFS_NAME() {
+		return getApplicationContext().getPackageName() + "_preferences";
+	}
 }

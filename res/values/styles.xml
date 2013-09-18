@@ -27,4 +27,11 @@
         <style name="MyAppTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <!-- Any customizations for your app running on pre-3.0 devices here -->
     </style>
+    <style name="AlertDialogCustomDark" parent="android:Theme.Holo">
+        <item name="android:typeface">monospace</item>
+        <!-- <item name="android:textSize">10sp</item>  -->
+    </style>    
+    <style name="AlertDialogCustomLight" parent="android:Theme.Holo.Light">
+<!--         <item name="android:textSize">10sp</item> -->  
+    </style>    
 </resources>

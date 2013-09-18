@@ -30,14 +30,12 @@ public class SimpleGeofenceStore {
     // The SharedPreferences object in which geofences are stored
     private final SharedPreferences mPrefs;
 
-    // The name of the resulting SharedPreferences
-	public static final String SHARED_PREFERENCE_NAME = "com.sdouglas.android.commuteralert_preferences";
 
     // Create the SharedPreferences storage with private access only
     public SimpleGeofenceStore(Context context) {
         mPrefs =
                 context.getSharedPreferences(
-                        SHARED_PREFERENCE_NAME,
+                        context.getPackageName()+ "_preferences",
                         Context.MODE_PRIVATE);
     }
 

@@ -43,7 +43,6 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 	private TextToSpeech mTts=null;
 	private static WindowManager mWindowManager;
 	private Stack<LinearLayout> _notificationPopups=new Stack<LinearLayout>();
-	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
 	private SharedPreferences mSharedPreferences; 
     private static String ALERT_TEXT="Alert! Alert! You are arriving at your destination.";
 	private WakeLock screenLock=null;
@@ -146,7 +145,7 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 			this.finish();
 		} else {
 			setTitle("Commuter Alert");
-			mSharedPreferences=getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+			mSharedPreferences=getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
 			_theText=getVoiceAndPopupText();
 			_countDoing=0;
 			/* This makes it happen even if the system is sleeping or locked */
@@ -398,4 +397,8 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 			getMediaPlayer().start();
 		}
 	}	
+	public String getPREFS_NAME() {
+		return getApplicationContext().getPackageName() + "_preferences";
+	}	
+	
 }

@@ -41,9 +41,6 @@ public class GeofenceRequestor
                     ConnectionCallbacks,
                     OnConnectionFailedListener {
 
-	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
-
-	
 	
     // Storage for a reference to the calling client
     private final Service mActivity;
@@ -266,7 +263,7 @@ public class GeofenceRequestor
 
     
 	private Intent getLocationManagerIntent() {
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
+		SharedPreferences settings = mActivity.getSharedPreferences(getPREFS_NAME(),Context.MODE_PRIVATE);
 		String locationManager = settings.getString("locationmanager","gps");
 		if(locationManager.equals("gps")) {
 			return 	new Intent(mActivity, LocationServiceOriginalEnhanced.class);
@@ -349,5 +346,8 @@ public class GeofenceRequestor
             LocalBroadcastManager.getInstance(mActivity).sendBroadcast(errorBroadcastIntent);
         }
     }
+	public String getPREFS_NAME() {
+		return mActivity.getPackageName() + "_preferences";
+	}
 }
 

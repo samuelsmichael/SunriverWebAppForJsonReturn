@@ -31,7 +31,6 @@ public class HistoryList extends ListActivity {
 	private DbAdapter mDbAdapter=null;
 	private Cursor mCursor;
 	private SimpleCursorAdapter mAdapter;
-	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
     private static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
 	private long mId;
 
@@ -104,6 +103,9 @@ public class HistoryList extends ListActivity {
 		MenuInflater inflater=getMenuInflater();
 		inflater.inflate(R.menu.history_contextmenu,menu);
 	}	
+	public String getPREFS_NAME() {
+		return getApplicationContext().getPackageName() + "_preferences";
+	}
 	
 	public boolean onContextItemSelected(MenuItem item) {
 		boolean retCode=true;
@@ -135,7 +137,7 @@ public class HistoryList extends ListActivity {
 			/*
 			 * I have to communicate back to the main window whose onRestore method will manage the popping up of another dialog box.
 			 */
-			SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+			SharedPreferences settings = getSharedPreferences(getPREFS_NAME(),MODE_PRIVATE);
 			SharedPreferences.Editor editor = settings.edit();
 			editor.putLong("nicknameid", mId);
 			editor.commit();

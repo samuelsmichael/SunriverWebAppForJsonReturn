@@ -288,7 +288,7 @@ public class DbAdapter {
 				while(cu.moveToNext()) {
 					int oldCount=cu.getInt(cu.getColumnIndex(KEY_HISTORY_COUNT));
 					ContentValues values = new ContentValues();
-					values.put(KEY_HISTORY_COUNT, oldCount++);
+					values.put(KEY_HISTORY_COUNT, ++oldCount);
 					String whereClause2=KEY_ROWID + "=" + cu.getInt(cu.getColumnIndex(KEY_ROWID));
 					getSqlDb().update(DATABASE_TABLE_HISTORY, values, whereClause2, null);
 				}

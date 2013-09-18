@@ -25,13 +25,15 @@ public abstract class LocationService extends Service  {
 	protected abstract void beginLocationListening();
     private static String ALERT_TEXT="Alert! Alert! You are arriving at your destination.";
 
-	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
     private NotificationManager mNotificationManager=null;
     private static final int ARMED_NOTIFICATION_ID=3;
     private String mAddressInReadableForm;
 
 
 	public LocationService() {
+	}
+	public String getPREFS_NAME() {
+		return getPackageName() + "_preferences";
 	}
 	
 	
@@ -105,7 +107,7 @@ public abstract class LocationService extends Service  {
 	protected void notifyUser() {
 		/* This is it!  We've arrived. Time to wake up our sleeping passenger.*/
     	
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
         String voicetext=settings.getString("voicetext", ALERT_TEXT);
 		
 		// 1. Remove the "ongoing" item in the notifications bar 

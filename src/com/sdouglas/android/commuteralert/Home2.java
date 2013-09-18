@@ -16,131 +16,143 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.sdouglas.android.commuteralert.HomeManager.MyBroadcastReceiver;
-import com.sdouglas.android.commuteralert.SearchActivity.SearchRailroadStationsDialogFragment;
 
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.TextView;
 
-public class Home2 extends Activity implements HomeImplementer, WantsSurroundingTrainStations {
-	private SecurityManager mSecurityManager=null;
+public class Home2 extends Activity implements HomeImplementer,
+		WantsSurroundingTrainStations {
 	private GoogleMap mMap = null;
 	private MapFragment mMapFragment;
 	static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
-	private HomeManager mHomeManager;	
+	private HomeManager mHomeManager;
 	private static float DEFAULT_ZOOM = 11f;
-	private static float DEFAULT_TILT=0f;
-	private static float DEFAULT_BEARING=0f;
+	private static float DEFAULT_TILT = 0f;
+	private static float DEFAULT_BEARING = 0f;
 	private Marker mPreviousMarker;
-	static final float SOMEKINDOFFACTOR=720; // this factor is the "number of meters" under which when the user presses a train, we assume he meant to press the train, at zoom level 11.
-	static final int PURGECACHEDAYSOLD=100; // number of days, older than which items in the cache are purged.
-    private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK="ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
-    private MyBroadcastReceiver mBroadcastReceiver;
-    private IntentFilter mIntentFilter;
-    private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n--Long press the screen at the desired location. \n\n or\n\n--Press the Search button.";
-    private static String SPLASH_SCREEN_MESSAGE = "To use Commuter Alert, select a location by either:\n\n--long pressing the map\n    at the desired location, or\n\n--pressing the Search button\n    located at the bottom-left\n    of the screen.";
-    public static String CURRENT_VERSION="2.00";
-    private boolean needToBringUpSplashScreen=false;
+	static final float SOMEKINDOFFACTOR = 720; // this factor is the
+												// "number of meters" under
+												// which when the user presses a
+												// train, we assume he meant to
+												// press the train, at zoom
+												// level 11.
+	static final int PURGECACHEDAYSOLD = 100; // number of days, older than
+												// which items in the cache are
+												// purged.
+	private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK = "ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
+	private MyBroadcastReceiver mBroadcastReceiver;
+	private IntentFilter mIntentFilter;
+	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n--Long press the screen at the desired location. \n\n or\n\n--Press the Search button.";
+	private static String SPLASH_SCREEN_MESSAGE = "To use Commuter Alert, select a location by either:\n\n--long pressing the map\n    at the desired location, or\n\n--pressing the Search button\n    located at the bottom-left\n    of the screen.";
+	public static String CURRENT_VERSION = "2.00";
+	private boolean needToBringUpSplashScreen = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if(!getSecurityManager().initializeVersion()) {
-			needToBringUpSplashScreen=true;
+		if (!getHomeManager().getSecurityManager().initializeVersion()) {
+			needToBringUpSplashScreen = true;
 		}
-        // Create a new broadcast receiver to receive updates from the listeners and service
-        mBroadcastReceiver = new MyBroadcastReceiver();
-        // Create an intent filter for the broadcast receiver
-        mIntentFilter = new IntentFilter();
-        // Action for broadcast Intents containing various types of geofencing errors
-        mIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCE_ERROR);
-        // Action for broadcast Intents to arm the address
-        mIntentFilter.addAction(ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK);
-        // All Location Services sample apps use this category
-        mIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+		// Create a new broadcast receiver to receive updates from the listeners
+		// and service
+		mBroadcastReceiver = new MyBroadcastReceiver();
+		// Create an intent filter for the broadcast receiver
+		mIntentFilter = new IntentFilter();
+		// Action for broadcast Intents containing various types of geofencing
+		// errors
+		mIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCE_ERROR);
+		// Action for broadcast Intents to arm the address
+		mIntentFilter.addAction(ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK);
+		// All Location Services sample apps use this category
+		mIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 
-        
-        // Register the broadcast receiver to receive status updates
-        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mIntentFilter);
-		GregorianCalendar calendar=new GregorianCalendar();
+		// Register the broadcast receiver to receive status updates
+		LocalBroadcastManager.getInstance(this).registerReceiver(
+				mBroadcastReceiver, mIntentFilter);
+		GregorianCalendar calendar = new GregorianCalendar();
 		calendar.add(GregorianCalendar.DATE, -PURGECACHEDAYSOLD);
-		getHomeManager().getDbAdapter().purgeCacheOfItemsOlderThan(calendar.getTime());
+		getHomeManager().getDbAdapter().purgeCacheOfItemsOlderThan(
+				calendar.getTime());
 		setContentView(R.layout.activity_home2);
-		final CompoundButton armedButton=(CompoundButton)findViewById(R.id.switchArmed); 
+
+		final CompoundButton armedButton = (CompoundButton) findViewById(R.id.switchArmed);
 		armedButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(((CompoundButton)v).isChecked()) {
-					SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
-					if(settings.getFloat("latitude", 0)==0) {
-						new WarningAndInitialDialog("You must select a location before turning on the alert.",INSTRUCTIONS_MESSAGE,Home2.this).show();
+				if (((CompoundButton) v).isChecked()) {
+					SharedPreferences settings = getSharedPreferences(
+							getPREFS_NAME(), MODE_PRIVATE);
+					if (settings.getFloat("latitude", 0) == 0) {
+						new WarningAndInitialDialog(
+								"You must select a location before turning on the alert.",
+								INSTRUCTIONS_MESSAGE, Home2.this).show();
 						armedButton.setChecked(false);
 					}
-				}				
-			}});
-		armedButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				if(!isChecked) {
-					getHomeManager().disarmLocationService();
-					setControlState(false);
-				} 
+				}
 			}
-			
 		});
-		final Button search =(Button)findViewById(R.id.buttonSearch);
-		search.setOnClickListener(new View.OnClickListener(){
+		armedButton
+				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView,
+							boolean isChecked) {
+						if (!isChecked) {
+							getHomeManager().disarmLocationService();
+							setControlState(false);
+						}
+					}
+
+				});
+		final Button search = (Button) findViewById(R.id.buttonSearch);
+		search.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(Home2.this,SearchActivity.class);
+				Intent intent = new Intent(Home2.this, SearchActivity.class);
 				startActivity(intent);
 			}
-			
+
 		});
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		getHomeManager().ascertainLocationMethod(this);		
+		getHomeManager().ascertainLocationMethod(this);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+
 		if (checkPlayServices()) {
 			onResumeSetupMapIfNeeded();
 		}
-	}	
-	
-	/* The Play Services API has to be installed on the user's machine in order
+	}
+
+	/*
+	 * The Play Services API has to be installed on the user's machine in order
 	 * for the map to show up. I check for it here, and if it isn't present,
 	 * then a dialog is presented to the user allowing him to fetch it.
 	 */
@@ -165,47 +177,52 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 		switch (requestCode) {
 		case REQUEST_CODE_RECOVER_PLAY_SERVICES:
 			if (resultCode == RESULT_CANCELED) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						this,AlertDialog.THEME_TRADITIONAL);
+				AlertDialog.Builder builder = new AlertDialog.Builder(this,
+						AlertDialog.THEME_TRADITIONAL);
 				builder.setTitle("Application Alert")
-				.setMessage("This application won't run without Google Play Services installed")
-				.setPositiveButton("Okay", new DialogInterface.OnClickListener(){
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-					}
-				});
+						.setMessage(
+								"This application won't run without Google Play Services installed")
+						.setPositiveButton("Okay",
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+									}
+								});
 				AlertDialog alert = builder.create();
-				alert.show();			}
+				alert.show();
+			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
-	}	
-	
-	
+	}
+
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {		
+	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.home2, menu);
 		return true;
 	}
+
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_settings:
-			Intent i2=new Intent(this,Preferences.class);
+			Intent i2 = new Intent(this, Preferences.class);
 			startActivity(i2);
 			return true;
 		}
-			
-		return super.onMenuItemSelected(featureId, item);
-	}	
-	
 
-	/* Do a check to see if the map object (mMap) has
-	 * already been created.  If not, then we have to prepare for displaying it,
-	 * and that involves also "finding initial location" -- which is our location --
-	 * and fetching all of the rail stations in the vicinity.
-	 * The reason I do this onResume is that onResume gets called even after a popped up dialog box
-	 * is present and then is closed ... which would be the case, say, if the user didn't have
-	 * Play Services installed, and was presented with the dialog to install it.
+		return super.onMenuItemSelected(featureId, item);
+	}
+
+	/*
+	 * Do a check to see if the map object (mMap) has already been created. If
+	 * not, then we have to prepare for displaying it, and that involves also
+	 * "finding initial location" -- which is our location -- and fetching all
+	 * of the rail stations in the vicinity. The reason I do this onResume is
+	 * that onResume gets called even after a popped up dialog box is present
+	 * and then is closed ... which would be the case, say, if the user didn't
+	 * have Play Services installed, and was presented with the dialog to
+	 * install it.
 	 */
 	private void onResumeSetupMapIfNeeded() {
 		// Do a null check to confirm that we have not already instantiated the
@@ -217,27 +234,31 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 			// Check if we were successful in obtaining the map.
 			if (mMap != null) {
 				// The Map is verified. It is now safe to manipulate the map.
-		//		mMap.animateCamera(CameraUpdateFactory.zoomTo(mMapZoomLevel));
+				// mMap.animateCamera(CameraUpdateFactory.zoomTo(mMapZoomLevel));
 				mMap.setMyLocationEnabled(true);
 				mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
 					@Override
 					public void onCameraChange(CameraPosition arg0) {
-						SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+						SharedPreferences settings = getSharedPreferences(
+								getPREFS_NAME(), MODE_PRIVATE);
 						SharedPreferences.Editor editor = settings.edit();
 						editor.putFloat("zoom", arg0.zoom);
 						editor.putFloat("bearing", arg0.bearing);
-						editor.putFloat("tilt", arg0.tilt);	
-						editor.putFloat("whereiamatlat", (float)arg0.target.latitude);
-						editor.putFloat("whereiamatlng", (float)arg0.target.longitude);
+						editor.putFloat("tilt", arg0.tilt);
+						editor.putFloat("whereiamatlat",
+								(float) arg0.target.latitude);
+						editor.putFloat("whereiamatlng",
+								(float) arg0.target.longitude);
 						editor.commit();
-					}					
+					}
 				});
 			}
 		} else {
-	//		mMap.animateCamera(CameraUpdateFactory.zoomTo(mMapZoomLevel));
+			// mMap.animateCamera(CameraUpdateFactory.zoomTo(mMapZoomLevel));
 			mMap.setMyLocationEnabled(true);
 		}
 	}
+
 	private HomeManager getHomeManager() {
 		if (mHomeManager == null) {
 			mHomeManager = new HomeManager(this);
@@ -246,47 +267,57 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 	}
 
 	private void animateCamera(double latitude, double longitude) {
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
-		mMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(new LatLng(latitude,longitude), 
-				settings.getFloat("zoom", DEFAULT_ZOOM), 
-				settings.getFloat("tilt", DEFAULT_TILT), 
-				settings.getFloat("bearing", DEFAULT_BEARING))));
+		SharedPreferences settings = getSharedPreferences(getPREFS_NAME(),
+				MODE_PRIVATE);
+		mMap.animateCamera(CameraUpdateFactory
+				.newCameraPosition(new CameraPosition(new LatLng(latitude,
+						longitude), settings.getFloat("zoom", DEFAULT_ZOOM),
+						settings.getFloat("tilt", DEFAULT_TILT), settings
+								.getFloat("bearing", DEFAULT_BEARING))));
 	}
-	
+
 	public void positionMapToLocation(double latitude, double longitude) {
-		if(mMap != null) {
-			animateCamera(latitude,longitude);
+		if (mMap != null) {
+			animateCamera(latitude, longitude);
 		}
 	}
-	
-	
+
 	@Override
 	public void heresYourAddress(Address address, String readableAddress,
 			LatLng whereImAt) {
-		
-		if(address==null) {
-			/* whereImAt!=null means that we've just initialized and are placing the map at this spot */
-			if(whereImAt!=null) {
-				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
-				positionMapToLocation(settings.getFloat("whereimatlat", (float)whereImAt.latitude) , settings.getFloat("whereimatlng", (float)whereImAt.longitude));
+
+		if (address == null) {
+			/*
+			 * whereImAt!=null means that we've just initialized and are placing
+			 * the map at this spot
+			 */
+			if (whereImAt != null) {
+				SharedPreferences settings = getSharedPreferences(
+						getPREFS_NAME(), MODE_PRIVATE);
+				positionMapToLocation(settings.getFloat("whereimatlat",
+						(float) whereImAt.latitude), settings.getFloat(
+						"whereimatlng", (float) whereImAt.longitude));
 			}
 			setControlState(false);
 		} else {
-			positionMapToLocation(address.getLatitude() , address.getLongitude());
+			positionMapToLocation(address.getLatitude(), address.getLongitude());
 			setControlState(true);
 		}
-		if(needToBringUpSplashScreen) {
-			needToBringUpSplashScreen=false;
-			new WarningAndInitialDialog("Thank you for purchasing Commuter Alert!",SPLASH_SCREEN_MESSAGE,Home2.this).show();
+		if (needToBringUpSplashScreen) {
+			needToBringUpSplashScreen = false;
+			new WarningAndInitialDialog(
+					"Thank you for purchasing Commuter Alert!",
+					SPLASH_SCREEN_MESSAGE, Home2.this).show();
 		}
 	}
+
 	private void setControlState(boolean isArmed) {
 		// Hide the previous pin; otherwise they just continue to accumulate.
 		if (mPreviousMarker != null && mPreviousMarker.isVisible()) {
 			mPreviousMarker.setVisible(false);
 		}
 		final Button disarmButton = (Button) findViewById(R.id.buttonSearch);
-		final CompoundButton armedButton=(CompoundButton)findViewById(R.id.switchArmed); 
+		final CompoundButton armedButton = (CompoundButton) findViewById(R.id.switchArmed);
 		if (isArmed) {
 			armedButton.setChecked(true);
 			disarmButton.setVisibility(View.INVISIBLE);
@@ -295,7 +326,7 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 			disarmButton.setVisibility(View.VISIBLE);
 		}
 	}
-	
+
 	private class LocationAndAssociatedTrainStations {
 		public Location mLocation;
 		public ArrayList<Address> mAddresses;
@@ -309,10 +340,11 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 
 	/*
 	 * I am using an AsyncTask here because its onPostExecute insures that I can
-	 * update the UI; and as this whole thing is initiated via a background thread
-	 * (we have to make a web call to Google Services in order to fetch the train
-	 * stations, and such calls are not allowed by Android to be made in the UI thread), 
-	 * we will need to "get back on" the UI thread in order to display it.
+	 * update the UI; and as this whole thing is initiated via a background
+	 * thread (we have to make a web call to Google Services in order to fetch
+	 * the train stations, and such calls are not allowed by Android to be made
+	 * in the UI thread), we will need to "get back on" the UI thread in order
+	 * to display it.
 	 */
 	class ShowMap
 			extends
@@ -325,20 +357,24 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 				return null;
 			}
 		}
+
 		/*
-		 * The class LocationAndAssociatedTrainStations is a combination of two objects -- the list
-		 * of addresses of the trains stations, and the Location object defining where I am at currently.
-		 * Due to the fact that the AsyncTask class can only handle one object passed into it,
-		 * I was constrained to create a class that holds both of these pieces of information; both of
-		 * which are required by this method.
+		 * The class LocationAndAssociatedTrainStations is a combination of two
+		 * objects -- the list of addresses of the trains stations, and the
+		 * Location object defining where I am at currently. Due to the fact
+		 * that the AsyncTask class can only handle one object passed into it, I
+		 * was constrained to create a class that holds both of these pieces of
+		 * information; both of which are required by this method.
 		 */
 		protected void onPostExecute(LocationAndAssociatedTrainStations result) {
 			final LocationAndAssociatedTrainStations resultF = result;
 			if (result != null) {
 				// position map to location only if we're not armed
-				SharedPreferences settings = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
-				if(settings.getFloat("latitude", 0)==0) {
-					positionMapToLocation(result.mLocation.getLatitude(),result.mLocation.getLongitude());
+				SharedPreferences settings = getSharedPreferences(
+						getPREFS_NAME(), MODE_PRIVATE);
+				if (settings.getFloat("latitude", 0) == 0) {
+					positionMapToLocation(result.mLocation.getLatitude(),
+							result.mLocation.getLongitude());
 				}
 				// turn on the little "take me to my current location" icon
 				mMap.setMyLocationEnabled(true);
@@ -355,25 +391,31 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 					marker.showInfoWindow();
 				}
 				// define an "onMapLongClick" listener that
-				// 1. Moves the marker (hides the old one and creates the new one)
-				// 2. If he touches near the train, assume he meant to touch the train.
+				// 1. Moves the marker (hides the old one and creates the new
+				// one)
+				// 2. If he touches near the train, assume he meant to touch the
+				// train.
 				// 3. Initiate what needs to be done to arm the system.
 				mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 					public void onMapLongClick(LatLng point) {
-						LatLng useThisOne=null;
+						LatLng useThisOne = null;
 						if (mPreviousMarker != null) {
 							mPreviousMarker.setVisible(false);
 						}
 						/*
-						 * Do a "snap-to-grid" kind of thing.  If the guy's pressing near the train, let's snap him to the train.
+						 * Do a "snap-to-grid" kind of thing. If the guy's
+						 * pressing near the train, let's snap him to the train.
 						 */
-						
-						float zoomLevel=mMap.getCameraPosition().zoom;
-						float errorMarginMetersUnderWhichWeAssumeHePressedTheTrain=0f;
-						errorMarginMetersUnderWhichWeAssumeHePressedTheTrain=(float) (SOMEKINDOFFACTOR * (1f/(Math.pow(2f,(zoomLevel-12f)))));
+
+						float zoomLevel = mMap.getCameraPosition().zoom;
+						float errorMarginMetersUnderWhichWeAssumeHePressedTheTrain = 0f;
+						errorMarginMetersUnderWhichWeAssumeHePressedTheTrain = (float) (SOMEKINDOFFACTOR * (1f / (Math
+								.pow(2f, (zoomLevel - 12f)))));
 						Address useThisAddress = null;
-						// Drop a train bitmap as a marker at each place on the map
-						// If he's near a train, then assume he meant to press the train.
+						// Drop a train bitmap as a marker at each place on the
+						// map
+						// If he's near a train, then assume he meant to press
+						// the train.
 						for (int i = 0; i < resultF.mAddresses.size(); i++) {
 							LatLng latlng2 = new LatLng(resultF.mAddresses.get(
 									i).getLatitude(), resultF.mAddresses.get(i)
@@ -382,16 +424,16 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 							Location.distanceBetween(point.latitude,
 									point.longitude, latlng2.latitude,
 									latlng2.longitude, results);
-							if (results[0] < errorMarginMetersUnderWhichWeAssumeHePressedTheTrain ) {
+							if (results[0] < errorMarginMetersUnderWhichWeAssumeHePressedTheTrain) {
 								useThisOne = latlng2;
 								useThisAddress = resultF.mAddresses.get(i);
 								break;
 							}
 						}
 						/*
-						 * All we're given is a point (latitude and longitude).  Is there an address
-						 * near it so we can use that description?
-						 * 
+						 * All we're given is a point (latitude and longitude).
+						 * Is there an address near it so we can use that
+						 * description?
 						 */
 						try {
 							if (useThisAddress == null) {
@@ -401,9 +443,14 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 										(double) point.longitude, 2);
 								if (addresses != null && addresses.size() > 0) {
 									useThisAddress = addresses.get(0);
-									/* Even though we've found a good displayable name, we still want to drop the pin in the exact right place.*/
+									/*
+									 * Even though we've found a good
+									 * displayable name, we still want to drop
+									 * the pin in the exact right place.
+									 */
 									useThisAddress.setLatitude(point.latitude);
-									useThisAddress.setLongitude(point.longitude);
+									useThisAddress
+											.setLongitude(point.longitude);
 								}
 							}
 						} catch (Exception e) {
@@ -419,88 +466,99 @@ public class Home2 extends Activity implements HomeImplementer, WantsSurrounding
 									"Address for red marker, below");
 						}
 						// arm the system
-						getHomeManager().getDbAdapter().writeOrUpdateHistory(useThisAddress);
+						getHomeManager().getDbAdapter().writeOrUpdateHistory(
+								useThisAddress);
 						getHomeManager().newLocation(useThisAddress);
-						
+
 					}
 				});
 			}
 		}
 	}
+
 	@Override
 	public void dropPin(Address a) {
 		if (mMap != null) {
-			LatLng latlng=new LatLng(a.getLatitude(),a.getLongitude());
-			Marker marker = mMap
-					.addMarker(new MarkerOptions()
-							.position(latlng)
-							.title("Here's your destination")
-							.snippet(
-									"You will be notified when you are near it"));
+			LatLng latlng = new LatLng(a.getLatitude(), a.getLongitude());
+			Marker marker = mMap.addMarker(new MarkerOptions().position(latlng)
+					.title("Here's your destination")
+					.snippet("You will be notified when you are near it"));
 			marker.showInfoWindow();
 			mPreviousMarker = marker;
 		}
 	}
-	
-	private SecurityManager getSecurityManager() {
-		if (mSecurityManager==null) {
-			mSecurityManager=new SecurityManager(this);
-		}
-		return mSecurityManager;
-	}
-		
+
 	/*
-	 * This is what the Model calls; but I have to initiate an AsyncTask, because we're going to be updating in a non-UI thread
+	 * This is what the Model calls; but I have to initiate an AsyncTask,
+	 * because we're going to be updating in a non-UI thread
 	 */
-	public void hereAreTheTrainStationAddresses(
-			ArrayList<Address> addresses, Location location) {
+	public void hereAreTheTrainStationAddresses(ArrayList<Address> addresses,
+			Location location) {
 		LocationAndAssociatedTrainStations t = new LocationAndAssociatedTrainStations(
 				location, addresses);
 		new ShowMap().execute(t);
 	}
-    /**
-     * Define a Broadcast receiver that receives updates from connection listeners and
-     * the geofence transition service.
-     */
-    public class MyBroadcastReceiver extends BroadcastReceiver {
-        /*
-         * Define the required method for broadcast receivers
-         * This method is invoked when a broadcast Intent triggers the receiver
-         */
-        @Override
-        public void onReceive(Context context, Intent intent) {
 
-            // Check the action code and determine what to do
-            String action = intent.getAction();
+	public String getPREFS_NAME() {
+		return getApplicationContext().getPackageName() + "_preferences";
+	}
 
-        	if(TextUtils.equals(action, ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK)) {
-        		getHomeManager().manageKeyedInAddress(intent.getStringExtra("SeekAddressString"));
-        	}
-        }
-    }
-    public static class WarningAndInitialDialog {
-    	private String mTitle;
-    	private String mMessage;
-    	private Activity mActivity;
-    	private WarningAndInitialDialog() {super();}
-		public WarningAndInitialDialog(String title, String message, Activity activity) {
-    		super();
-    		mTitle=title;
-    		mMessage=message;
-    		mActivity=activity;
-    	}
-        public void show() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-            builder.setTitle(mTitle)
-                   .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                       public void onClick(DialogInterface dialog, int id) {
-                       }
-                   })
-                   .setMessage(mMessage)
-                   ;
-            // Create the AlertDialog object and return it
-            
-            AlertDialog dialog= builder.create();
-            dialog.show();
-        }
-    }}
+	/**
+	 * Define a Broadcast receiver that receives updates from connection
+	 * listeners and the geofence transition service.
+	 */
+	public class MyBroadcastReceiver extends BroadcastReceiver {
+		/*
+		 * Define the required method for broadcast receivers This method is
+		 * invoked when a broadcast Intent triggers the receiver
+		 */
+		@Override
+		public void onReceive(Context context, Intent intent) {
+
+			// Check the action code and determine what to do
+			String action = intent.getAction();
+
+			if (TextUtils
+					.equals(action, ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK)) {
+				getHomeManager().manageKeyedInAddress(
+						intent.getStringExtra("SeekAddressString"));
+			}
+		}
+	}
+
+	public static class WarningAndInitialDialog {
+		private String mTitle;
+		private String mMessage;
+		private Activity mActivity;
+
+		private WarningAndInitialDialog() {
+			super();
+		}
+
+		public WarningAndInitialDialog(String title, String message,
+				Activity activity) {
+			super();
+			mTitle = title;
+			mMessage = message;
+			mActivity = activity;
+		}
+
+		public void show() {
+			AlertDialog.Builder builder = new AlertDialog.Builder(
+					new ContextThemeWrapper(mActivity,
+							R.style.AlertDialogCustomLight));
+			builder.setTitle(mTitle)
+					.setPositiveButton("Okay",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int id) {
+								}
+							}).setMessage(mMessage);
+			// Create the AlertDialog object and return it
+
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		}
+	}
+
+}

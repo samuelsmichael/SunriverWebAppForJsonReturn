@@ -53,7 +53,7 @@ public class LocationServiceOriginal extends LocationService implements Location
 	
     protected void initializeLocationManager() {
         try {
-    		SharedPreferences settings = getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
+    		SharedPreferences settings = getSharedPreferences(getPREFS_NAME(),Context.MODE_PRIVATE);
     		SharedPreferences.Editor editor = settings.edit();
     		editor.putInt("modifyingValue", 1);
     		editor.commit();
@@ -74,7 +74,7 @@ public class LocationServiceOriginal extends LocationService implements Location
 	
 	
 	private int getModifyingValue() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences(getPREFS_NAME(), Context.MODE_PRIVATE);
         return settings.getInt("modifyingValue", 1);
 	}
 	private void getmAlarmSender() {
@@ -114,7 +114,7 @@ public class LocationServiceOriginal extends LocationService implements Location
 	private void manageLocationNotifications(Location newLocation) {
 		if(mDontReenter==0) {
 			mDontReenter++;
-	        SharedPreferences settings = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+	        SharedPreferences settings = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
 	        float latitude = settings.getFloat("latitude", 0);
 	        float longitude = settings.getFloat("longitude", 0);
 	        

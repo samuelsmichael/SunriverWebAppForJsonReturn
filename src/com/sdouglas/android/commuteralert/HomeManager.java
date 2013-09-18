@@ -16,11 +16,13 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.view.ContextThemeWrapper;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -58,9 +60,11 @@ public class HomeManager implements
     // An intent filter for the broadcast receiver
     private IntentFilter mIntentFilter;
     public static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
+    public static final int START_TRIAL_WARNINGS=5;
+    public static final int TRIAL_ALLOWANCE=10;
+	private SecurityManager mSecurityManager = null;
     
 
-	public static final String PREFS_NAME = "com.sdouglas.android.commuteralert_preferences";
 	public static final int LIMIT_NBR_ACCESSES = 10;
 	public static final String GOOGLE_API_KEY = "AIzaSyCiLgS6F41lPD-aHj7yMycVDv38gb1vd2o";
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -78,7 +82,7 @@ public class HomeManager implements
 	}
 	
 	private Intent getLocationManagerIntent() {
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
+		SharedPreferences settings = mActivity.getSharedPreferences(getPREFS_NAME(),Context.MODE_PRIVATE);
 		String locationManager = settings.getString("locationmanager","gps");
 		if(locationManager.equals("gps")) {
 			return 	new Intent(mActivity, LocationServiceOriginalEnhanced.class);
@@ -90,7 +94,9 @@ public class HomeManager implements
 			}
 		}
 	}
-	
+	public String getPREFS_NAME() {
+		return mActivity.getPackageName() + "_preferences";
+	}	
 	public HomeManager(Activity activity) {
 		mActivity=activity;
 	}
@@ -135,7 +141,7 @@ public class HomeManager implements
 
 		mActivity.startService(intent);
 		Geocoder g = new Geocoder(mActivity);
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
+		SharedPreferences settings = mActivity.getSharedPreferences(getPREFS_NAME(),Context.MODE_PRIVATE);
         // Create a new broadcast receiver to receive updates from the listeners and service
         mBroadcastReceiver = new MyBroadcastReceiver();
         
@@ -190,7 +196,7 @@ public class HomeManager implements
 	 * 
 	 */
 	public void disarmLocationService() {
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+		SharedPreferences settings = mActivity.getSharedPreferences(getPREFS_NAME(), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putFloat("latitude", (float) 0);
 		editor.putFloat("longitude", (float) 0);
@@ -217,7 +223,7 @@ public class HomeManager implements
 	 */
 
 	private void armLocationService(Address a) {
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
+		SharedPreferences settings = mActivity.getSharedPreferences(getPREFS_NAME(),Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putFloat("latitude", (float) a.getLatitude());
 		editor.putFloat("longitude", (float) a.getLongitude());
@@ -585,6 +591,21 @@ public class HomeManager implements
 	}
 
 	public void newLocation(Address a) {
+		if(isTrialVersion()) {
+			if(hasExceededTrials()) {
+				new TrialVersionDialog("Trial Software", "Your trial period is over. In order to continue using Commuter Alert you will have to purchase it.",
+						mActivity, true).show();
+				return;
+			} else {
+				incrementTrials();
+				if(startWarnings()) {
+					new TrialVersionDialog("Trial Software Alert", "Your trial period is nearing its end. In order to continue using Commuter Alert without seeing this warning, you will have to purchase it.",
+							mActivity, false).show();
+				}
+			}
+		} else {
+			
+		}
 		((HomeImplementer) mActivity).heresYourAddress(a,
 				getReadableFormOfAddress(a),null);
 		armLocationService(a);
@@ -594,6 +615,23 @@ public class HomeManager implements
 		((HomeImplementer) mActivity).dropPin(a);
 	}
 
+	private boolean isTrialVersion() {
+		return true;
+		//return mActivity.getPackageName().toLowerCase().indexOf("trial")!=-1;
+	}
+	
+	private boolean hasExceededTrials() {
+		return getSecurityManager().getCountUserArmed()>TRIAL_ALLOWANCE;
+	}
+
+	private boolean startWarnings() {
+		return getSecurityManager().getCountUserArmed()>START_TRIAL_WARNINGS;
+	}
+	
+	private void incrementTrials() {
+		getSecurityManager().stampVersion(getSecurityManager().getCountUserArmed()+1);
+	}
+	
 	private LocationManager getLocationManager() {
 		if (mLocationManager == null) {
 			mLocationManager = (android.location.LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
@@ -625,7 +663,7 @@ public class HomeManager implements
 	 * Here is where we're going to request our list of trains from.
 	 */
 	private void getCurrentLocation() {
-		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+		SharedPreferences settings = mActivity.getSharedPreferences(getPREFS_NAME(), Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		
 		Location location=mLocationClient.getLastLocation();
@@ -764,7 +802,7 @@ public class HomeManager implements
          * Flip back to "gps" mode because "networklocation" isn't working well
          */
         private void handleGeofenceError(Context context, Intent intent) {
-    		SharedPreferences settings = mActivity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    		SharedPreferences settings = mActivity.getSharedPreferences(getPREFS_NAME(), Context.MODE_PRIVATE);
     		SharedPreferences.Editor editor = settings.edit();
 			editor.putString("locationmanager", "gps");
 			editor.commit();
@@ -786,7 +824,63 @@ public class HomeManager implements
 			mActivity.startService(jdItent2);
         }
     }
-	
-	
-	
+	public SecurityManager getSecurityManager() {
+		if (mSecurityManager == null) {
+			mSecurityManager = new SecurityManager(mActivity);
+		}
+		return mSecurityManager;
+	}	
+	public static class TrialVersionDialog {
+		private String mTitle;
+		private String mMessage;
+		private Activity mActivity;
+		private boolean mTrialPeriodIsOver;
+
+		private TrialVersionDialog() {
+			super();
+		}
+
+		public TrialVersionDialog(String title, String message,
+				Activity activity, boolean trialPeriodIsOver) {
+			super();
+			mTitle = title;
+			mMessage = message;
+			mActivity = activity;
+			mTrialPeriodIsOver = trialPeriodIsOver;
+		}
+
+		public void show() {
+			AlertDialog.Builder builder = new AlertDialog.Builder(
+					new ContextThemeWrapper(mActivity,
+							R.style.AlertDialogCustomDark));
+			builder.setTitle(mTitle)
+					.setPositiveButton("Purchase",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int id) {
+									String uri = "market://details?id="+ mActivity.getPackageName();
+									Intent ii3 = new Intent(Intent.ACTION_VIEW,
+											Uri.parse(uri));
+									mActivity.startActivity(ii3);
+								}
+							}).setMessage(mMessage);
+			// Create the AlertDialog object and return it
+			String negativeButtonVerbiage = "Not Now";
+			if (mTrialPeriodIsOver) {
+				negativeButtonVerbiage = "Close Program";
+			}
+			builder.setNegativeButton(negativeButtonVerbiage,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int id) {
+							if(mTrialPeriodIsOver) {
+								mActivity.finish();
+							}
+						}
+					});
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		}
+	}
 }

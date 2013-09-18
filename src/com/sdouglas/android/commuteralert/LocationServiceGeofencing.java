@@ -96,7 +96,7 @@ public class LocationServiceGeofencing extends LocationService {
          * Create a version of geofence 1 that is "flattened" into individual fields. This
          * allows it to be stored in SharedPreferences.
          */
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE);
+		SharedPreferences settings = getSharedPreferences(getPREFS_NAME(),Context.MODE_PRIVATE);
 		float latitude = settings.getFloat("latitude", 0);
 		float longitude = settings.getFloat("longitude", 0);
 		float distance = Float.valueOf(settings.getString("LocationDistance", "501"));

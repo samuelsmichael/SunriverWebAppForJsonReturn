@@ -420,6 +420,12 @@ containing a value of this type.
         public static final int unregister_geofence2=0x7f080044;
     }
     public static final class style {
+        /**  <item name="android:textSize">10sp</item>  
+         */
+        public static final int AlertDialogCustomDark=0x7f0b0004;
+        /**          <item name="android:textSize">10sp</item> 
+         */
+        public static final int AlertDialogCustomLight=0x7f0b0005;
         /** 
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
