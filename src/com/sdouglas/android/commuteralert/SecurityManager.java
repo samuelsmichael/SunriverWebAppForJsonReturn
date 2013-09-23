@@ -1,8 +1,5 @@
 package com.sdouglas.android.commuteralert;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.CharArrayReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,57 +7,110 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.nio.CharBuffer;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import com.android.vending.licensing.AESObfuscator;
+import com.android.vending.licensing.LicenseChecker;
+import com.android.vending.licensing.LicenseCheckerCallback;
+import com.android.vending.licensing.ServerManagedPolicy;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Handler;
+import android.telephony.TelephonyManager;
 import android.view.ContextThemeWrapper;
 
 public class SecurityManager {
 	Activity mActivity;
-    public static final int START_TRIAL_WARNINGS=5;
-    public static final int TRIAL_ALLOWANCE=10;
+	public static final int START_TRIAL_WARNINGS = 5;
+	public static final int TRIAL_ALLOWANCE = 10;
+	private static boolean isNonTrialVersionAndIsRegistered = false;
+	private static final String BASE64_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhZrIaNqneMAux90tFKHBwnFvS+NXqIhcqFQ3ZrUTuQN/Uy6hZZyKUJVcnUOMVWPWtK6dtN6FzqTNNK3c8aJpAiTQH0rtFzh4lt1CI0BojSV4WfDosgLh8Tzy6iy70z7R1g8P3CiHcwbO96kO1Hut997gYtFWUO/Ot1B6SdourkxN/oUrcaS0JAjaIcBYrfQhlm8QOJw3FdGqzGjtQ6pJMVc1SI6oSBeKJfuvZy7nLU4+lwdb73McCJLfJUkhNBow+knSbg5L5YxGpPDRVxfeYvVTadJGRHiPRnVI0ndk+DZNBOifgqRQubO9lri0uwu4gx+D12CyvpC1YS2A1gn7ZwIDAQAB";
+	private static boolean haveDoneRegistrationCheck = false;
 
-    public SecurityManager(Activity activity) {
-		mActivity=activity;
+	private String getDeviceId() {
+		TelephonyManager tm = (TelephonyManager) mActivity
+				.getSystemService(Context.TELEPHONY_SERVICE);
+		return tm.getLine1Number();
 	}
-	
+
+	public SecurityManager(Activity activity) {
+		mActivity = activity;
+		if (!haveDoneRegistrationCheck && !isTrialVersion()) {
+			final Timer jdTimer = new Timer("Licensing");
+			jdTimer.schedule(new TimerTask() {
+				public void run() {
+					Thread thread = new Thread(new Runnable() {
+						public void run() {
+							// Construct the LicenseCheckerCallback. The library
+							// calls this when done.
+							mLicenseCheckerCallback = new MyLicenseCheckerCallback();
+							// Construct the LicenseChecker with a Policy.
+							mChecker = new LicenseChecker(mActivity,
+									new ServerManagedPolicy(mActivity,
+											new AESObfuscator(SALT, mActivity
+													.getPackageName(),
+													getDeviceId())),
+									BASE64_PUBLIC_KEY // Your public licensing
+														// key.
+							);
+							mChecker.checkAccess(mLicenseCheckerCallback);
+						}
+					});
+					thread.setPriority(Thread.MIN_PRIORITY);
+					thread.run();
+				}
+			}, 3000, 1000 * 60 * 10);
+		}
+	}
+
+	private boolean isUnregisteredLiveVersion() {
+		if (haveDoneRegistrationCheck && !isNonTrialVersionAndIsRegistered) {
+			return true;
+		}
+		return false;
+	}
+
 	public boolean doTrialCheck() {
-		if(isTrialVersion()) {
-			if(hasExceededTrials()) {
-				new TrialVersionDialog("Trial Software", "Your trial period is over. In order to continue using Commuter Alert you will have to purchase it.",
+		if (isTrialVersion() || isUnregisteredLiveVersion()) {
+			if (hasExceededTrials()) {
+				new TrialVersionDialog(
+						"Trial Software",
+						"Your trial period is over. In order to continue using Commuter Alert you will have to purchase it.",
 						mActivity, true).show();
 				return false;
 			} else {
 				incrementTrials();
-				if(startWarnings()) {
-					new TrialVersionDialog("Trial Software Alert", "Your trial period is nearing its end. In order to continue using Commuter Alert without seeing this warning, you will have to purchase it.",
+				if (startWarnings()) {
+					new TrialVersionDialog(
+							"Trial Software Alert",
+							"Your trial period is nearing its end. In order to continue using Commuter Alert without seeing this warning, you will have to purchase it.",
 							mActivity, false).show();
 				}
 			}
 		}
 		return true;
-	}	
-	
-	private boolean isTrialVersion() {
-		return mActivity.getPackageName().toLowerCase().indexOf("trial")!=-1;
 	}
-	
+
+	private boolean isTrialVersion() {
+		return mActivity.getPackageName().toLowerCase().indexOf("trial") != -1;
+	}
+
 	private boolean hasExceededTrials() {
-		return getCountUserArmed()>TRIAL_ALLOWANCE;
+		return getCountUserArmed() > TRIAL_ALLOWANCE;
 	}
 
 	private boolean startWarnings() {
-		return getCountUserArmed()>START_TRIAL_WARNINGS;
+		return getCountUserArmed() > START_TRIAL_WARNINGS;
 	}
-	
+
 	private void incrementTrials() {
-		stampVersion(getCountUserArmed()+1);
+		stampVersion(getCountUserArmed() + 1);
 	}
 
 	public static class TrialVersionDialog {
@@ -91,7 +141,9 @@ public class SecurityManager {
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,
 										int id) {
-									String uri = "market://details?id="+ mActivity.getPackageName().replace("trial", "");
+									String uri = "market://details?id="
+											+ mActivity.getPackageName()
+													.replace("trial", "");
 									Intent ii3 = new Intent(Intent.ACTION_VIEW,
 											Uri.parse(uri));
 									mActivity.startActivity(ii3);
@@ -107,8 +159,8 @@ public class SecurityManager {
 
 						@Override
 						public void onClick(DialogInterface dialog, int id) {
-							if(mTrialPeriodIsOver) {
-								
+							if (mTrialPeriodIsOver) {
+
 							}
 						}
 					});
@@ -116,69 +168,73 @@ public class SecurityManager {
 			dialog.show();
 		}
 	}
-	
+
 	/*
 	 * return true if file existed beforehand
 	 */
 	public boolean initializeVersion() {
-		boolean retValue=false;
-		if(!getExistsVersionFile()) {
+		boolean retValue = false;
+		if (!getExistsVersionFile()) {
 			stampVersion(0);
-			retValue=false;
+			retValue = false;
 		} else {
-			retValue=true;
+			retValue = true;
 		}
 		return retValue;
 	}
+
 	public int getCountUserArmed() {
-		int countUsed=0;
-		FileInputStream fis=null;
+		int countUsed = 0;
+		FileInputStream fis = null;
 		final char[] buffer = new char[10];
-		final StringBuilder out = new StringBuilder();		
+		final StringBuilder out = new StringBuilder();
 		try {
-			fis=getTrialCounterInputStream();
+			fis = getTrialCounterInputStream();
 			final Reader in = new InputStreamReader(fis, "UTF-8");
-		    for (;;) {
-		    	int rsz = in.read(buffer, 0, buffer.length);
-		        if (rsz < 0)
-		          break;
-		        out.append(buffer, 0, rsz);
-		    }
-		    String contents=out.toString(); 
-		    int index=contents.indexOf("~.");
-		    if(index>=0) {
-		    	countUsed=Integer.valueOf(contents.substring(index+2));
-		    } else {
-		    	countUsed=0;
-		    }
-		    fis.close();
+			for (;;) {
+				int rsz = in.read(buffer, 0, buffer.length);
+				if (rsz < 0)
+					break;
+				out.append(buffer, 0, rsz);
+			}
+			String contents = out.toString();
+			int index = contents.indexOf("~.");
+			if (index >= 0) {
+				countUsed = Integer.valueOf(contents.substring(index + 2));
+			} else {
+				countUsed = 0;
+			}
+			fis.close();
 		} catch (Exception e) {
-			
+
 		}
 		return countUsed;
 	}
 
 	private boolean getExistsVersionFile() {
-		boolean retValue=false;
+		boolean retValue = false;
 		File file = null;
 		if (isSdPresent()) {
-			file = new File("/sdcard/douglas/version"+Home2.CURRENT_VERSION+"a.txt");
+			file = new File("/sdcard/douglas/version" + Home2.CURRENT_VERSION
+					+ "a.txt");
 			if (file.exists()) {
-				retValue=true;
+				retValue = true;
 			}
 		} else {
-			file = new File("/data/data/"+mActivity.getPackageName()+"/files/version"+Home2.CURRENT_VERSION+"a.txt");
+			file = new File("/data/data/" + mActivity.getPackageName()
+					+ "/files/version" + Home2.CURRENT_VERSION + "a.txt");
 			if (file.exists()) {
-				retValue=true;
+				retValue = true;
 			}
 		}
 		return retValue;
 	}
+
 	public boolean isSdPresent() {
-		String sdState=android.os.Environment.getExternalStorageState();
-		return sdState.equals(
-				android.os.Environment.MEDIA_MOUNTED) ;
-	}	
+		String sdState = android.os.Environment.getExternalStorageState();
+		return sdState.equals(android.os.Environment.MEDIA_MOUNTED);
+	}
+
 	public void stampVersion(int nbrOfAlertSets) {
 		FileOutputStream fos = null;
 		PrintWriter pw = null;
@@ -186,7 +242,7 @@ public class SecurityManager {
 			fos = getVersionOutputStream();
 			pw = new PrintWriter(fos);
 			pw.write(Home2.CURRENT_VERSION);
-			pw.write("~."+String.valueOf(nbrOfAlertSets));
+			pw.write("~." + String.valueOf(nbrOfAlertSets));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -202,7 +258,8 @@ public class SecurityManager {
 		}
 	}
 
-	private FileOutputStream getVersionOutputStream() throws FileNotFoundException {
+	private FileOutputStream getVersionOutputStream()
+			throws FileNotFoundException {
 		FileOutputStream fileOutputStream_Version = null;
 		File file = null;
 		if (isSdPresent()) {
@@ -210,24 +267,69 @@ public class SecurityManager {
 			if (!file.exists()) {
 				file.mkdirs();
 			}
-			fileOutputStream_Version = new FileOutputStream("/sdcard/douglas/version"+Home2.CURRENT_VERSION+"a.txt",
+			fileOutputStream_Version = new FileOutputStream(
+					"/sdcard/douglas/version" + Home2.CURRENT_VERSION + "a.txt",
 					false);
 		} else {
-			fileOutputStream_Version = mActivity.openFileOutput("version"+Home2.CURRENT_VERSION+"a.txt",
+			fileOutputStream_Version = mActivity.openFileOutput("version"
+					+ Home2.CURRENT_VERSION + "a.txt",
 					Context.MODE_WORLD_READABLE);
 		}
 		return fileOutputStream_Version;
-	}	
-	private FileInputStream getTrialCounterInputStream() throws FileNotFoundException {
-		File file=null;
-		if(isSdPresent()) {
-			file=new File("/sdcard/douglas/version");
+	}
+
+	private FileInputStream getTrialCounterInputStream()
+			throws FileNotFoundException {
+		File file = null;
+		if (isSdPresent()) {
+			file = new File("/sdcard/douglas/version");
 			if (!file.exists()) {
 				file.mkdirs();
 			}
-			return new FileInputStream("/sdcard/douglas/version"+Home2.CURRENT_VERSION+"a.txt");
+			return new FileInputStream("/sdcard/douglas/version"
+					+ Home2.CURRENT_VERSION + "a.txt");
 		} else {
-			return mActivity.openFileInput("version"+Home2.CURRENT_VERSION+"a.txt");
+			return mActivity.openFileInput("version" + Home2.CURRENT_VERSION
+					+ "a.txt");
 		}
-	}	
+	}
+
+	private LicenseCheckerCallback mLicenseCheckerCallback;
+	private LicenseChecker mChecker;
+	// Generate 20 random bytes, and put them here.
+	private static final byte[] SALT = new byte[] { -46, 65, 30, -128, -113,
+			-37, 74, -64, 51, 88, -95, -45, 77, -117, -36, -113, -21, 12, -64,
+			19 };
+
+	private class MyLicenseCheckerCallback implements LicenseCheckerCallback {
+		public void allow() {
+			if (mActivity.isFinishing()) {
+				// Don't update UI if Activity is finishing.
+				return;
+			}
+			// Should allow user access.
+			handleResultOfLicenseCheck(true);
+		}
+
+		public void dontAllow() {
+			if (mActivity.isFinishing()) {
+				// Don't update UI if Activity is finishing.
+				return;
+			}
+			handleResultOfLicenseCheck(false);
+		}
+
+		@Override
+		public void applicationError(ApplicationErrorCode errorCode) {
+			// Until we get it set up, assume it's licensed.
+			if (errorCode.equals(ApplicationErrorCode.NOT_MARKET_MANAGED)) {
+				handleResultOfLicenseCheck(true);
+			}
+		}
+	}
+
+	private void handleResultOfLicenseCheck(Boolean allow) {
+				isNonTrialVersionAndIsRegistered = allow;
+				haveDoneRegistrationCheck = true;
+	}
 }
