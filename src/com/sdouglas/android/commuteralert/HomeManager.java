@@ -140,10 +140,16 @@ public class HomeManager implements
 		mActivity.startService(intent);
 		Geocoder g = new Geocoder(mActivity);
 		SharedPreferences settings = mActivity.getSharedPreferences(getPREFS_NAME(),Context.MODE_PRIVATE);
+		
+		if(mBroadcastReceiver!=null) {
+			LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(mBroadcastReceiver);
+		}
+		
         // Create a new broadcast receiver to receive updates from the listeners and service
         mBroadcastReceiver = new MyBroadcastReceiver();
         
         // Create an intent filter for the broadcast receiver
+        
         mIntentFilter = new IntentFilter();
 
         // Action for broadcast Intents containing various types of geofencing errors
@@ -222,6 +228,7 @@ public class HomeManager implements
 	 */
 
 	private void armLocationService(Address a) {
+		
 		SharedPreferences settings = mActivity.getSharedPreferences(getPREFS_NAME(),Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putFloat("latitude", (float) a.getLatitude());

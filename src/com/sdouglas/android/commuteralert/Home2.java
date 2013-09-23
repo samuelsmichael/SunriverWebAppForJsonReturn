@@ -87,6 +87,10 @@ public class Home2 extends Activity implements HomeImplementer,
 		}
 		// Create a new broadcast receiver to receive updates from the listeners
 		// and service
+		if(mBroadcastReceiver!=null) {
+			LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+		}
+		
 		mBroadcastReceiver = new MyBroadcastReceiver();
 		// Create an intent filter for the broadcast receiver
 		mIntentFilter = new IntentFilter();

@@ -10,6 +10,7 @@ import com.sdouglas.android.commuteralert.HomeManager.LocationAndWantsSurroundin
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -37,6 +38,7 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 	private DbAdapter mDbAdapter=null;
     private MyBroadcastReceiver mBroadcastReceiver;
     private static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
+    private static final String JUST_FINISH="JUST_FINISH";
     private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK="ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
     
 
@@ -84,12 +86,16 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 			@Override
 			public void onClick(View v) {
 		        // Create a new broadcast receiver to receive updates from the listeners and service
+				if(mBroadcastReceiver!=null) {
+					LocalBroadcastManager.getInstance(SearchActivity.this).unregisterReceiver(mBroadcastReceiver);
+				}
 		        mBroadcastReceiver = new MyBroadcastReceiver();
 		        // Create an intent filter for the broadcast receiver
 		        IntentFilter mIntentFilter = new IntentFilter();
 
 		        // Action for broadcast Intents to arm the address
 		        mIntentFilter.addAction(HomeManager.ACTION_HERES_AN_ADDRESS_TO_ARM);
+		        mIntentFilter.addAction(JUST_FINISH);
 
 		        // All Location Services sample apps use this category
 		        mIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
@@ -183,7 +189,7 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
             // Check the action code and determine what to do
             String action = intent.getAction();
  
-            if (TextUtils.equals(action, HomeManager.ACTION_HERES_AN_ADDRESS_TO_ARM)) {
+            if (TextUtils.equals(action, HomeManager.ACTION_HERES_AN_ADDRESS_TO_ARM) || TextUtils.equals(action, JUST_FINISH)) {
 
                 finish();
 
@@ -193,15 +199,17 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
     }
 	public void hereAreTheTrainStationAddresses(
 			ArrayList<Address> addresses, Location location) {
-		new SearchRailroadStationsDialogFragment(addresses).show(getFragmentManager(),"Trains");
+		new SearchRailroadStationsDialogFragment(addresses,this).show(getFragmentManager(),"Trains");
 	}
     public static class SearchRailroadStationsDialogFragment extends DialogFragment {
     	private CharSequence[] mItems;
     	private ArrayList<Address> mAddresses;
+    	private Activity mActivity=null;
     	public SearchRailroadStationsDialogFragment() {super();}
-		public SearchRailroadStationsDialogFragment(ArrayList<Address> addresses) {
+		public SearchRailroadStationsDialogFragment(ArrayList<Address> addresses, Activity activity) {
     		super();
     		mAddresses=addresses;
+    		mActivity=activity;
     		mItems=new CharSequence[addresses.size()];
     		for(int c=0;c<addresses.size();c++) {
     			mItems[c]=addresses.get(c).getAddressLine(0);
@@ -223,6 +231,7 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 						
 						/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
 						if(!Home2.mSingleton.getHomeManager().getSecurityManager().doTrialCheck()) {
+							mActivity.finish();
 							return;
 						}
 						

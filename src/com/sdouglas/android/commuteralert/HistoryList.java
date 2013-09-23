@@ -33,6 +33,7 @@ public class HistoryList extends ListActivity {
 	private SimpleCursorAdapter mAdapter;
     private static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
 	private long mId;
+    private static final String JUST_FINISH="JUST_FINISH";
 
 
 	@Override
@@ -73,6 +74,12 @@ public class HistoryList extends ListActivity {
 	private void selectIt(double latitude, double longitude, String name) {
 		/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
 		if(!Home2.mSingleton.getHomeManager().getSecurityManager().doTrialCheck()) {
+	        Intent broadcastIntent = new Intent();
+	        broadcastIntent.setAction(JUST_FINISH)
+	        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+	        // Broadcast whichever result occurred
+	        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+			finish();
 			return;
 		}
 
