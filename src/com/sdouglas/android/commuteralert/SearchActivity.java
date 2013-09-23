@@ -1,20 +1,15 @@
 package com.sdouglas.android.commuteralert;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.sdouglas.android.commuteralert.HomeManager.LocationAndWantsSurroundingTrainStations;
-import com.sdouglas.android.commuteralert.HomeManager.MyBroadcastReceiver;
-import com.sdouglas.android.commuteralert.HomeManager.RetrieveAddressDataForMap;
 
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -29,11 +24,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SimpleCursorAdapter;
 
 public class SearchActivity extends FragmentActivity implements WantsSurroundingTrainStations, 
 		GooglePlayServicesClient.ConnectionCallbacks,
@@ -45,14 +38,13 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
     private MyBroadcastReceiver mBroadcastReceiver;
     private static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
     private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK="ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
+    
 
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setTitle("Search");
 		setContentView(R.layout.activity_search);
-		final EditText city=(EditText) findViewById(R.id.searchCity);
-		final EditText state=(EditText) findViewById(R.id.searchState);
 		final EditText intersection=(EditText) findViewById(R.id.searchIntersection);
 		final Button addressOrIntersection=(Button) findViewById(R.id.searchButtonAddressOrIntersection);
 		final Button trainStations=(Button) findViewById(R.id.searchButtonTrainStations);
@@ -61,8 +53,9 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 		addressOrIntersection.setOnClickListener(new View.OnClickListener() {
 			@Override
 				public void onClick(View v) {
+				
 				String locationAddress=
-						intersection.getText().toString()+" " + city.getText().toString()+ " " + state.getText().toString();
+						intersection.getText().toString();
 			        Intent broadcastIntent = new Intent();
 			        broadcastIntent.setAction(ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK)
 			        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
@@ -227,6 +220,12 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+						
+						/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
+						if(!Home2.mSingleton.getHomeManager().getSecurityManager().doTrialCheck()) {
+							return;
+						}
+						
 				        Intent broadcastIntent = new Intent();
 				        broadcastIntent.setAction(ACTION_HERES_AN_ADDRESS_TO_ARM)
 				        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)

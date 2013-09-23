@@ -12,4 +12,5 @@ public interface HomeImplementer {
 	void dropPin(Address a);
 	void showPlaystoreAPIErrorDialog(int code);
 	void positionMapToLocation(double latitude, double longitude);
+	boolean areWeArmed();
 }

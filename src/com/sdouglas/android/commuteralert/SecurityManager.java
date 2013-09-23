@@ -13,13 +13,111 @@ import java.io.Reader;
 import java.nio.CharBuffer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.LocationManager;
+import android.net.Uri;
+import android.view.ContextThemeWrapper;
 
 public class SecurityManager {
 	Activity mActivity;
-	public SecurityManager(Activity activity) {
+    public static final int START_TRIAL_WARNINGS=5;
+    public static final int TRIAL_ALLOWANCE=10;
+
+    public SecurityManager(Activity activity) {
 		mActivity=activity;
 	}
+	
+	public boolean doTrialCheck() {
+		if(isTrialVersion()) {
+			if(hasExceededTrials()) {
+				new TrialVersionDialog("Trial Software", "Your trial period is over. In order to continue using Commuter Alert you will have to purchase it.",
+						mActivity, true).show();
+				return false;
+			} else {
+				incrementTrials();
+				if(startWarnings()) {
+					new TrialVersionDialog("Trial Software Alert", "Your trial period is nearing its end. In order to continue using Commuter Alert without seeing this warning, you will have to purchase it.",
+							mActivity, false).show();
+				}
+			}
+		}
+		return true;
+	}	
+	
+	private boolean isTrialVersion() {
+		return true;
+		//return mActivity.getPackageName().toLowerCase().indexOf("trial")!=-1;
+	}
+	
+	private boolean hasExceededTrials() {
+		return getCountUserArmed()>TRIAL_ALLOWANCE;
+	}
+
+	private boolean startWarnings() {
+		return getCountUserArmed()>START_TRIAL_WARNINGS;
+	}
+	
+	private void incrementTrials() {
+		stampVersion(getCountUserArmed()+1);
+	}
+
+	public static class TrialVersionDialog {
+		private String mTitle;
+		private String mMessage;
+		private Activity mActivity;
+		private boolean mTrialPeriodIsOver;
+
+		private TrialVersionDialog() {
+			super();
+		}
+
+		public TrialVersionDialog(String title, String message,
+				Activity activity, boolean trialPeriodIsOver) {
+			super();
+			mTitle = title;
+			mMessage = message;
+			mActivity = activity;
+			mTrialPeriodIsOver = trialPeriodIsOver;
+		}
+
+		public void show() {
+			AlertDialog.Builder builder = new AlertDialog.Builder(
+					new ContextThemeWrapper(mActivity,
+							R.style.AlertDialogCustomDark));
+			builder.setTitle(mTitle)
+					.setPositiveButton("Purchase",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int id) {
+									String uri = "market://details?id="+ mActivity.getPackageName().replace("trial", "");
+									Intent ii3 = new Intent(Intent.ACTION_VIEW,
+											Uri.parse(uri));
+									mActivity.startActivity(ii3);
+								}
+							}).setMessage(mMessage);
+			// Create the AlertDialog object and return it
+			String negativeButtonVerbiage = "Not Now";
+			if (mTrialPeriodIsOver) {
+				negativeButtonVerbiage = "Not Now";
+			}
+			builder.setNegativeButton(negativeButtonVerbiage,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int id) {
+							if(mTrialPeriodIsOver) {
+								
+							}
+						}
+					});
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		}
+	}
+	
 	/*
 	 * return true if file existed beforehand
 	 */

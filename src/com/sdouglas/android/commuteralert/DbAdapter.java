@@ -219,8 +219,7 @@ public class DbAdapter {
 						KEY_LONGITUDE+"," +
 						KEY_ROWID +
 		" FROM " +DATABASE_TABLE_HISTORY+ " ORDER BY " + KEY_HISTORY_COUNT + " DESC ";
-		return
-		getSqlDb().rawQuery(query,null);
+		return getSqlDb().rawQuery(query,null);
 		
 		/*
 
@@ -287,8 +286,9 @@ public class DbAdapter {
 			if(cu.getCount()>0) {	
 				while(cu.moveToNext()) {
 					int oldCount=cu.getInt(cu.getColumnIndex(KEY_HISTORY_COUNT));
+					oldCount=oldCount+1;
 					ContentValues values = new ContentValues();
-					values.put(KEY_HISTORY_COUNT, ++oldCount);
+					values.put(KEY_HISTORY_COUNT, oldCount);
 					String whereClause2=KEY_ROWID + "=" + cu.getInt(cu.getColumnIndex(KEY_ROWID));
 					getSqlDb().update(DATABASE_TABLE_HISTORY, values, whereClause2, null);
 				}

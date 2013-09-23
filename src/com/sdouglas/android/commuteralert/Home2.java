@@ -34,11 +34,13 @@ import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 
 public class Home2 extends Activity implements HomeImplementer,
 		WantsSurroundingTrainStations {
@@ -66,10 +68,20 @@ public class Home2 extends Activity implements HomeImplementer,
 	private static String SPLASH_SCREEN_MESSAGE = "To use Commuter Alert, select a location by either:\n\n--long pressing the map\n    at the desired location, or\n\n--pressing the Search button\n    located at the bottom-left\n    of the screen.";
 	public static String CURRENT_VERSION = "2.00";
 	private boolean needToBringUpSplashScreen = false;
+	public static Home2 mSingleton=null;
 
+	public boolean areWeArmed() {
+		try {
+			return ((CompoundButton) findViewById(R.id.switchArmed)).isChecked();
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mSingleton=this;
 		if (!getHomeManager().getSecurityManager().initializeVersion()) {
 			needToBringUpSplashScreen = true;
 		}
@@ -259,7 +271,7 @@ public class Home2 extends Activity implements HomeImplementer,
 		}
 	}
 
-	private HomeManager getHomeManager() {
+	public HomeManager getHomeManager() {
 		if (mHomeManager == null) {
 			mHomeManager = new HomeManager(this);
 		}
@@ -305,8 +317,7 @@ public class Home2 extends Activity implements HomeImplementer,
 		}
 		if (needToBringUpSplashScreen) {
 			needToBringUpSplashScreen = false;
-			new WarningAndInitialDialog(
-					"Thank you for purchasing Commuter Alert!",
+			new WarningAndInitialDialog("Thank you for using Commuter Alert!",
 					SPLASH_SCREEN_MESSAGE, Home2.this).show();
 		}
 	}
@@ -398,6 +409,14 @@ public class Home2 extends Activity implements HomeImplementer,
 				// 3. Initiate what needs to be done to arm the system.
 				mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 					public void onMapLongClick(LatLng point) {
+						/*
+						 * If a trial version, and has exceeded the number of
+						 * trials
+						 */
+						if (!getHomeManager().getSecurityManager()
+								.doTrialCheck()) {
+							return;
+						}
 						LatLng useThisOne = null;
 						if (mPreviousMarker != null) {
 							mPreviousMarker.setVisible(false);
@@ -416,6 +435,8 @@ public class Home2 extends Activity implements HomeImplementer,
 						// map
 						// If he's near a train, then assume he meant to press
 						// the train.
+
+						boolean gotRRStation = false;
 						for (int i = 0; i < resultF.mAddresses.size(); i++) {
 							LatLng latlng2 = new LatLng(resultF.mAddresses.get(
 									i).getLatitude(), resultF.mAddresses.get(i)
@@ -427,6 +448,7 @@ public class Home2 extends Activity implements HomeImplementer,
 							if (results[0] < errorMarginMetersUnderWhichWeAssumeHePressedTheTrain) {
 								useThisOne = latlng2;
 								useThisAddress = resultF.mAddresses.get(i);
+								gotRRStation = true;
 								break;
 							}
 						}
@@ -465,15 +487,23 @@ public class Home2 extends Activity implements HomeImplementer,
 							useThisAddress.setAddressLine(1,
 									"Address for red marker, below");
 						}
-						// arm the system
-						getHomeManager().getDbAdapter().writeOrUpdateHistory(
-								useThisAddress);
-						getHomeManager().newLocation(useThisAddress);
-
+						// ask if user wants to give a nickname
+						if (!gotRRStation) {
+							new NickNameDialog(Home2.this, useThisAddress)
+									.show();
+						} else {
+							// arm the system
+							armTheSystem(useThisAddress);
+						}
 					}
 				});
 			}
 		}
+	}
+
+	private void armTheSystem(Address useThisAddress) {
+		getHomeManager().getDbAdapter().writeOrUpdateHistory(useThisAddress);
+		getHomeManager().newLocation(useThisAddress);
 	}
 
 	@Override
@@ -514,15 +544,64 @@ public class Home2 extends Activity implements HomeImplementer,
 		 */
 		@Override
 		public void onReceive(Context context, Intent intent) {
-
+			/*
+			 * Check to see if they've exceeded trials
+			 */
 			// Check the action code and determine what to do
 			String action = intent.getAction();
 
 			if (TextUtils
 					.equals(action, ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK)) {
+
 				getHomeManager().manageKeyedInAddress(
 						intent.getStringExtra("SeekAddressString"));
 			}
+		}
+	}
+
+	public static class NickNameDialog {
+		private Activity mActivity;
+		private Address mAddress;
+
+		private NickNameDialog() {
+			super();
+		}
+
+		public NickNameDialog(Activity activity, Address address) {
+			mActivity = activity;
+			mAddress = address;
+		}
+
+		public void show() {
+			AlertDialog.Builder builder = new AlertDialog.Builder(
+					new ContextThemeWrapper(mActivity,
+							R.style.AlertDialogCustomLight));
+			LayoutInflater inflater = mActivity.getLayoutInflater();
+
+			// Inflate and set the layout for the dialog
+			// Pass null as the parent view because its going in the dialog
+			// layout
+			final View view=inflater.inflate(R.layout.nickname, null);
+			builder.setView(view);
+			builder.setPositiveButton("Okay",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							EditText nickName = (EditText) view.findViewById(R.id.nickname);
+							if(!nickName.getText().toString().trim().equals("")) {
+								mAddress.setAddressLine(0, nickName.getText()
+										.toString());
+							}
+							((Home2) mActivity).armTheSystem(mAddress);
+						}
+					}).setNegativeButton("Cancel",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							((Home2) mActivity).armTheSystem(mAddress);
+						}
+					});
+
+			AlertDialog dialog = builder.create();
+			dialog.show();
 		}
 	}
 

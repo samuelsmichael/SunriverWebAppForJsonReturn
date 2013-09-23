@@ -60,8 +60,6 @@ public class HomeManager implements
     // An intent filter for the broadcast receiver
     private IntentFilter mIntentFilter;
     public static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
-    public static final int START_TRIAL_WARNINGS=5;
-    public static final int TRIAL_ALLOWANCE=10;
 	private SecurityManager mSecurityManager = null;
     
 
@@ -158,6 +156,7 @@ public class HomeManager implements
 
         
         // Register the broadcast receiver to receive status updates
+        
         LocalBroadcastManager.getInstance(mActivity).registerReceiver(mBroadcastReceiver, mIntentFilter);
 		
 
@@ -443,6 +442,11 @@ public class HomeManager implements
 				try {
 					getTrainStationsNear(mLocation, trainStationAddresses,
 							null, LIMIT_NBR_ACCESSES,1);
+					Address sa=new Address(Locale.getDefault());
+					sa.setLatitude(40.655593210761204);
+					sa.setLongitude(-74.30356130003929);
+					sa.setAddressLine(0, "Garland Station");
+					trainStationAddresses.add(sa);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -454,6 +458,7 @@ public class HomeManager implements
 
 		protected void onPostExecute(List<Address> result) {
 			if (mLocation != null && result != null) {
+
 				mClient.hereAreTheTrainStationAddresses(
 								(ArrayList) result, mLocation);
 			}
@@ -532,7 +537,13 @@ public class HomeManager implements
 											Toast.LENGTH_SHORT).show();
 								}
 							});
-					builder.setSingleChoiceItems(addresses,0,
+					builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					});
+					builder.setSingleChoiceItems(addresses,-1,
 							new DialogInterface.OnClickListener() {
 
 								@Override
@@ -550,6 +561,9 @@ public class HomeManager implements
 					Address a = addressList.get(0);
 					/* Write address to history*/
 					getDbAdapter().writeOrUpdateHistory(a);
+					if(!getSecurityManager().doTrialCheck()) {
+						return;
+					}
 					newLocation(a);
 				}
 			} else {
@@ -589,23 +603,15 @@ public class HomeManager implements
 			return "";
 		}
 	}
-
-	public void newLocation(Address a) {
-		if(isTrialVersion()) {
-			if(hasExceededTrials()) {
-				new TrialVersionDialog("Trial Software", "Your trial period is over. In order to continue using Commuter Alert you will have to purchase it.",
-						mActivity, true).show();
-				return;
-			} else {
-				incrementTrials();
-				if(startWarnings()) {
-					new TrialVersionDialog("Trial Software Alert", "Your trial period is nearing its end. In order to continue using Commuter Alert without seeing this warning, you will have to purchase it.",
-							mActivity, false).show();
-				}
-			}
-		} else {
-			
+	
+	private LocationManager getLocationManager() {
+		if (mLocationManager == null) {
+			mLocationManager = (android.location.LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
 		}
+		return mLocationManager;
+	}	
+	
+	public void newLocation(Address a) {
 		((HomeImplementer) mActivity).heresYourAddress(a,
 				getReadableFormOfAddress(a),null);
 		armLocationService(a);
@@ -615,29 +621,6 @@ public class HomeManager implements
 		((HomeImplementer) mActivity).dropPin(a);
 	}
 
-	private boolean isTrialVersion() {
-		return true;
-		//return mActivity.getPackageName().toLowerCase().indexOf("trial")!=-1;
-	}
-	
-	private boolean hasExceededTrials() {
-		return getSecurityManager().getCountUserArmed()>TRIAL_ALLOWANCE;
-	}
-
-	private boolean startWarnings() {
-		return getSecurityManager().getCountUserArmed()>START_TRIAL_WARNINGS;
-	}
-	
-	private void incrementTrials() {
-		getSecurityManager().stampVersion(getSecurityManager().getCountUserArmed()+1);
-	}
-	
-	private LocationManager getLocationManager() {
-		if (mLocationManager == null) {
-			mLocationManager = (android.location.LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
-		}
-		return mLocationManager;
-	}
 
 	private String getProvider() {
 		Criteria criteria = new Criteria();
@@ -668,10 +651,6 @@ public class HomeManager implements
 		
 		Location location=mLocationClient.getLastLocation();
 		if(location!=null) {
-			// simulate Scott's address
-				//	location.setLatitude(40.658421);
-					//location.setLongitude(-74.29959);	
-					//
 			editor.putString("locationmanager", "networklocation");
 			editor.commit();
 			initialize(new LatLng(location.getLatitude(), location.getLongitude()));
@@ -787,6 +766,10 @@ public class HomeManager implements
             // Intent contains information about successful addition or removal of geofences
             } else {
             	if(TextUtils.equals(action, ACTION_HERES_AN_ADDRESS_TO_ARM)) {
+            		
+            		/*
+            		 * Check to see if they've exceeded their trials allowance.
+            		 */
             		Address address=new Address(Locale.getDefault());
             		address.setLatitude(intent.getDoubleExtra("latitude", 0));
             		address.setLongitude(intent.getDoubleExtra("longitude", 0));
@@ -830,57 +813,4 @@ public class HomeManager implements
 		}
 		return mSecurityManager;
 	}	
-	public static class TrialVersionDialog {
-		private String mTitle;
-		private String mMessage;
-		private Activity mActivity;
-		private boolean mTrialPeriodIsOver;
-
-		private TrialVersionDialog() {
-			super();
-		}
-
-		public TrialVersionDialog(String title, String message,
-				Activity activity, boolean trialPeriodIsOver) {
-			super();
-			mTitle = title;
-			mMessage = message;
-			mActivity = activity;
-			mTrialPeriodIsOver = trialPeriodIsOver;
-		}
-
-		public void show() {
-			AlertDialog.Builder builder = new AlertDialog.Builder(
-					new ContextThemeWrapper(mActivity,
-							R.style.AlertDialogCustomDark));
-			builder.setTitle(mTitle)
-					.setPositiveButton("Purchase",
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int id) {
-									String uri = "market://details?id="+ mActivity.getPackageName();
-									Intent ii3 = new Intent(Intent.ACTION_VIEW,
-											Uri.parse(uri));
-									mActivity.startActivity(ii3);
-								}
-							}).setMessage(mMessage);
-			// Create the AlertDialog object and return it
-			String negativeButtonVerbiage = "Not Now";
-			if (mTrialPeriodIsOver) {
-				negativeButtonVerbiage = "Close Program";
-			}
-			builder.setNegativeButton(negativeButtonVerbiage,
-					new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int id) {
-							if(mTrialPeriodIsOver) {
-								mActivity.finish();
-							}
-						}
-					});
-			AlertDialog dialog = builder.create();
-			dialog.show();
-		}
-	}
 }

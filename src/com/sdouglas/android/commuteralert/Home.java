@@ -34,6 +34,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -50,7 +51,10 @@ public class Home extends Activity implements HomeImplementer, WantsSurroundingT
 	private long mNickNameDialogId=-100;
 	private DbAdapter mDbAdapter=null;
 
-
+	public boolean areWeArmed() {
+		return false;
+	}
+	
 	private HomeManager getHomeManager() {
 		if (mHomeManager == null) {
 			mHomeManager = new HomeManager(this);
