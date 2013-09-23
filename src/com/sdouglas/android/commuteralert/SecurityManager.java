@@ -48,8 +48,7 @@ public class SecurityManager {
 	}	
 	
 	private boolean isTrialVersion() {
-		return true;
-		//return mActivity.getPackageName().toLowerCase().indexOf("trial")!=-1;
+		return mActivity.getPackageName().toLowerCase().indexOf("trial")!=-1;
 	}
 	
 	private boolean hasExceededTrials() {
