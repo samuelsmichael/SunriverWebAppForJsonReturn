@@ -1,6 +1,7 @@
 package com.sdouglas.android.commuteralert;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -41,7 +42,7 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
     private static final String JUST_FINISH="JUST_FINISH";
     private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK="ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
     
-
+   
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -204,9 +205,9 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
     public static class SearchRailroadStationsDialogFragment extends DialogFragment {
     	private CharSequence[] mItems;
     	private ArrayList<Address> mAddresses;
-    	private Activity mActivity=null;
+    	private SearchActivity mActivity=null;
     	public SearchRailroadStationsDialogFragment() {super();}
-		public SearchRailroadStationsDialogFragment(ArrayList<Address> addresses, Activity activity) {
+		public SearchRailroadStationsDialogFragment(ArrayList<Address> addresses, SearchActivity activity) {
     		super();
     		mAddresses=addresses;
     		mActivity=activity;
@@ -235,6 +236,11 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 							return;
 						}
 						
+						Address a=new Address(Locale.getDefault());
+						a.setLatitude(mAddresses.get(which).getLatitude());
+						a.setLongitude(mAddresses.get(which).getLongitude());
+						a.setAddressLine(0, mAddresses.get(which).getAddressLine(0));
+						mActivity.getDbAdapter().writeOrUpdateHistory(a);
 				        Intent broadcastIntent = new Intent();
 				        broadcastIntent.setAction(ACTION_HERES_AN_ADDRESS_TO_ARM)
 				        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)

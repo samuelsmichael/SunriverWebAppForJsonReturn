@@ -284,14 +284,13 @@ public class DbAdapter {
 			    null	                                // don't do sort order
 			    );
 			if(cu.getCount()>0) {	
-				while(cu.moveToNext()) {
-					int oldCount=cu.getInt(cu.getColumnIndex(KEY_HISTORY_COUNT));
-					oldCount=oldCount+1;
-					ContentValues values = new ContentValues();
-					values.put(KEY_HISTORY_COUNT, oldCount);
-					String whereClause2=KEY_ROWID + "=" + cu.getInt(cu.getColumnIndex(KEY_ROWID));
-					getSqlDb().update(DATABASE_TABLE_HISTORY, values, whereClause2, null);
-				}
+				cu.moveToFirst();
+				int oldCount=cu.getInt(cu.getColumnIndex(KEY_HISTORY_COUNT));
+				oldCount=oldCount+1;
+				ContentValues values = new ContentValues();
+				values.put(KEY_HISTORY_COUNT, oldCount);
+				String whereClause2=KEY_ROWID + "=" + cu.getInt(cu.getColumnIndex(KEY_ROWID));
+				getSqlDb().update(DATABASE_TABLE_HISTORY, values, whereClause2, null);
 			} else {
 				ContentValues values = new ContentValues();
 				values.put(KEY_LATITUDE, address.getLatitude());

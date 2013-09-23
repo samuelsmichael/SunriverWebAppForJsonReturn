@@ -1,5 +1,8 @@
 package com.sdouglas.android.commuteralert;
 
+import java.util.Locale;
+
+import android.location.Address;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -83,7 +86,12 @@ public class HistoryList extends ListActivity {
 			return;
 		}
 
-        Intent broadcastIntent = new Intent();
+		Address a=new Address(Locale.getDefault());
+		a.setLatitude(latitude);
+		a.setLongitude(longitude);
+		a.setAddressLine(0, name);
+		getDbAdapter().writeOrUpdateHistory(a);
+		Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(ACTION_HERES_AN_ADDRESS_TO_ARM)
         .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
         .putExtra("latitude", latitude)
