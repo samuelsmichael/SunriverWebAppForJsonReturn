@@ -3,5 +3,6 @@
     <issue id="ValidFragment">
         <ignore path="src/com/sdouglas/android/commuteralert/Home2.java" />
         <ignore path="src/com/sdouglas/android/commuteralert/SearchActivity.java" />
+        <ignore path="src/com/sdouglas/android/commuteralerttrial/SearchActivity.java" />
     </issue>
 </lint>

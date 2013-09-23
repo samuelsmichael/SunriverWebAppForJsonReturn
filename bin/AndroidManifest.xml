@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sdouglas.android.commuteralert"
+    package="com.sdouglas.android.commuteralerttrial"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -30,11 +30,11 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.sdouglas.android.commuteralert.Home"
+            android:name="com.sdouglas.android.commuteralerttrial.Home"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.sdouglas.android.commuteralert.Home2"
+            android:name="com.sdouglas.android.commuteralerttrial.Home2"
             android:label="@string/title_activity_home2" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,32 +42,32 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.sdouglas.android.commuteralert.Preferences" >
+        <activity android:name="com.sdouglas.android.commuteralerttrial.Preferences" >
         </activity>
         <activity
-            android:name="com.sdouglas.android.commuteralert.HistoryList"
+            android:name="com.sdouglas.android.commuteralerttrial.HistoryList"
             android:label="@string/title_activity_history_list"
             android:theme="@android:style/Theme.Holo.Dialog" >
         </activity>
 
         <service
-            android:name="com.sdouglas.android.commuteralert.LocationServiceGeofencing"
+            android:name="com.sdouglas.android.commuteralerttrial.LocationServiceGeofencing"
             android:enabled="true"
             android:exported="false" >
         </service>
         <service
-            android:name="com.sdouglas.android.commuteralert.LocationServiceOriginalEnhanced"
+            android:name="com.sdouglas.android.commuteralerttrial.LocationServiceOriginalEnhanced"
             android:enabled="true"
             android:exported="false" >
         </service>
         <service
-            android:name="com.sdouglas.android.commuteralert.LocationServiceOriginal"
+            android:name="com.sdouglas.android.commuteralerttrial.LocationServiceOriginal"
             android:enabled="true"
             android:exported="false" >
         </service>
 
         <activity
-            android:name="com.sdouglas.android.commuteralert.VoiceHelper"
+            android:name="com.sdouglas.android.commuteralerttrial.VoiceHelper"
             android:label="@string/title_activity_voice_helper"
             android:theme="@style/Theme.Transparent" >
         </activity>
@@ -80,7 +80,7 @@
             android:value="AIzaSyAVi8mSzoZJBV1qsxIeFXgguXTzcw9Voys" />
 -->
         <activity
-            android:name="com.sdouglas.android.commuteralert.SearchActivity"
+            android:name="com.sdouglas.android.commuteralerttrial.SearchActivity"
             android:label="@string/title_activity_search" >
         </activity>
     </application>
