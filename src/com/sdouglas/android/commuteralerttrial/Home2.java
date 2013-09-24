@@ -43,6 +43,13 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+
+/*
+ * To change from regular version to trial (and visa versa):
+ * 		1. Right click on com.sdouglas.android.commuteralert, refactor, rename to com.sdouglas.android.commuteralerttrial
+ * 		2. There will be several "import com.sdouglas.android.commuteralert.R"s that have to be renamed.
+ * 		3. Scan the entire project for TRIAL_VS_NON-TRIAL and follow instructions
+ */
 public class Home2 extends Activity implements HomeImplementer,
 		WantsSurroundingTrainStations {
 	private GoogleMap mMap = null;
@@ -65,7 +72,7 @@ public class Home2 extends Activity implements HomeImplementer,
 	private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK = "ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
 	private MyBroadcastReceiver mBroadcastReceiver;
 	private IntentFilter mIntentFilter;
-	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n--Long press the screen at the desired location. \n\n or\n\n--Press the Search button.";
+	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n-- Long press the screen\n    at the desired location. \n\n              or\n\n-- Press the Search button.";
 	private static String SPLASH_SCREEN_MESSAGE = "To use Commuter Alert, select a location by either:\n\n--long pressing the map\n    at the desired location, or\n\n--pressing the Search button\n    located at the bottom-left\n    of the screen.";
 	public static String CURRENT_VERSION = "2.00";
 	private boolean needToBringUpSplashScreen = false;
@@ -226,6 +233,13 @@ public class Home2 extends Activity implements HomeImplementer,
 			Intent i2 = new Intent(this, Preferences.class);
 			startActivity(i2);
 			return true;
+		case R.id.action_rateapp:
+			String uri = "market://details?id="
+					+ getPackageName()
+							.replace("trial", "");
+			Intent ii3 = new Intent(Intent.ACTION_VIEW,
+					Uri.parse(uri));
+			startActivity(ii3);			
 		}
 
 		return super.onMenuItemSelected(featureId, item);

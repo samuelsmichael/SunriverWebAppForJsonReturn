@@ -146,7 +146,7 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 		if(getIntent()==null || !getIntent().getAction().equals("doit")) {
 			this.finish();
 		} else {
-			setTitle("Commuter Alert");
+			setTitle(getString(R.string.app_name));
 			mSharedPreferences=getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
 			_theText=getVoiceAndPopupText();
 			_countDoing=0;

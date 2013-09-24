@@ -14,7 +14,7 @@ public class Preferences extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-	        setTitle("Commuter Alert Preferences");
+	        setTitle(getString(R.string.app_name)+" Preferences");
 	        // Load the preferences from an XML resource
 	        addPreferencesFromResource(R.xml.preferences);
 	        

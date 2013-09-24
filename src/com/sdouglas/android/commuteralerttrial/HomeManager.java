@@ -29,6 +29,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.model.LatLng;
+import com.sdouglas.android.commuteralerttrial.Home2.NickNameDialog;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -558,8 +559,7 @@ public class HomeManager implements
 										int which) {
 									Address a = addressList.get(which);
 									/* Write address to history*/
-									getDbAdapter().writeOrUpdateHistory(a);
-									HomeManager.this.newLocation(a);
+									HomeManager.this.newLocationButFirstPrompt(a);
 								}
 							});
 					AlertDialog alert = builder.create();
@@ -567,11 +567,10 @@ public class HomeManager implements
 				} else {
 					Address a = addressList.get(0);
 					/* Write address to history*/
-					getDbAdapter().writeOrUpdateHistory(a);
 					if(!getSecurityManager().doTrialCheck()) {
 						return;
 					}
-					newLocation(a);
+					newLocationButFirstPrompt(a);
 				}
 			} else {
 				if (exceptionMessage == null) {
@@ -617,6 +616,11 @@ public class HomeManager implements
 		}
 		return mLocationManager;
 	}	
+	
+	private void newLocationButFirstPrompt(Address a) {
+		new NickNameDialog(mActivity, a)
+		.show();
+	}
 	
 	public void newLocation(Address a) {
 		((HomeImplementer) mActivity).heresYourAddress(a,

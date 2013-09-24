@@ -76,7 +76,7 @@ public abstract class LocationService extends Service  {
 					if (intent!=null) {
 						mAddressInReadableForm=intent.getStringExtra("LocationAddress");
 				    	Notification.Builder mBuilder=new Notification.Builder(this)
-					    	.setSmallIcon(R.drawable.ic_launcher)
+					    	.setSmallIcon(R.drawable.ic_launcher_original)
 					    	.setContentTitle("CommuterAlert is on")
 					    	.setContentText(mAddressInReadableForm)
 					    	.setOngoing(true);

@@ -26,7 +26,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/ic_launcher_original"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
@@ -71,15 +71,21 @@
             android:label="@string/title_activity_voice_helper"
             android:theme="@style/Theme.Transparent" >
         </activity>
-        <!-- Live -->   
+        
+        <!-- TRIAL_VS_NON-TRIAL -->
+        <!--  Here are the appropriate values 
+        	- Live
+        		- Trial		AIzaSyD67pEsRqZRWuabwEe3-qxnv9oIirYtVoU
+        		- Non-Trial	AIzaSyDRB2FlpUa1eFKeiJJ2LBffATMy29bPBMQ
+        	- Debugging
+        		- Trial		AIzaSyB-vzdzAdchmhUdP6RUykTpcsnys-Ov3YI
+        		- Non-Trial	AIzaSyAVi8mSzoZJBV1qsxIeFXgguXTzcw9Voys
+         -->        
 		<meta-data 
 		    android:name="com.google.android.maps.v2.API_KEY"
-		    android:value="AIzaSyDRB2FlpUa1eFKeiJJ2LBffATMy29bPBMQ"/>			       <!-- debugging    
-        <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyAVi8mSzoZJBV1qsxIeFXgguXTzcw9Voys" />
--->
-        <activity
+		    android:value="AIzaSyB-vzdzAdchmhUdP6RUykTpcsnys-Ov3YI"/>        
+
+		<activity
             android:name="com.sdouglas.android.commuteralerttrial.SearchActivity"
             android:label="@string/title_activity_search" >
         </activity>
