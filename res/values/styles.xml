@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -34,4 +34,17 @@
     <style name="AlertDialogCustomLight" parent="android:Theme.Holo.Light">
 <!--         <item name="android:textSize">10sp</item> -->  
     </style>    
+
+	<style name="MyListTextAppearanceSmall" parent="android:Theme.Holo">
+	    <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
+	</style>
+	
+	<style name="MyListTextAppearanceDefault" parent="android:Theme.Holo">
+	    <item name="android:textAppearance">?android:attr/textAppearanceInverse</item>
+        <item name="android:textColor">#f00000</item>
+	    	</style>
+	
+	<style name="MyListTextAppearanceMedium" parent="android:Theme.Holo">
+	    <item name="android:textAppearance">?android:attr/textAppearanceMediumInverse</item>
+	</style>
 </resources>

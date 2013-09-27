@@ -12,16 +12,16 @@
         android:id="@+id/map2"
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
+        android:layout_marginBottom="35dp"
         android:layout_height="match_parent" />
     
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/map2"
+        android:layout_alignParentBottom="true"
         android:layout_alignLeft="@+id/map2"
         android:layout_marginLeft="5dp"
-        android:layout_marginBottom="15dp"
 	    android:orientation="horizontal" >
 
         <Switch
@@ -40,7 +40,18 @@
             android:textColor="#FFFFFF"
             style="?android:attr/buttonStyleSmall"
             android:text="Search" />
-    </LinearLayout>
-
-
+        
+	    <TextView
+	        android:id="@+id/tvCurrentLocation2"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ellipsize="marquee"
+  		    android:marqueeRepeatLimit="marquee_forever"
+		    android:scrollHorizontally="true"
+		    android:singleLine="true"
+		    android:lines="1"
+   	        android:textSize="13sp"
+   	        android:layout_marginLeft="5dp"
+	        />        
+	</LinearLayout>
 </RelativeLayout>
