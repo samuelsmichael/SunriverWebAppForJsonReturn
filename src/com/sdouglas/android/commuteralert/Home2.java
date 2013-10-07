@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -78,6 +79,7 @@ public class Home2 extends Activity implements HomeImplementer,
 	public static String CURRENT_VERSION = "2.00";
 	private boolean needToBringUpSplashScreen = false;
 	public static Home2 mSingleton=null;
+	public boolean mIveShownGPSNotEnabledWarning=false;
 
 	public boolean areWeArmed() {
 		try {
@@ -90,6 +92,30 @@ public class Home2 extends Activity implements HomeImplementer,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if(!mIveShownGPSNotEnabledWarning) {
+			mIveShownGPSNotEnabledWarning=true;
+		    if (! getLocationManager().isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+		        final AlertDialog.Builder builder = new AlertDialog.Builder(					
+		        		new ContextThemeWrapper(this,
+						R.style.AlertDialogCustomLight));
+		        builder.setTitle("GPS is disabled");
+		        builder.setMessage("For best results, your GPS should be enabled. Do you want to enable it?")
+		               .setCancelable(false)
+		               .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		                   public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+		                       startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+		                   }
+		               })
+		               .setNegativeButton("No", new DialogInterface.OnClickListener() {
+		                   public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+		                        dialog.cancel();
+		                   }
+		               });
+		        final AlertDialog alert = builder.create();
+		        alert.show();	    	
+		    }
+		}
+		
 		mSingleton=this;
 		if (!getHomeManager().getSecurityManager().initializeVersion()) {
 			needToBringUpSplashScreen = true;
@@ -161,6 +187,15 @@ public class Home2 extends Activity implements HomeImplementer,
 		});
 	}
 
+	private LocationManager mLocationManager = null;
+	
+	private LocationManager getLocationManager() {
+		if (mLocationManager == null) {
+			mLocationManager = (android.location.LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		}
+		return mLocationManager;
+	}	
+	
 	@Override
 	protected void onStart() {
 		super.onStart();

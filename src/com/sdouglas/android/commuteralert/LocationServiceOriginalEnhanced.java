@@ -23,6 +23,7 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 	private Handler mHandler = null;
 	private boolean mHandlerLoopIsActive = false;
 
+	
 	@Override
 	protected void disarmLocationManagement() {
 		getLogger().log("!!!!!!!!!!!!!!!!!!!! disarmLocationManager()", 99);
@@ -40,6 +41,7 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 		editor.putInt("modifyingValue", 1);
 		editor.commit();
 		getHandler();
+		getLogger().log("Using GPS", 199);
 	}
 
 	@Override
@@ -221,13 +223,6 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 			}
 		}
 	}
-
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		return START_STICKY;
-	}	
-	
-	
 	
 	private int getModifyingValue() {
 		SharedPreferences settings = getSharedPreferences(getPREFS_NAME(),

@@ -22,7 +22,7 @@ public class CustomExceptionHandlerTimer implements UncaughtExceptionHandler {
 				StackTraceElement ste=stea[c];
 				str=ste.toString() + " Line nbr: " + String.valueOf(ste.getLineNumber());
 			}
-			logger.log(str,99);
+			logger.log(str,999);
 		} catch (Exception ee) {}
 		mDefaultUEH.uncaughtException(t, e);
 	}

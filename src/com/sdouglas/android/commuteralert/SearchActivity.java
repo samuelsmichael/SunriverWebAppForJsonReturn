@@ -1,7 +1,8 @@
 package com.sdouglas.android.commuteralert;
 
-import com.sdouglas.android.commuteralert.R;
 import com.sdouglas.android.commuteralert.HomeManager.LocationAndWantsSurroundingTrainStations;
+import com.sdouglas.android.commuteralert.R;
+
 import java.util.ArrayList;
 import java.util.Locale;
 

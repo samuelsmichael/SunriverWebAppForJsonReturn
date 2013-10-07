@@ -31,26 +31,20 @@ public abstract class LocationService extends Service  {
 		}
 		return mLogger;
 	}
-
+	
 	public LocationService() {
 	}
 	public String getPREFS_NAME() {
 		return getPackageName() + "_preferences";
 	}
 	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		return START_STICKY;
-	}	
 	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
-	@Override
-	public void onStart(Intent intent, int startId) {
-		super.onStart(intent, startId);
-			
+	
+	private void doOnStartStuff(Intent intent, int startId) {
 		Thread
 		.setDefaultUncaughtExceptionHandler(new CustomExceptionHandlerTimer(this));
 		if(intent!= null && intent.getAction()!=null && intent.getAction().equals("notifyuser")) {
@@ -81,26 +75,38 @@ public abstract class LocationService extends Service  {
 					initializeLocationManager();
 				} else {				
 					if (intent!=null) {
-						String locationAddress=intent.getStringExtra("LocationAddress");
-						mAddressInReadableForm=locationAddress;
-				    	Notification.Builder mBuilder=new Notification.Builder(LocationService.this)
-					    	.setSmallIcon(R.drawable.ic_launcher)
-					    	.setContentTitle("CommuterAlert is on")
-					    	.setContentText(mAddressInReadableForm)
-					    	.setOngoing(true);
-				    	// Creates an explicit intent for an Activity in your app
-				    	Intent resultIntent = new Intent(LocationService.this,Home2.class);
-						PendingIntent pendingIntent = PendingIntent.getActivity(LocationService.this,
-								(int)System.currentTimeMillis(), resultIntent, 0);
-				    	mBuilder.setContentIntent(pendingIntent);    	    	
-				    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
-						// Start up the timer
-						beginLocationListening();								
+						final String locationAddress=intent.getStringExtra("LocationAddress");
+						new Thread(new Runnable(){
+							public void run() {
+								mAddressInReadableForm=locationAddress;
+						    	Notification.Builder mBuilder=new Notification.Builder(LocationService.this)
+							    	.setSmallIcon(R.drawable.ic_launcher)
+							    	.setContentTitle("CommuterAlert is on")
+							    	.setContentText(mAddressInReadableForm)
+							    	.setOngoing(true);
+						    	// Creates an explicit intent for an Activity in your app
+						    	Intent resultIntent = new Intent(LocationService.this,Home2.class);
+								PendingIntent pendingIntent = PendingIntent.getActivity(LocationService.this,
+										(int)System.currentTimeMillis(), resultIntent, 0);
+						    	mBuilder.setContentIntent(pendingIntent);    	    	
+						    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
+								// Start up the timer
+								beginLocationListening();								
+							}
+						}).run();
+
 					}
 				}
 			}
 		}
+		
 	}
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		doOnStartStuff(intent,startId);	
+		return START_STICKY;
+	}		
+
 
 	@Override
 	public void onDestroy() {
@@ -120,7 +126,6 @@ public abstract class LocationService extends Service  {
 		/* This is it!  We've arrived. Time to wake up our sleeping passenger.*/
     	
         SharedPreferences settings = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
-        String voicetext=settings.getString("voicetext", ALERT_TEXT);
 		
 		// 1. Remove the "ongoing" item in the notifications bar 
     	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	

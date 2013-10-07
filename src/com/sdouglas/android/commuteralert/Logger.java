@@ -9,7 +9,7 @@ import java.util.Date;
 import android.content.Context;
 
 public class Logger {
-	private int _logFilter=3;
+	private int _logFilter=100;
 	private String _caller="";
 	private final Context mCtx;
 	public Logger(int logFilter,String caller,Context ctx) {

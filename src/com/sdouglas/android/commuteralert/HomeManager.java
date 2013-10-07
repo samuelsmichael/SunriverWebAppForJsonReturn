@@ -501,7 +501,7 @@ public class HomeManager implements
 					Address sa=new Address(Locale.getDefault());
 					sa.setLatitude(40.655593210761204);
 					sa.setLongitude(-74.30356130003929);
-					sa.setAddressLine(0, "Garland Station");
+					sa.setAddressLine(0, "Cranford Station");
 					trainStationAddresses.add(sa);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -722,7 +722,7 @@ public class HomeManager implements
 	        gpsIsEnabled=true;
 	    }
 		
-		if(location!=null && !gpsIsEnabled) {
+		if(location!=null) {
 			editor.putString("locationmanager", "networklocation");
 			editor.commit();
 			initialize(new LatLng(location.getLatitude(), location.getLongitude()));
