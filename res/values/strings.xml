@@ -4,7 +4,7 @@
     <string name="defaultvoicenotification_title">Voice Notifications</string>
     <string name="defaultvoicenotification_summary">Check this box if you want a spoken notification.</string>
     <!-- TRIAL_VS_NON-TRIAL  change the following to correspond -->
-    <string name="app_name">Commuter Alert Trial</string>
+    <string name="app_name">Commuter Alert</string>
     <string name="action_settings">Settings</string>
     <string name="action_rateapp">Rate App</string>
     <string name="AddressField">Key in an address</string>
@@ -77,7 +77,7 @@
     <string name="summary_list_preference">Approximately how close do you want to be to a
 		Location before receiving a notification?</string>
     <!-- TRIAL_VS_NON-TRIAL  change the following to correspond -->
-    <string name="title_activity_home2">Commuter Alert Trial</string>
+    <string name="title_activity_home2">Commuter Alert</string>
     <string name="title_activity_history_list">History List</string>
     <string name="title_activity_search">Searchy</string>
 
