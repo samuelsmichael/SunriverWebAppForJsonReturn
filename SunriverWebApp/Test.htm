@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Test Web Service JSON</title>
+    <script type="text/jscript" type="text/javascript" src="js/jquery.js"></script>
+    <script language="javascript" type="text/javascript">
+    $(document).ready(function() {
+        $.ajax({
+            type:"POST",
+            contentType:"application/json; charset=utf-8",
+            url: "http://localhost:51539/Activity.aspx",
+            data:"{}",
+            dataType:"json",
+            success:function(response) {
+                $("#Result").text(response);
+            },
+            failure:function(response) {
+                console.log(response.d);
+            }
+               
+         });
+        $.ajax({
+            type:"POST",
+            contentType:"application/json; charset=utf-8",
+            url: "http://localhost:51539/Activity.aspx/GetActivity",
+            data:"{}",
+            dataType:"json",
+            success:function(response) {
+                $("#Result").text(response);
+            },
+            failure:function(response) {
+                console.log(response.d);
+            }
+               
+         });         
+         $.ajax({
+            type:"POST",
+            contentType:"application/json; charset=utf-8",
+            url: "http://localhost:51539/FindCountyAddress.aspx?sunriverAddress=1 squirrel lane",
+            data:"{}",
+            dataType:"json",
+            success:function(response) {
+                $("#Result").text(response);
+            },
+            failure:function(response) {
+                console.log(response.d);
+            }
+               
+         });  
+         $.ajax({
+            type:"POST",
+            contentType:"application/json; charset=utf-8",
+            url: "http://localhost:51539/FindCountyAddress.aspx/FindCountyAddress",
+            data:"{'sunriverAddress':'1 squirrel Lane'}",
+            dataType:"json",
+            success:function(response) {
+                $("#Result").text(response);
+            },
+            failure:function(response) {
+                console.log(response.d);
+            }
+               
+         });  
+     });
+     
+    </script>
+</head>
+<body>
+      <div id="Result"></div>
+</body>
+</html>

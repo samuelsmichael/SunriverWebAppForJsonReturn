@@ -1,0 +1,5 @@
+C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWebApp\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWebApp\bin\SunriverWebApp.dll
+C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWebApp\bin\SunriverWebApp.pdb
+C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWebApp\obj\Debug\SunriverWebApp.dll
+C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWebApp\obj\Debug\SunriverWebApp.pdb
