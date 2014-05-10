@@ -35,7 +35,7 @@ namespace SunriverWebApp {
             Response.End();
         }
         [WebMethod]
-        public static List<Calendar> GetActivity() {
+        public static List<Calendar> Calendar() {
             return new Calendar().buildList();
         
         }

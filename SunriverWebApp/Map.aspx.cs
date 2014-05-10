@@ -35,7 +35,7 @@ namespace SunriverWebApp {
             Response.End();
         }
         [WebMethod]
-        public static List<Map> GetActivity() {
+        public static List<Map> Map() {
             return new Map().buildList();
         }
     }
