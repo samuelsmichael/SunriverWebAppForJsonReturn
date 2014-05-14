@@ -63,9 +63,11 @@
     <Content Include="Alert.aspx" />
     <Content Include="Calendar.aspx" />
     <Content Include="Default.aspx" />
+    <Content Include="DidYouKnow.aspx" />
     <Content Include="FindCountyAddress.aspx" />
     <Content Include="js\jquery.js" />
     <Content Include="Map.aspx" />
+    <Content Include="Overlay.aspx" />
     <Content Include="Services.aspx" />
     <Content Include="Test.htm" />
     <Content Include="Update.aspx" />
@@ -106,6 +108,15 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="DidYouKnow.aspx.cs">
+      <DependentUpon>DidYouKnow.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DidYouKnow.aspx.designer.cs">
+      <DependentUpon>DidYouKnow.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DidYouKnow.cs">
+    </Compile>
     <Compile Include="FindCountyAddress.aspx.cs">
       <DependentUpon>FindCountyAddress.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -121,6 +132,14 @@
       <DependentUpon>Map.aspx</DependentUpon>
     </Compile>
     <Compile Include="Map.cs" />
+    <Compile Include="Overlay.aspx.cs">
+      <DependentUpon>Overlay.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Overlay.aspx.designer.cs">
+      <DependentUpon>Overlay.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Overlay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services.aspx.cs">
       <DependentUpon>Services.aspx</DependentUpon>

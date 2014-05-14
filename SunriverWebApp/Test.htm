@@ -34,6 +34,91 @@
             }
                
          });         
+        $.ajax({
+            type:"POST",
+            contentType:"application/json; charset=utf-8",
+            url: "http://localhost:51539/DidYouKnow.aspx",
+            data:"{}",
+            dataType:"json",
+            success:function(response) {
+                $("#Result").text(response);
+            },
+            failure:function(response) {
+                console.log(response.d);
+            }
+               
+         });
+        $.ajax({
+            type:"POST",
+            contentType:"application/json; charset=utf-8",
+            url: "http://localhost:51539/DidYouKnow.aspx/DidYouKnow",
+            data:"{}",
+            dataType:"json",
+            success:function(response) {
+                $("#Result").text(response);
+            },
+            failure:function(response) {
+                console.log(response.d);
+            }
+               
+         });         
+        $.ajax({
+            type:"POST",
+            contentType:"application/json; charset=utf-8",
+            url: "http://localhost:51539/Overlay.aspx",
+            data:"{}",
+            dataType:"json",
+            success:function(response) {
+                $("#Result").text(response);
+            },
+            failure:function(response) {
+                console.log(response.d);
+            }
+               
+         });
+        $.ajax({
+            type:"POST",
+            contentType:"application/json; charset=utf-8",
+            url: "http://localhost:51539/Overlay.aspx/Overlay",
+            data:"{}",
+            dataType:"json",
+            success:function(response) {
+                $("#Result").text(response);
+            },
+            failure:function(response) {
+                console.log(response.d);
+            }
+               
+         });         
+                 $.ajax({
+            type:"POST",
+            contentType:"application/json; charset=utf-8",
+            url: "http://localhost:51539/Activity.aspx",
+            data:"{}",
+            dataType:"json",
+            success:function(response) {
+                $("#Result").text(response);
+            },
+            failure:function(response) {
+                console.log(response.d);
+            }
+               
+         });
+        $.ajax({
+            type:"POST",
+            contentType:"application/json; charset=utf-8",
+            url: "http://localhost:51539/Alert.aspx/Alert",
+            data:"{}",
+            dataType:"json",
+            success:function(response) {
+                $("#Result").text(response);
+            },
+            failure:function(response) {
+                console.log(response.d);
+            }
+               
+         });         
+
          $.ajax({
             type:"POST",
             contentType:"application/json; charset=utf-8",
