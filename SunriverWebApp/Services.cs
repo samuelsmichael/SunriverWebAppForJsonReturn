@@ -32,10 +32,13 @@ namespace SunriverWebApp
         public double serviceLat { get; set; }
         [DataMemberAttribute]
         public double serviceLong { get; set; }
+        [DataMemberAttribute]
+        public string serviceCatIconURL { get; set; } 
 
         protected override WebServiceItem objectFromDatasetRow(System.Data.DataRow dr)
         {
             Services services = new Services();
+            services.serviceCatIconURL=Utils.ObjectToString(dr["serviceCatIconURL"]);
             services.serviceID = Utils.ObjectToInt(dr["serviceID"]);
             services.serviceName = Utils.ObjectToString(dr["serviceName"]);
             services.serviceWebURl = Utils.ObjectToString(dr["serviceWebURl"]);
