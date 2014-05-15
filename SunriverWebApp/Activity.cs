@@ -17,7 +17,7 @@ namespace SunriverWebApp {
         [DataMemberAttribute]
         public string srActDescription { get; set; }
         [DataMemberAttribute]
-        public DateTime srActDate { get; set; }
+        public DateTime? srActDate { get; set; }
         [DataMemberAttribute]
         public string srActTime { get; set; }
         [DataMemberAttribute]
@@ -40,7 +40,7 @@ namespace SunriverWebApp {
             activity.srActID = Utils.ObjectToInt(dr["srActID"]);
             activity.srActName = Utils.ObjectToString(dr["srActName"]);
             activity.srActDescription = Utils.ObjectToString(dr["srActDescription"]);
-            activity.srActDate = Utils.ObjectToDateTime(dr["srActDate"]);
+            activity.srActDate = Utils.ObjectToDateTimeNullable(dr["srActDate"]);
             activity.srActTime = Utils.ObjectToString(dr["srActTime"]);
             activity.srActDuration = Utils.ObjectToString(dr["srActDuration"]);
             activity.srActLinks = Utils.ObjectToString(dr["srActLinks"]);

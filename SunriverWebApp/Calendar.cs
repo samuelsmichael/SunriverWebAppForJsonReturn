@@ -18,7 +18,7 @@ namespace SunriverWebApp {
         [DataMemberAttribute]
         public string srCalDescription { get; set; }
         [DataMemberAttribute]
-        public DateTime srCalDate { get; set; }
+        public DateTime? srCalDate { get; set; }
         [DataMemberAttribute]
         public string srCalTime { get; set; }
         [DataMemberAttribute]
@@ -40,7 +40,7 @@ namespace SunriverWebApp {
             Calendar calendar = new Calendar();
             calendar.srCalId = Utils.ObjectToInt(dr["srCalID"]);
             calendar.srCalAddress = Utils.ObjectToString(dr["srCalAddress"]);
-            calendar.srCalDate = Utils.ObjectToDateTime(dr["srCalDate"]);
+            calendar.srCalDate = Utils.ObjectToDateTimeNullable(dr["srCalDate"]);
             calendar.srCalDuration = Utils.ObjectToString(dr["srCalDuration"]);
             calendar.srCalLat = Utils.ObjectToDouble(dr["srCalLat"]);
             calendar.srCalDescription = Utils.ObjectToString(dr["srCalDescription"]);

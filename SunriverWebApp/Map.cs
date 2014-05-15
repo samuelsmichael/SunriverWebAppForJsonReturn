@@ -23,7 +23,7 @@ namespace SunriverWebApp {
         [DataMemberAttribute]
         public string srMapDescription { get; set; }
         [DataMemberAttribute]
-        public DateTime srMapDate { get; set; }
+        public DateTime? srMapDate { get; set; }
         [DataMemberAttribute]
         public string srMapDuration { get; set; }
         [DataMemberAttribute]
@@ -47,7 +47,7 @@ namespace SunriverWebApp {
             map.srMapCategory = Utils.ObjectToInt(dr["srMapCategory"]);
             map.srMapPhone = Utils.ObjectToString(dr["srMapPhone"]);
             map.srMapDescription = Utils.ObjectToString(dr["srMapDescription"]);
-            map.srMapDate = Utils.ObjectToDateTime(dr["srMapDate"]);
+            map.srMapDate = Utils.ObjectToDateTimeNullable(dr["srMapDate"]);
             map.srMapDuration = Utils.ObjectToString(dr["srMapDuration"]);
             map.srMapLinks = Utils.ObjectToString(dr["srMapLinks"]);
             map.srMapUrlImage = Utils.ObjectToString(dr["srMapUrlImage"]);

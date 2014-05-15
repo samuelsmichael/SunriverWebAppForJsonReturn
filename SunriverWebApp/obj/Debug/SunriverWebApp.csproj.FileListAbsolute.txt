@@ -3,3 +3,6 @@ C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWe
 C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWebApp\bin\SunriverWebApp.pdb
 C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWebApp\obj\Debug\SunriverWebApp.dll
 C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWebApp\obj\Debug\SunriverWebApp.pdb
+C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWebApp\bin\Newtonsoft.Json.dll
+C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWebApp\bin\Newtonsoft.Json.pdb
+C:\Users\Diamond\Documents\Visual Studio 2008\Projects\SunriverWebApp\SunriverWebApp\bin\Newtonsoft.Json.xml

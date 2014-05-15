@@ -99,19 +99,35 @@ namespace SunriverWebApp {
         }
         public static DateTime ObjectToDateTime(object obj) {
             if (obj == null) {
-                return NULL_DATETIME;
+                return SQL_NULL_DATETIME;
             } else {
                 if (obj is DBNull) {
-                    return NULL_DATETIME;
+                    return SQL_NULL_DATETIME;
                 } else {
                     try {
                         return Convert.ToDateTime(obj);
                     } catch {
-                        return NULL_DATETIME;
+                        return SQL_NULL_DATETIME;
                     }
                 }
             }
         }
+        public static DateTime? ObjectToDateTimeNullable(object obj) {
+            if (obj == null) {
+                return null;
+            } else {
+                if (obj is DBNull) {
+                    return null;
+                } else {
+                    try {
+                        return Convert.ToDateTime(obj);
+                    } catch {
+                        return null;
+                    }
+                }
+            }
+        }
+
         public static string ObjectToString(object obj) {
             if (obj == null) {
                 return "";

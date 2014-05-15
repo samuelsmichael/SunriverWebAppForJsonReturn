@@ -15,13 +15,24 @@ using System.Runtime.Serialization.Json;
 using System.Web.Services;
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace SunriverWebApp {
     public partial class Update1 : System.Web.UI.Page {
         protected void Page_Load(object sender, EventArgs e) {
+            JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
             MemoryStream ms = new MemoryStream();
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(List<Update>));
-            ser.WriteObject(ms, new Update().buildList());
+            using (JsonTextWriter jsonTextWriter = new JsonTextWriter(
+                new StreamWriter(ms, new UTF8Encoding(false, true))) { CloseOutput = false })
+               {
+                   serializer.Serialize(jsonTextWriter, new Update().buildList());
+                   jsonTextWriter.Flush();
+              }
+
+
+//            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(List<Update>));
+  //          ser.WriteObject(ms, new Update().buildList());
             ms.Flush();
             ms.Position = 0;
             System.IO.StreamReader sr = new StreamReader(ms);

@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\moi\DiamondSoftware\DotNet\Json60r3\Bin\Net35\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Core">
@@ -65,6 +69,7 @@
     <Content Include="Default.aspx" />
     <Content Include="DidYouKnow.aspx" />
     <Content Include="FindCountyAddress.aspx" />
+    <Content Include="Global.asax" />
     <Content Include="js\jquery.js" />
     <Content Include="Map.aspx" />
     <Content Include="Overlay.aspx" />
@@ -123,6 +128,9 @@
     </Compile>
     <Compile Include="FindCountyAddress.aspx.designer.cs">
       <DependentUpon>FindCountyAddress.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Map.aspx.cs">
       <DependentUpon>Map.aspx</DependentUpon>

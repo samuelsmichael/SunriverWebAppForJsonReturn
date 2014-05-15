@@ -15,30 +15,31 @@ namespace SunriverWebApp
         [DataMemberAttribute]
         public int updateID { get; set; }
         [DataMemberAttribute]
-        public DateTime updateCalendar { get; set; }
+        public DateTime? updateCalendar { get; set; }
         [DataMemberAttribute]
-        public DateTime updateActivity { get; set; }
+        public DateTime? updateActivity { get; set; }
         [DataMemberAttribute]
-        public DateTime srActDate { get; set; }
+        public DateTime? updateMaps { get; set; }
         [DataMemberAttribute]
-        public DateTime updateMaps { get; set; }
+        public DateTime? updateServices { get; set; }
         [DataMemberAttribute]
-        public DateTime updateServices { get; set; }
+        public DateTime? updateWelcome { get; set; }
         [DataMemberAttribute]
-        public DateTime updateWelcome { get; set; }
+        public DateTime? updateData { get; set; }
         [DataMemberAttribute]
-        public DateTime updateData { get; set; }
+        public DateTime? updateOverlay { get; set; }
 
         protected override WebServiceItem objectFromDatasetRow(System.Data.DataRow dr)
         {
             Update update = new Update();
             update.updateID = Utils.ObjectToInt(dr["updateID"]);
-            update.updateCalendar = Utils.ObjectToDateTime(dr["updateCalendar"]);
-            update.updateActivity = Utils.ObjectToDateTime(dr["updateActivity"]);
-            update.updateMaps = Utils.ObjectToDateTime(dr["updateMaps"]);
-            update.updateServices = Utils.ObjectToDateTime(dr["updateServices"]);
-            update.updateWelcome = Utils.ObjectToDateTime(dr["updateWelcome"]);
-            update.updateData = Utils.ObjectToDateTime(dr["updateData"]);
+            update.updateCalendar = Utils.ObjectToDateTimeNullable(dr["updateCalendar"]);
+            update.updateActivity = Utils.ObjectToDateTimeNullable(dr["updateActivity"]);
+            update.updateMaps = Utils.ObjectToDateTimeNullable(dr["updateMaps"]);
+            update.updateServices = Utils.ObjectToDateTimeNullable(dr["updateServices"]);
+            update.updateWelcome = Utils.ObjectToDateTimeNullable(dr["updateWelcome"]);
+            update.updateData = Utils.ObjectToDateTimeNullable(dr["updateData"]);
+            update.updateOverlay = Utils.ObjectToDateTimeNullable(dr["updateOverlay"]);
             return update;
         }
 
