@@ -15,13 +15,20 @@ using System.Runtime.Serialization.Json;
 using System.Web.Services;
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json;
+using System.Text;
+
 
 namespace SunriverWebApp {
     public partial class Welcome1 : System.Web.UI.Page {
         protected void Page_Load(object sender, EventArgs e) {
             MemoryStream ms = new MemoryStream();
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(List<Welcome>));
-            ser.WriteObject(ms, new Welcome().buildList());
+            JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+            using (JsonTextWriter jsonTextWriter = new JsonTextWriter(
+                new StreamWriter(ms, new UTF8Encoding(false, true))) { CloseOutput = false }) {
+                serializer.Serialize(jsonTextWriter, new Welcome().buildList());
+                jsonTextWriter.Flush();
+            }
             ms.Flush();
             ms.Position = 0;
             System.IO.StreamReader sr = new StreamReader(ms);
@@ -33,10 +40,5 @@ namespace SunriverWebApp {
             Response.Write(str);
             Response.End();
         }
-        [WebMethod]
-        public static List<Welcome> Welcome() {
-            return new Welcome().buildList();
-        }
-
     }
 }

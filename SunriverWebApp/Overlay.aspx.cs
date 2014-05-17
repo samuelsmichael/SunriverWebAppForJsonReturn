@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using Newtonsoft.Json;
+using System.Text;
 using System.Configuration;
 using System.Data;
 using System.Linq;
@@ -20,8 +22,12 @@ namespace SunriverWebApp {
     public partial class Overlay1 : System.Web.UI.Page {
         protected void Page_Load(object sender, EventArgs e) {
             MemoryStream ms = new MemoryStream();
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(List<Overlay>));
-            ser.WriteObject(ms, new Overlay().buildList());
+            JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+            using (JsonTextWriter jsonTextWriter = new JsonTextWriter(
+                new StreamWriter(ms, new UTF8Encoding(false, true))) { CloseOutput = false }) {
+                serializer.Serialize(jsonTextWriter, new Overlay().buildList());
+                jsonTextWriter.Flush();
+            }
             ms.Flush();
             ms.Position = 0;
             System.IO.StreamReader sr = new StreamReader(ms);
@@ -32,10 +38,6 @@ namespace SunriverWebApp {
             Response.ContentType = "application/json; charset=utf-8";
             Response.Write(str);
             Response.End();
-        }
-        [WebMethod]
-        public static List<Overlay> DidYouKnow() {
-            return new Overlay().buildList();
         }
     }
 }

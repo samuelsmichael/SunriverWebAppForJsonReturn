@@ -21,8 +21,8 @@ using System.Text;
 namespace SunriverWebApp {
     public partial class Update1 : System.Web.UI.Page {
         protected void Page_Load(object sender, EventArgs e) {
-            JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
             MemoryStream ms = new MemoryStream();
+            JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
             using (JsonTextWriter jsonTextWriter = new JsonTextWriter(
                 new StreamWriter(ms, new UTF8Encoding(false, true))) { CloseOutput = false })
                {
@@ -43,10 +43,6 @@ namespace SunriverWebApp {
             Response.ContentType = "application/json; charset=utf-8";
             Response.Write(str);
             Response.End();
-        }
-        [WebMethod]
-        public static List<Update> Update() {
-            return new Update().buildList();
         }
     }
 }

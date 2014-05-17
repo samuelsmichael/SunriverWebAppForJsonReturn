@@ -3,6 +3,8 @@ using System.Collections;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using Newtonsoft.Json;
+using System.Text;
 using System.Web;
 using System.Web.Security;
 using System.Web.UI;
@@ -20,8 +22,12 @@ namespace SunriverWebApp {
     public partial class Services1 : System.Web.UI.Page {
         protected void Page_Load(object sender, EventArgs e) {
             MemoryStream ms = new MemoryStream();
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(List<Services>));
-            ser.WriteObject(ms, new Services().buildList());
+            JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+            using (JsonTextWriter jsonTextWriter = new JsonTextWriter(
+                new StreamWriter(ms, new UTF8Encoding(false, true))) { CloseOutput = false }) {
+                serializer.Serialize(jsonTextWriter, new Services().buildList());
+                jsonTextWriter.Flush();
+            }
             ms.Flush();
             ms.Position = 0;
             System.IO.StreamReader sr = new StreamReader(ms);
@@ -32,10 +38,6 @@ namespace SunriverWebApp {
             Response.ContentType = "application/json; charset=utf-8";
             Response.Write(str);
             Response.End();
-        }
-        [WebMethod]
-        public static List<Services> Services() {
-            return new Services().buildList();
         }
     }
 }

@@ -4,6 +4,8 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Web;
+using Newtonsoft.Json;
+using System.Text;
 using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
@@ -21,8 +23,12 @@ namespace SunriverWebApp {
     public partial class Calendar1 : System.Web.UI.Page {
         protected void Page_Load(object sender, EventArgs e) {
             MemoryStream ms = new MemoryStream();
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(List<Calendar>));
-            ser.WriteObject(ms, new Calendar().buildList());
+            JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+            using (JsonTextWriter jsonTextWriter = new JsonTextWriter(
+                new StreamWriter(ms, new UTF8Encoding(false, true))) { CloseOutput = false }) {
+                serializer.Serialize(jsonTextWriter, new Calendar().buildList());
+                jsonTextWriter.Flush();
+            }
             ms.Flush();
             ms.Position = 0;
             System.IO.StreamReader sr = new StreamReader(ms);
@@ -33,11 +39,6 @@ namespace SunriverWebApp {
             Response.ContentType = "application/json; charset=utf-8";
             Response.Write(str);
             Response.End();
-        }
-        [WebMethod]
-        public static List<Calendar> Calendar() {
-            return new Calendar().buildList();
-        
         }
     }
 }

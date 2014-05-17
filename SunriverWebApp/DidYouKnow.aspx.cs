@@ -11,6 +11,8 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
 using System.Web.Script.Serialization;
+using Newtonsoft.Json;
+using System.Text;
 using System.Runtime.Serialization.Json;
 using System.Web.Services;
 using System.Collections.Generic;
@@ -20,8 +22,12 @@ namespace SunriverWebApp {
     public partial class DidYouKnow1 : System.Web.UI.Page {
         protected void Page_Load(object sender, EventArgs e) {
             MemoryStream ms = new MemoryStream();
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(List<DidYouKnow>));
-            ser.WriteObject(ms, new DidYouKnow().buildList());
+            JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+            using (JsonTextWriter jsonTextWriter = new JsonTextWriter(
+                new StreamWriter(ms, new UTF8Encoding(false, true))) { CloseOutput = false }) {
+                serializer.Serialize(jsonTextWriter, new DidYouKnow().buildList());
+                jsonTextWriter.Flush();
+            }
             ms.Flush();
             ms.Position = 0;
             System.IO.StreamReader sr = new StreamReader(ms);
@@ -32,10 +38,6 @@ namespace SunriverWebApp {
             Response.ContentType = "application/json; charset=utf-8";
             Response.Write(str);
             Response.End();
-        }
-        [WebMethod]
-        public static List<DidYouKnow> DidYouKnow() {
-            return new DidYouKnow().buildList();
         }
     }
 }
