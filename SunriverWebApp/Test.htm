@@ -2,7 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Test Web Service JSON</title>
+    <title>Test Web Service JSON</title>d
     <script type="text/jscript" type="text/javascript" src="js/jquery.js"></script>
     <script language="javascript" type="text/javascript">
     $(document).ready(function() {
@@ -23,7 +23,7 @@
         $.ajax({
             type:"POST",
             contentType:"application/json; charset=utf-8",
-            url: "http://localhost:51539/Activity.aspx/Activity",
+            url: "http://localhost:51539/Alert.aspx",
             data:"{}",
             dataType:"json",
             success:function(response) {
@@ -46,12 +46,12 @@
             failure:function(response) {
                 console.log(response.d);
             }
-               
          });
+
         $.ajax({
             type:"POST",
             contentType:"application/json; charset=utf-8",
-            url: "http://localhost:51539/DidYouKnow.aspx/DidYouKnow",
+            url: "http://localhost:51539/Calendar.aspx",
             data:"{}",
             dataType:"json",
             success:function(response) {
@@ -60,8 +60,8 @@
             failure:function(response) {
                 console.log(response.d);
             }
-               
          });         
+
         $.ajax({
             type:"POST",
             contentType:"application/json; charset=utf-8",
@@ -74,8 +74,8 @@
             failure:function(response) {
                 console.log(response.d);
             }
-               
          });
+
         $.ajax({
             type:"POST",
             contentType:"application/json; charset=utf-8",
@@ -88,12 +88,12 @@
             failure:function(response) {
                 console.log(response.d);
             }
-               
          });         
-                 $.ajax({
+         
+         $.ajax({
             type:"POST",
             contentType:"application/json; charset=utf-8",
-            url: "http://localhost:51539/Activity.aspx",
+            url: "http://localhost:51539/Overlay.aspx",
             data:"{}",
             dataType:"json",
             success:function(response) {
@@ -102,12 +102,12 @@
             failure:function(response) {
                 console.log(response.d);
             }
-               
          });
+               
         $.ajax({
             type:"POST",
             contentType:"application/json; charset=utf-8",
-            url: "http://localhost:51539/Alert.aspx/Alert",
+            url: "http://localhost:51539/Services.aspx",
             data:"{}",
             dataType:"json",
             success:function(response) {
@@ -115,8 +115,7 @@
             },
             failure:function(response) {
                 console.log(response.d);
-            }
-               
+            }               
          });         
 
          $.ajax({
@@ -130,22 +129,21 @@
             },
             failure:function(response) {
                 console.log(response.d);
-            }
-               
+            }               
          });  
+         
          $.ajax({
             type:"POST",
             contentType:"application/json; charset=utf-8",
-            url: "http://localhost:51539/FindCountyAddress.aspx/FindCountyAddress",
-            data:"{'sunriverAddress':'1 squirrel Lane'}",
+            url: "http://localhost:51539/Welcome.aspx",
+            data:"{}",
             dataType:"json",
             success:function(response) {
                 $("#Result").text(response);
             },
             failure:function(response) {
                 console.log(response.d);
-            }
-               
+            }               
          });  
      });
      

@@ -28,16 +28,7 @@ namespace SunriverWebApp {
                 serializer.Serialize(jsonTextWriter, new Overlay().buildList());
                 jsonTextWriter.Flush();
             }
-            ms.Flush();
-            ms.Position = 0;
-            System.IO.StreamReader sr = new StreamReader(ms);
-            string str = sr.ReadToEnd();
-            ms.Close();
-            sr.Close();
-            Response.Clear();
-            Response.ContentType = "application/json; charset=utf-8";
-            Response.Write(str);
-            Response.End();
+            Utils.jsonSerializeStep2(ms, Response);
         }
     }
 }

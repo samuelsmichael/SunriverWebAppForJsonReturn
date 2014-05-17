@@ -6,9 +6,24 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Text;
+using System.IO;
+
 
 namespace SunriverWebApp {
     public class Utils {
+        public static void jsonSerializeStep2(MemoryStream ms, HttpResponse Response) {
+            ms.Flush();
+            ms.Position = 0;
+            System.IO.StreamReader sr = new StreamReader(ms);
+            string str = sr.ReadToEnd();
+            ms.Close();
+            sr.Close();
+            Response.Clear();
+            Response.ContentType = "application/json; charset=utf-8";
+            Response.Write(str);
+            Response.End();
+        }
+
         public enum PAD_DIRECTION {
             LEFT, RIGHT
         }
