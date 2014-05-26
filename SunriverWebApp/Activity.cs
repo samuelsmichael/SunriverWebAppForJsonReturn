@@ -43,7 +43,6 @@ namespace SunriverWebApp {
             activity.srActDate = Utils.ObjectToDateTimeNullable(dr["srActDate"]);
             activity.srActTime = Utils.ObjectToString(dr["srActTime"]);
             activity.srActDuration = Utils.ObjectToString(dr["srActDuration"]);
-            activity.srActLinks = Utils.ObjectToString(dr["srActLinks"]);
             activity.srActUrlImage = Utils.ObjectToString(dr["srActUrlImage"]);
             activity.srActAddress = Utils.ObjectToString(dr["srActAddress"]);
             activity.srActLat = Utils.ObjectToDouble(dr["srActLat"]);

@@ -18,17 +18,19 @@ using System.IO;
 using System.Web.Script.Serialization;
 using System.Runtime.Serialization.Json;
 
+
 namespace SunriverWebApp {
-    public partial class Activity1 : System.Web.UI.Page {
+    public partial class Hospitality1 : System.Web.UI.Page {
         protected void Page_Load(object sender, EventArgs e) {
             MemoryStream ms = new MemoryStream();
             JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
             using (JsonTextWriter jsonTextWriter = new JsonTextWriter(
                 new StreamWriter(ms, new UTF8Encoding(false, true))) { CloseOutput = false }) {
-                serializer.Serialize(jsonTextWriter, new Activity().buildList());
+                serializer.Serialize(jsonTextWriter, Hospitality.Sample /* new Hospitality().buildList()*/);
                 jsonTextWriter.Flush();
             }
             Utils.jsonSerializeStep2(ms, Response);
+
         }
     }
 }
