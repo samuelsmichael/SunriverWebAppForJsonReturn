@@ -22,6 +22,7 @@ using System.Web.Services;
 namespace SunriverWebApp {
     public partial class Map1 : System.Web.UI.Page {
         protected void Page_Load(object sender, EventArgs e) {
+            Map.index = 0;
             MemoryStream ms = new MemoryStream();
             JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
             using (JsonTextWriter jsonTextWriter = new JsonTextWriter(

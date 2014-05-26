@@ -19,7 +19,7 @@ using System.IO;
 namespace SunriverWebApp {
     public partial class FindCountyAddress1 : System.Web.UI.Page {
         protected void Page_Load(object sender, EventArgs e) {
-            String countyAddress = Request.QueryString["sunriverAddress"];
+            String countyAddress = Request.QueryString["resortAddress"];
             MemoryStream ms = new MemoryStream();
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(List<CountyAddress>));
             ser.WriteObject(ms, new CountyAddress(countyAddress));
