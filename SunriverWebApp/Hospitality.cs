@@ -55,10 +55,10 @@ namespace SunriverWebApp {
                     srHospitalityID=1,
                     srHospitalityIsApproved=true,
                     srHospitalityLat = 43.996642,
-                    srHospitalityLong = 121.395916,
+                    srHospitalityLong = -121.395916,
                     srHospitalityName="Seventh Mountain Resort",
                     srHospitalityPhone = "(541) 382-8711",
-                    srHospitalityUrlImage = "http://s3-media2.ak.yelpcdn.com/bphoto/_x60iXOGsojOqlcRcROMgA/ls.jpg",
+                    srHospitalityUrlImage = "http://seventhmountain.com/images/employment-img-summer.jpg",
                     srHospitalityUrlWebsite = "http://www.seventhmountain.com/"
                 });
                 list.Add(new Hospitality {
@@ -67,7 +67,7 @@ namespace SunriverWebApp {
                     srHospitalityID = 1,
                     srHospitalityIsApproved = true,
                     srHospitalityLat = 43.874205,
-                    srHospitalityLong = 121.445904,
+                    srHospitalityLong = -121.445904,
                     srHospitalityName = "The Sunriver Resort",
                     srHospitalityPhone = "1-800-801-8765",
                     srHospitalityUrlImage = "http://www.sunriver-resort.com/images/masthead/javabanner_lodgerear_welcome.jpg",
