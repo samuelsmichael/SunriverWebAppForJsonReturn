@@ -69,6 +69,7 @@
     <Content Include="Default.aspx" />
     <Content Include="DidYouKnow.aspx" />
     <Content Include="FindCountyAddress.aspx" />
+    <Content Include="GISLayers.aspx" />
     <Content Include="Global.asax" />
     <Content Include="Hospitality.aspx" />
     <Content Include="js\jquery.js" />
@@ -106,6 +107,14 @@
       <DependentUpon>Calendar.aspx</DependentUpon>
     </Compile>
     <Compile Include="Calendar.cs" />
+    <Compile Include="GISLayers.aspx.cs">
+      <DependentUpon>GISLayers.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GISLayers.aspx.designer.cs">
+      <DependentUpon>GISLayers.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GISLayers.cs" />
     <Compile Include="Hospitality.aspx.cs">
       <DependentUpon>Hospitality.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
