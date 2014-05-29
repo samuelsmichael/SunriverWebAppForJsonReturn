@@ -27,8 +27,6 @@ namespace SunriverWebApp {
         [DataMemberAttribute]
         public double srHospitalityLong { get; set; }
         [DataMemberAttribute]
-        public bool srHospitalityIsApproved { get; set; }
-        [DataMemberAttribute]
         public string srHospitalityPhone {get; set;}
 
         protected override WebServiceItem objectFromDatasetRow(System.Data.DataRow dr) {
@@ -42,7 +40,6 @@ namespace SunriverWebApp {
             hospitality.srHospitalityLat = Utils.ObjectToDouble(dr["srHospitalityLat"]);
             hospitality.srHospitalityPhone = Utils.ObjectToString(dr["srHospitalityPhone"]);
             hospitality.srHospitalityLong = Utils.ObjectToDouble(dr["srHospitalityLong"]);
-            hospitality.srHospitalityIsApproved=Utils.ObjectToBool(dr["srHospitalityIsApproved"]);
             return hospitality;
         }
 
@@ -53,7 +50,6 @@ namespace SunriverWebApp {
                     srHospitalityAddress = "18575 SW Century Dr",
                     srHospitalityDescription = "Seventh Mountain Resort is your winter and summer resort destination in sunny Central Oregon. Just a short drive up Century Drive, and just past Widgi Creek, one of the area’s finest golf courses, you’ll find the closest lodging to Mt. Bachelor.",
                     srHospitalityID=1,
-                    srHospitalityIsApproved=true,
                     srHospitalityLat = 43.996642,
                     srHospitalityLong = -121.395916,
                     srHospitalityName="Seventh Mountain Resort",
@@ -65,7 +61,6 @@ namespace SunriverWebApp {
                     srHospitalityAddress = "17600 Center Dr",
                     srHospitalityDescription = "Sunriver Resort, near Bend, Oregon, offers lodging options and vacation rentals and  brings the beauty of the natural world and premier hotel accommodations together in the foothills of the Cascade Mountains. Year-round outdoor adventure and recreational activities are abundant at Sunriver; including world-class golf, skiing, kayaking, and more.",
                     srHospitalityID = 1,
-                    srHospitalityIsApproved = true,
                     srHospitalityLat = 43.874205,
                     srHospitalityLong = -121.445904,
                     srHospitalityName = "The Sunriver Resort",
