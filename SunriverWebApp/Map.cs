@@ -39,15 +39,9 @@ namespace SunriverWebApp {
         [DataMemberAttribute]
         public bool isGPSpopup { get; set; }
 
-        public static int index { get; set; } // until we have some actual Retails, I'll create some this way
 
         protected override WebServiceItem objectFromDatasetRow(System.Data.DataRow dr) {
-            index++;
-            if (index >= 10) {
-                index = 0;
-                dr["srMapCategory"] = 3;
-                dr["srMapCategoryName"] = "Retail";
-            }
+
             Map map = new Map();
             map.srMapId = Utils.ObjectToInt(dr["srMapId"]);
             map.srMapName = Utils.ObjectToString(dr["srMapName"]);

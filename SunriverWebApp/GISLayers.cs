@@ -39,7 +39,7 @@ namespace SunriverWebApp {
                 });
                 list.Add(new GISLayers {
                     srGISLayersId = 200,
-                    srGISLayersUseNum=1,
+                    srGISLayersUseNum=0,
                     srGISLayersIsBikePaths=false,
                     srGISLayersURL = "http://services.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer"
                 });

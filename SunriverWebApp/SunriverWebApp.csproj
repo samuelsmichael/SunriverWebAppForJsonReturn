@@ -76,6 +76,7 @@
     <Content Include="Map.aspx" />
     <Content Include="Overlay.aspx" />
     <Content Include="Services.aspx" />
+    <Content Include="Stylesheet1.css" />
     <Content Include="Test.htm" />
     <Content Include="Update.aspx" />
     <Content Include="Web.config" />

@@ -19,10 +19,14 @@ using System.IO;
 namespace SunriverWebApp {
     public partial class FindCountyAddress1 : System.Web.UI.Page {
         protected void Page_Load(object sender, EventArgs e) {
-            String countyAddress = Request.QueryString["resortAddress"];
+            String resortAddress = Request.QueryString["resortAddress"];
             MemoryStream ms = new MemoryStream();
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(List<CountyAddress>));
-            ser.WriteObject(ms, new CountyAddress(countyAddress));
+            if (resortAddress.Substring(0, 2).Equals("|~")) { // signifies a version 2 of the data
+                ser.WriteObject(ms, CountyAddress.FindCountyAddress(resortAddress.Substring(2)));
+            } else {
+                ser.WriteObject(ms, new CountyAddress(resortAddress));
+            }
             ms.Flush();
             ms.Position = 0;
             System.IO.StreamReader sr = new StreamReader(ms);
@@ -33,11 +37,6 @@ namespace SunriverWebApp {
             Response.ContentType = "application/json; charset=utf-8";
             Response.Write(str);
             Response.End();
-        }
-        [WebMethod]
-        public static CountyAddress FindCountyAddress(string sunriverAddress) {
-            return new CountyAddress(sunriverAddress);
-        
         }
     }
 }

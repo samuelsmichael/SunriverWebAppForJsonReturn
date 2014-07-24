@@ -28,6 +28,8 @@ namespace SunriverWebApp
         public DateTime? updateData { get; set; }
         [DataMemberAttribute]
         public DateTime? updateOverlay { get; set; }
+        [DataMemberAttribute]
+        public DateTime? updateHospitality { get; set; }
 
         protected override WebServiceItem objectFromDatasetRow(System.Data.DataRow dr)
         {
@@ -40,6 +42,7 @@ namespace SunriverWebApp
             update.updateWelcome = Utils.ObjectToDateTimeNullable(dr["updateWelcome"]);
             update.updateData = Utils.ObjectToDateTimeNullable(dr["updateData"]);
             update.updateOverlay = Utils.ObjectToDateTimeNullable(dr["updateOverlay"]);
+            update.updateHospitality = Utils.ObjectToDateTimeNullable(dr["updateHospitality"]);
             return update;
         }
 

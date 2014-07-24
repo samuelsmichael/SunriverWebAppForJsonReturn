@@ -25,7 +25,7 @@ namespace SunriverWebApp {
             JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
             using (JsonTextWriter jsonTextWriter = new JsonTextWriter(
                 new StreamWriter(ms, new UTF8Encoding(false, true))) { CloseOutput = false }) {
-                serializer.Serialize(jsonTextWriter, GISLayers.Sample);// new GISLayers().buildList());
+                serializer.Serialize(jsonTextWriter, new GISLayers().buildList());
                 jsonTextWriter.Flush();
             }
             Utils.jsonSerializeStep2(ms, Response);
