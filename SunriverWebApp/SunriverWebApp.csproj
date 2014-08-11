@@ -66,8 +66,10 @@
     <Content Include="Activity.aspx" />
     <Content Include="Alert.aspx" />
     <Content Include="Calendar.aspx" />
+    <Content Include="EmergencyMaps.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="DidYouKnow.aspx" />
+    <Content Include="Emergency.aspx" />
     <Content Include="FindCountyAddress.aspx" />
     <Content Include="GISLayers.aspx" />
     <Content Include="Global.asax" />
@@ -108,6 +110,22 @@
       <DependentUpon>Calendar.aspx</DependentUpon>
     </Compile>
     <Compile Include="Calendar.cs" />
+    <Compile Include="EmergencyMaps.cs" />
+    <Compile Include="EmergencyMaps.aspx.cs">
+      <DependentUpon>EmergencyMaps.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EmergencyMaps.aspx.designer.cs">
+      <DependentUpon>EmergencyMaps.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Emergency.aspx.cs">
+      <DependentUpon>Emergency.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Emergency.aspx.designer.cs">
+      <DependentUpon>Emergency.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Emergency.cs" />
     <Compile Include="GISLayers.aspx.cs">
       <DependentUpon>GISLayers.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

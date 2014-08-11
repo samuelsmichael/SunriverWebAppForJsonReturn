@@ -17,6 +17,8 @@ namespace SunriverWebApp
         public string ALTitle { get; set; }
         [DataMemberAttribute]
         public string ALDescription { get; set; }
+        [DataMemberAttribute]
+        public bool isOnAlert { get; set; }
 
         protected override WebServiceItem objectFromDatasetRow(System.Data.DataRow dr)
         {
@@ -24,6 +26,7 @@ namespace SunriverWebApp
             alert.ALID = Utils.ObjectToInt(dr["ALID"]);
             alert.ALTitle = Utils.ObjectToString(dr["ALTitle"]);
             alert.ALDescription = Utils.ObjectToString(dr["ALDescription"]);
+            alert.isOnAlert = Utils.ObjectToBool(dr["isOnAlert"]);
             return alert;
         }
 
