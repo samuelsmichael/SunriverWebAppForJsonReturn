@@ -98,7 +98,7 @@ public class Home2 extends Activity implements HomeImplementer,
 		        final AlertDialog.Builder builder = new AlertDialog.Builder(					
 		        		new ContextThemeWrapper(this,
 						R.style.AlertDialogCustomLight));
-		        builder.setTitle("GPS is disabled");
+		        builder.setTitle("GPS is disabled");//
 		        builder.setMessage("For best results, your GPS should be enabled. Do you want to enable it?")
 		               .setCancelable(false)
 		               .setPositiveButton("Yes", new DialogInterface.OnClickListener() {

@@ -93,6 +93,8 @@ public class HomeManager implements
 	}
 	
 	private Intent getLocationManagerIntent() {
+		return new Intent(mActivity,LocationServiceModern.class);
+/*
 		SharedPreferences settings = mActivity.getSharedPreferences(getPREFS_NAME(),Context.MODE_PRIVATE);
 		String locationManager = settings.getString("locationmanager","gps");
 		if(locationManager.equals("gps")) {
@@ -104,6 +106,7 @@ public class HomeManager implements
 				return 	new Intent(mActivity, LocationServiceOriginal.class);				
 			}
 		}
+*/		
 	}
 	public String getPREFS_NAME() {
 		return mActivity.getPackageName() + "_preferences";

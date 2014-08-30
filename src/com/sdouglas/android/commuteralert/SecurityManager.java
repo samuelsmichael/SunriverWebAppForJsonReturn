@@ -11,10 +11,10 @@ import java.io.Reader;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.android.vending.licensing.AESObfuscator;
-import com.android.vending.licensing.LicenseChecker;
-import com.android.vending.licensing.LicenseCheckerCallback;
-import com.android.vending.licensing.ServerManagedPolicy;
+import com.google.android.vending.licensing.AESObfuscator;
+import com.google.android.vending.licensing.LicenseChecker;
+import com.google.android.vending.licensing.LicenseCheckerCallback;
+import com.google.android.vending.licensing.ServerManagedPolicy;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -322,11 +322,23 @@ public class SecurityManager {
 		}
 
 		@Override
-		public void applicationError(ApplicationErrorCode errorCode) {
+		public void applicationError(int errorCode) {
 			// Until we get it set up, assume it's licensed.
-			if (errorCode.equals(ApplicationErrorCode.NOT_MARKET_MANAGED)) {
+			if (errorCode==LicenseCheckerCallback.ERROR_NOT_MARKET_MANAGED) {
 				handleResultOfLicenseCheck(true);
 			}
+		}
+
+		@Override
+		public void allow(int reason) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void dontAllow(int reason) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 
