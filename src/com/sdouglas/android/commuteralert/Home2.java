@@ -32,6 +32,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
@@ -377,6 +378,11 @@ public class Home2 extends Activity implements HomeImplementer,
 		} else {
 			positionMapToLocation(address.getLatitude(), address.getLongitude());
 			setControlState(true,readableAddress);
+			SharedPreferences settings = getSharedPreferences(
+					getPREFS_NAME(), MODE_PRIVATE);
+			Editor editor=settings.edit();
+			editor.putString("KEY_ReadableAddress", readableAddress);
+			editor.commit();
 		}
 		if (needToBringUpSplashScreen) {
 			needToBringUpSplashScreen = false;
@@ -462,7 +468,7 @@ public class Home2 extends Activity implements HomeImplementer,
 				mMap.setMyLocationEnabled(true);
 				// now create Markers for all of the trains.
 				BitmapDescriptor bmd = BitmapDescriptorFactory
-						.fromResource(R.drawable.train4);
+						.fromResource(R.drawable.train4_transparent);
 				for (int i = 0; i < result.mAddresses.size(); i++) {
 					Address address = result.mAddresses.get(i);
 					Marker marker = mMap.addMarker(new MarkerOptions()

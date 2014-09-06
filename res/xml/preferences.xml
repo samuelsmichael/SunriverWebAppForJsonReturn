@@ -37,7 +37,7 @@
 			  ></CheckBoxPreference>
 			  <EditTextPreference
 			  	android:key="voicetext"
-			  	android:defaultValue="Alert! Alert! You are arriving at your destination."
+			  	android:defaultValue="@string/defaultvoicetext"
 			  	android:title="Voice Text"
 			  	android:summary="If you choose Voice Notification (above), this is the text that will be spoken."
 			  ></EditTextPreference>

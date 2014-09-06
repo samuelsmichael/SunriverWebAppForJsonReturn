@@ -133,7 +133,9 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 	
 	
 	private String getVoiceAndPopupText() {
-		return mSharedPreferences.getString("voicetext", ALERT_TEXT);
+		String replacement=mSharedPreferences.getString("KEY_ReadableAddress", "your destination");
+		String retValue=mSharedPreferences.getString("voicetext", ALERT_TEXT).replace("~destination~", replacement);
+		return retValue;
 	}
 	
 	@Override
@@ -222,7 +224,7 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 	}
 	private MediaPlayer getMediaPlayer() {
 		if(mMediaPlayer==null) {
-			mMediaPlayer = MediaPlayer.create(VoiceHelper.this,R.raw.rossini_william_tell);
+			mMediaPlayer = MediaPlayer.create(VoiceHelper.this,R.raw.steamwhistle);
 			mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
 			mMediaPlayer.setOnCompletionListener(this);
 		}
@@ -391,9 +393,16 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 	@Override
 	public void onCompletion(MediaPlayer mp) {
 		if(!closeRequestedSoStopLooping) {
-			getMediaPlayer().seekTo(0);
-			getMediaPlayer().start();
+			mMediaPlayer.stop();
+			mMediaPlayer.release();
+			mMediaPlayer = MediaPlayer.create(VoiceHelper.this,R.raw.steamwhistle);
+			mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+			mMediaPlayer.setOnCompletionListener(this);
+            mMediaPlayer.setVolume(1.0f, 1.0f);
+			mMediaPlayer.start(); // no need to call prepare(); create() does that for you			
+
 		}
+		
 	}	
 	public String getPREFS_NAME() {
 		return getApplicationContext().getPackageName() + "_preferences";

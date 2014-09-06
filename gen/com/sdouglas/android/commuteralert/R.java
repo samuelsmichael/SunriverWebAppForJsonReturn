@@ -413,12 +413,17 @@ containing a value of this type.
         public static final int ic_plusone_standard_off_client=0x7f020021;
         public static final int ic_plusone_tall_off_client=0x7f020022;
         public static final int ic_popup_sync_1=0x7f020023;
-        public static final int powered_by_google_dark=0x7f020024;
-        public static final int powered_by_google_light=0x7f020025;
-        public static final int train1=0x7f020026;
-        public static final int train2=0x7f020027;
-        public static final int train3=0x7f020028;
-        public static final int train4=0x7f020029;
+        public static final int launcher=0x7f020024;
+        public static final int powered_by_google_dark=0x7f020025;
+        public static final int powered_by_google_light=0x7f020026;
+        public static final int train1=0x7f020027;
+        public static final int train2=0x7f020028;
+        public static final int train3=0x7f020029;
+        public static final int train4=0x7f02002a;
+        public static final int train4_transparent=0x7f02002b;
+        public static final int train_new_1=0x7f02002c;
+        public static final int train_new_1_resized_gimp=0x7f02002d;
+        public static final int train_new_2=0x7f02002e;
     }
     public static final class id {
         public static final int action_rateapp=0x7f09003d;
@@ -505,7 +510,9 @@ containing a value of this type.
         public static final int voice_helper=0x7f0d0004;
     }
     public static final class raw {
-        public static final int rossini_william_tell=0x7f050000;
+        public static final int dieselhorn=0x7f050000;
+        public static final int rossini_william_tell=0x7f050001;
+        public static final int steamwhistle=0x7f050002;
     }
     public static final class string {
         public static final int AddressField=0x7f070025;
@@ -634,6 +641,7 @@ containing a value of this type.
         public static final int default_value_list_preference=0x7f070061;
         public static final int defaultvoicenotification_summary=0x7f070021;
         public static final int defaultvoicenotification_title=0x7f070020;
+        public static final int defaultvoicetext=0x7f070029;
         public static final int dialog_title_list_preference=0x7f070063;
         public static final int disconnected=0x7f07002f;
         public static final int geofence_input_error_latitude_invalid=0x7f070031;
@@ -647,7 +655,6 @@ containing a value of this type.
         public static final int geofence_transition_notification_text=0x7f070038;
         public static final int geofence_transition_notification_title=0x7f070039;
         public static final int geofence_transition_unknown=0x7f07003a;
-        public static final int hello_world=0x7f070029;
         public static final int hint_address=0x7f070026;
         public static final int invalid_action=0x7f07003b;
         public static final int invalid_action_detail=0x7f07003c;

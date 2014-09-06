@@ -4,14 +4,14 @@
     <string name="defaultvoicenotification_title">Voice Notifications</string>
     <string name="defaultvoicenotification_summary">Check this box if you want a spoken notification.</string>
     <!-- TRIAL_VS_NON-TRIAL  change the following to correspond -->
-    <string name="app_name">Commuter Alert</string>
+    <string name="app_name">Commuter Helper</string>
     <string name="action_settings">Settings</string>
     <string name="action_rateapp">Rate App</string>
     <string name="AddressField">Key in an address</string>
     <string name="hint_address">Example:\n121 S Eaton St\nLakewood CO 80226</string>
     <string name="KeyAnAddress">Fetch address keyed in at the left</string>
     <string name="title_activity_voice_helper">VoiceHelper</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="defaultvoicetext">You are arriving at ~destination~.</string>
 
     <!-- Messages -->
     <string name="add_geofences_result_success">        Add Geofences: Success GeofenceRequestIds=%1$s</string>
@@ -77,8 +77,8 @@
     <string name="summary_list_preference">Approximately how close do you want to be to a
 		Location before receiving a notification?</string>
     <!-- TRIAL_VS_NON-TRIAL  change the following to correspond -->
-    <string name="title_activity_home2">Commuter Alert</string>
-    <string name="title_activity_history_list">History List</string>
-    <string name="title_activity_search">Searchy</string>
+    <string name="title_activity_home2">Commuter Helper</string>
+    <string name="title_activity_history_list">Commuter Helper - History List</string>
+    <string name="title_activity_search">Computer Helper - Search</string>
 
 </resources>

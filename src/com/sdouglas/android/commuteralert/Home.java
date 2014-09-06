@@ -394,7 +394,7 @@ public class Home extends Activity implements HomeImplementer, WantsSurroundingT
 				tvId1.setVisibility(View.VISIBLE);
 				// now create Markers for all of the trains.
 				BitmapDescriptor bmd = BitmapDescriptorFactory
-						.fromResource(R.drawable.train1);
+						.fromResource(R.drawable.train_new_1);
 				for (int i = 0; i < result.mAddresses.size(); i++) {
 					Address address = result.mAddresses.get(i);
 					Marker marker = mMap.addMarker(new MarkerOptions()

@@ -80,7 +80,7 @@ public abstract class LocationService extends Service  {
 							public void run() {
 								mAddressInReadableForm=locationAddress;
 						    	Notification.Builder mBuilder=new Notification.Builder(LocationService.this)
-							    	.setSmallIcon(R.drawable.ic_launcher)
+							    	.setSmallIcon(R.drawable.launcher)
 							    	.setContentTitle("CommuterAlert is on")
 							    	.setContentText(mAddressInReadableForm)
 							    	.setOngoing(true);
