@@ -1,6 +1,6 @@
 package com.diamondsoftware.android.commuterhelper;
 
-import com.sdouglas.android.commuteralert.R;
+import com.diamondsoftware.android.commuterhelper.R;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,8 +31,10 @@ public class SecurityManager {
 	public static final int START_TRIAL_WARNINGS = 5;
 	public static final int TRIAL_ALLOWANCE = 10;
 	private static boolean isNonTrialVersionAndIsRegistered = false;
-	private static final String BASE64_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhZrIaNqneMAux90tFKHBwnFvS+NXqIhcqFQ3ZrUTuQN/Uy6hZZyKUJVcnUOMVWPWtK6dtN6FzqTNNK3c8aJpAiTQH0rtFzh4lt1CI0BojSV4WfDosgLh8Tzy6iy70z7R1g8P3CiHcwbO96kO1Hut997gYtFWUO/Ot1B6SdourkxN/oUrcaS0JAjaIcBYrfQhlm8QOJw3FdGqzGjtQ6pJMVc1SI6oSBeKJfuvZy7nLU4+lwdb73McCJLfJUkhNBow+knSbg5L5YxGpPDRVxfeYvVTadJGRHiPRnVI0ndk+DZNBOifgqRQubO9lri0uwu4gx+D12CyvpC1YS2A1gn7ZwIDAQAB";
+	private static final String BASE64_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArcOle5ouVLsqrmYiUQkQAQsfyW4mGZhEAn7HY0uICPfCN60AUDOG8ooTT5UjyNP30Fbd7LRyHTYq7STOsi7C1+2+JwBbjcu7bgXl+nHz/XsxCOzALy4KJw9jvZFGBMWx8+17C98OEjiejw9AqU11PvLoZx+cPIqJNxeOX5P0htZiewe4VHrXeZGsitdZwy/uP7sYGxKgZowG/VdAj89KGFuM3+MifYT58dEGBItKs0Y+Eg2LEVddOLkbT+PAL1FJA/MM4nBQ65UR/rBxrgwEk7Ev6LmjgFS9lSaYHh7AYmHBl7H8/Vm6OV0IB3012B3e4l+2lSNzqxWDQKCM3q0PpwIDAQAB";
 	private static boolean haveDoneRegistrationCheck = false;
+	private Handler mHandler;	
+
 
 	private String getDeviceId() {
 		TelephonyManager tm = (TelephonyManager) mActivity
@@ -79,20 +81,29 @@ public class SecurityManager {
 
 	public boolean doTrialCheck() {
 		if (isTrialVersion() || isUnregisteredLiveVersion()) {
-			if (hasExceededTrials()) {
+			if(isTrialVersion()) {
+				if (hasExceededTrials()) {
+					new TrialVersionDialog(
+							"Trial Software",
+							"Your trial period is over. In order to continue using Commuter Alarm you will have to purchase it.",
+							mActivity, true).show();
+					return false;
+				} else {
+					incrementTrials();
+					if (startWarnings()) {
+						new TrialVersionDialog(
+								"Trial Software Alert",
+								"Your trial period is nearing its end. In order to continue using Commuter Alarm without seeing this warning, you will have to purchase it.",
+								mActivity, false).show();
+					}
+				}
+			} else {
 				new TrialVersionDialog(
-						"Trial Software",
-						"Your trial period is over. In order to continue using Commuter Alert you will have to purchase it.",
+						"Unregistered Version",
+						"It appears that you are using an un-registered version. In order to continue using Commuter Alarm you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alarm again.",
 						mActivity, true).show();
 				return false;
-			} else {
-				incrementTrials();
-				if (startWarnings()) {
-					new TrialVersionDialog(
-							"Trial Software Alert",
-							"Your trial period is nearing its end. In order to continue using Commuter Alert without seeing this warning, you will have to purchase it.",
-							mActivity, false).show();
-				}
+				
 			}
 		}
 		return true;
@@ -217,7 +228,7 @@ public class SecurityManager {
 		boolean retValue = false;
 		File file = null;
 		if (isSdPresent()) {
-			file = new File("/sdcard/douglas/version" + Home2.CURRENT_VERSION
+			file = new File("/sdcard/commuteralarm/version" + Home2.CURRENT_VERSION
 					+ "a.txt");
 			if (file.exists()) {
 				retValue = true;
@@ -265,12 +276,12 @@ public class SecurityManager {
 		FileOutputStream fileOutputStream_Version = null;
 		File file = null;
 		if (isSdPresent()) {
-			file = new File("/sdcard/douglas/version");
+			file = new File("/sdcard/commuteralarm/version");
 			if (!file.exists()) {
 				file.mkdirs();
 			}
 			fileOutputStream_Version = new FileOutputStream(
-					"/sdcard/douglas/version" + Home2.CURRENT_VERSION + "a.txt",
+					"/sdcard/commuteralarm/version" + Home2.CURRENT_VERSION + "a.txt",
 					false);
 		} else {
 			fileOutputStream_Version = mActivity.openFileOutput("version"
@@ -284,11 +295,11 @@ public class SecurityManager {
 			throws FileNotFoundException {
 		File file = null;
 		if (isSdPresent()) {
-			file = new File("/sdcard/douglas/version");
+			file = new File("/sdcard/commuteralarm/version");
 			if (!file.exists()) {
 				file.mkdirs();
 			}
-			return new FileInputStream("/sdcard/douglas/version"
+			return new FileInputStream("/sdcard/commuteralarm/version"
 					+ Home2.CURRENT_VERSION + "a.txt");
 		} else {
 			return mActivity.openFileInput("version" + Home2.CURRENT_VERSION
@@ -325,7 +336,7 @@ public class SecurityManager {
 		public void applicationError(int errorCode) {
 			// Until we get it set up, assume it's licensed.
 			if (errorCode==LicenseCheckerCallback.ERROR_NOT_MARKET_MANAGED) {
-				handleResultOfLicenseCheck(true);
+				handleResultOfLicenseCheck(false);
 			}
 		}
 

@@ -1,10 +1,13 @@
 package com.diamondsoftware.android.commuterhelper;
 
-import com.sdouglas.android.commuteralert.R;
+import com.diamondsoftware.android.commuterhelper.R;
 import java.util.HashMap;
 import java.util.Stack;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -49,13 +52,21 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 	private int mOriginalVolumn=-100;
 	private AudioManager mAudioManager=null;
 	private Vibrator vibrator=null;
-	
+    private Ringtone mRingTone;
+
 	/*
 	 * When we're all done (after the TextToSpeech object informs me that its done speaking), then I can
 	 * proceed to close things up.  It's important that we do so.  We don't want to close, though, if there's
 	 * a popup window being shown too.  The whole point of the popup window is that the user sees it on his screen.
 	 */
 	private synchronized void doneCode() {
+		if(mRingTone!=null) {
+			try {
+			mRingTone.stop();
+			mRingTone=null;
+			} catch (Exception e) {}
+		}
+
 		if(mTts!=null) {
 			try {
 				mTts.stop();
@@ -158,7 +169,17 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 			
 			if(wereDoingMusic()) {
-				playMusic();
+				//playMusic();
+	    		try {
+	    		    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+	    		    mRingTone = RingtoneManager.getRingtone(getApplicationContext(), notification);
+	    		    mRingTone.play();    		    
+	    		} catch (Exception e) {
+	    		    e.printStackTrace();
+	    		}    		
+
+			} else {
+				mRingTone=null;
 			}
 			
 			if (wereVibrating()) {

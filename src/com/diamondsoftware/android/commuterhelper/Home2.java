@@ -48,8 +48,8 @@ import android.widget.TextView;
 
 /*
  * To change from regular version to trial (and visa versa):
- * 		1. Right click on com.sdouglas.android.commuteralert, refactor, rename to com.sdouglas.android.commuteralerttrial
- * 		2. There will be several "import com.sdouglas.android.commuteralert.R"s that have to be renamed.
+ * 		1. Right click on com.diamondsoftware.android.commuterhelper, refactor, rename to com.diamondsoftware.android.commuterhelpertrial
+ * 		2. There will be several "import import com.diamondsoftware.android.commuterhelper.R;"s that have to be renamed.
  * 		3. Scan the entire project for TRIAL_VS_NON-TRIAL and follow instructions
  */
 public class Home2 extends Activity implements HomeImplementer,
@@ -75,8 +75,8 @@ public class Home2 extends Activity implements HomeImplementer,
 	private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK = "ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
 	private MyBroadcastReceiver mBroadcastReceiver;
 	private IntentFilter mIntentFilter;
-	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n-- Long press the screen\n    at the desired location. \n\n              or\n\n-- Press the Search button.";
-	private static String SPLASH_SCREEN_MESSAGE = "To use Commuter Alert, select a location by either:\n\n--long pressing the map\n    at the desired location, or\n\n--pressing the Search button\n    located at the bottom-left\n    of the screen.";
+	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n-- Long press the screen\n   at the desired location. \n\n              or\n\n-- Press the Search button.";
+	private static String SPLASH_SCREEN_MESSAGE = "To use Commuter Alarm, select a location by either:\n\n-- long pressing the map\n    at the desired location, or\n\n-- pressing the Search button\n    located at the bottom\n    of the screen.";
 	public static String CURRENT_VERSION = "2.00";
 	private boolean needToBringUpSplashScreen = false;
 	public static Home2 mSingleton=null;
@@ -156,7 +156,7 @@ public class Home2 extends Activity implements HomeImplementer,
 							getPREFS_NAME(), MODE_PRIVATE);
 					if (Double.valueOf(settings.getString("latitude","0")) == 0) {
 						new WarningAndInitialDialog(
-								"You must select a location before turning on the alert.",
+								"You must select a location before turning on the alarm.",
 								INSTRUCTIONS_MESSAGE, Home2.this).show();
 						armedButton.setChecked(false);
 					}
@@ -260,23 +260,29 @@ public class Home2 extends Activity implements HomeImplementer,
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.home2, menu);
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.action_settings:
-			Intent i2 = new Intent(this, Preferences.class);
-			startActivity(i2);
-			return true;
-		case R.id.action_rateapp:
-			String uri = "market://details?id="
-					+ getPackageName()
-							.replace("trial", "");
-			Intent ii3 = new Intent(Intent.ACTION_VIEW,
-					Uri.parse(uri));
-			startActivity(ii3);			
+			case R.id.action_settings:
+				Intent i2 = new Intent(this, Preferences.class);
+				startActivity(i2);
+				return true;
+			case R.id.action_rateapp:
+				String uri = "market://details?id="
+						+ getPackageName();
+				Intent ii3 = new Intent(Intent.ACTION_VIEW,
+						Uri.parse(uri));
+				startActivity(ii3);	
+				return true;
+			case R.id.action_help:
+				new WarningAndInitialDialog(
+						"Select a Location",
+						INSTRUCTIONS_MESSAGE, Home2.this).show();
+
+				return true;
 		}
 
 		return super.onMenuItemSelected(featureId, item);
@@ -386,7 +392,7 @@ public class Home2 extends Activity implements HomeImplementer,
 		}
 		if (needToBringUpSplashScreen) {
 			needToBringUpSplashScreen = false;
-			new WarningAndInitialDialog("Thank you for using Commuter Alert!",
+			new WarningAndInitialDialog("Thank you for using Commuter Alarm!",
 					SPLASH_SCREEN_MESSAGE, Home2.this).show();
 		}
 	}

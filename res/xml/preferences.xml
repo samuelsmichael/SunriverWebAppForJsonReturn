@@ -13,15 +13,27 @@
 	            android:dialogTitle="@string/dialog_title_list_preference" />
 			
 		</PreferenceCategory>
-
+		<PreferenceCategory
+			android:title="Location Update Frequency">            
+    		<ListPreference
+	            android:key="locationupdatefrequency"
+	            android:defaultValue="@string/default_value_list_preferencelocationupdatefrequency"
+	            android:title="@string/title_list_preferencelocationupdatefrequency"
+	            android:summary="@string/summary_list_preferencelocationupdatefrequency"
+	            android:entries="@array/entries_list_preferenceupdatefrequency"
+	            android:entryValues="@array/entryvalues_list_preferenceupdatefrequency"
+	            android:dialogTitle="@string/dialog_title_list_preferenceupdatefrequency" />
+			
+		</PreferenceCategory>
+		
 		<PreferenceCategory
 			android:title="Notifications"
 		>
 			  <CheckBoxPreference
 			  	android:key="sound"
 			  	android:defaultValue="true"
-			  	android:title="Notifications Use Music"
-			  	android:summary="Check this box if you want to receive music when you are notified."
+			  	android:title="Notifications Use Sound Alarm"
+			  	android:summary="Check this box if you want to receive a sound alarm when you are notified."
 			  ></CheckBoxPreference>
 			  <CheckBoxPreference
 			  	android:defaultValue="true"
@@ -39,7 +51,7 @@
 			  	android:key="voicetext"
 			  	android:defaultValue="@string/defaultvoicetext"
 			  	android:title="Voice Text"
-			  	android:summary="If you choose Voice Notification (above), this is the text that will be spoken."
+			  	android:summary="If you choose Voice Notification (above), this is the text that will be spoken. Note: if you include ~destination~ in your text, the system will substitute the location name."
 			  ></EditTextPreference>
 			  			  			  			  
 		</PreferenceCategory>		

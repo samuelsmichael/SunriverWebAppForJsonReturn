@@ -2,16 +2,22 @@
 
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="98"
         android:showAsAction="always"
         android:title="@string/action_settings"
-		android:icon="@drawable/ic_menu_settings_holo_light" />
+		android:icon="@drawable/ic_action_settings" />
     <item
         android:id="@+id/action_rateapp"
+        android:orderInCategory="98"
+        android:showAsAction="collapseActionView"
+        android:title="@string/action_rateapp"
+		android:icon="@drawable/ic_menu_star2" />
+    <item
+        android:id="@+id/action_help"
         android:orderInCategory="99"
         android:showAsAction="always"
-        android:title="@string/action_rateapp"
-		android:icon="@drawable/ic_menu_star" />
+        android:title="@string/action_help"
+		android:icon="@drawable/ic_action_help" />
     
     
     

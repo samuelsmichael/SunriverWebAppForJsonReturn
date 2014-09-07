@@ -1,7 +1,7 @@
 package com.diamondsoftware.android.commuterhelper;
 
 
-import com.sdouglas.android.commuteralert.R;
+import com.diamondsoftware.android.commuterhelper.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;

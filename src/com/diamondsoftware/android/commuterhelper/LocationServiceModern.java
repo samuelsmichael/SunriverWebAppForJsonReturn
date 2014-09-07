@@ -18,7 +18,14 @@ com.google.android.gms.location.LocationListener{
     private LocationClient mLocationClient;
     LocationRequest mLocationRequest;
 	private LocationManager mLocationManager = null;
+    SharedPreferences settings;
 
+    @Override
+    public void onCreate() {
+    	super.onCreate();
+        settings = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
+
+    }
 
 	@Override
 	protected void disarmLocationManagement() {
@@ -42,7 +49,7 @@ com.google.android.gms.location.LocationListener{
         mLocationRequest.setPriority(
                 LocationRequest.PRIORITY_HIGH_ACCURACY);
         // Set the update interval
-        long updateInterval=(long)30;
+        long updateInterval=Long.valueOf(settings.getString("locationupdatefrequency","15000"));
         mLocationRequest.setInterval(updateInterval);
         // Set the fastest update interval to 1 second
         mLocationRequest.setFastestInterval(1000);

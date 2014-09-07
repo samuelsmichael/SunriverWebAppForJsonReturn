@@ -2,7 +2,7 @@ package com.diamondsoftware.android.commuterhelper;
 
 
 
-import com.sdouglas.android.commuteralert.R;
+import com.diamondsoftware.android.commuterhelper.R;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -17,7 +17,6 @@ public abstract class LocationService extends Service  {
 	protected abstract void disarmLocationManagement();
 	protected abstract void initializeLocationManager();
 	protected abstract void beginLocationListening();
-    private static String ALERT_TEXT="Alert! Alert! You are arriving at your destination.";
 
     private NotificationManager mNotificationManager=null;
     private static final int ARMED_NOTIFICATION_ID=3;
@@ -81,7 +80,7 @@ public abstract class LocationService extends Service  {
 								mAddressInReadableForm=locationAddress;
 						    	Notification.Builder mBuilder=new Notification.Builder(LocationService.this)
 							    	.setSmallIcon(R.drawable.launcher)
-							    	.setContentTitle("CommuterAlert is on")
+							    	.setContentTitle("Commuter Alarm is on")
 							    	.setContentText(mAddressInReadableForm)
 							    	.setOngoing(true);
 						    	// Creates an explicit intent for an Activity in your app

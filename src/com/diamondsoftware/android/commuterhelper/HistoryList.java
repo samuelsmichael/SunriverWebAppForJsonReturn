@@ -1,6 +1,6 @@
 package com.diamondsoftware.android.commuterhelper;
 
-import com.sdouglas.android.commuteralert.R;
+import com.diamondsoftware.android.commuterhelper.R;
 import java.util.Locale;
 import android.location.Address;
 import android.os.Bundle;

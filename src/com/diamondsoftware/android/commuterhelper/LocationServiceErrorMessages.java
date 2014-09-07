@@ -16,7 +16,7 @@ package com.diamondsoftware.android.commuterhelper;
  * limitations under the License.
  */
 
-import com.sdouglas.android.commuteralert.R;
+import com.diamondsoftware.android.commuterhelper.R;
 import com.google.android.gms.common.ConnectionResult;
 
 import android.content.Context;

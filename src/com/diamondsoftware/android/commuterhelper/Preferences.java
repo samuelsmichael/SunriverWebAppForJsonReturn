@@ -1,6 +1,6 @@
 package com.diamondsoftware.android.commuterhelper;
 
-import com.sdouglas.android.commuteralert.R;
+import com.diamondsoftware.android.commuterhelper.R;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;

@@ -14,4 +14,18 @@
         <item>1500</item>  
         <item>2000</item>  
         </string-array>
+    <string-array name="entries_list_preferenceupdatefrequency">
+        <item>Every 5 seconds</item>
+        <item>Every 10 seconds</item>
+        <item>Every 15 seconds</item>  
+        <item>Every 25 seconds</item>  
+        <item>Every 60 seconds</item>  
+    </string-array>
+    <string-array name="entryvalues_list_preferenceupdatefrequency">
+        <item>5000</item>
+        <item>10000</item>
+        <item>15000</item>  
+        <item>25000</item>  
+        <item>60000</item>  
+        </string-array>
 </resources>
