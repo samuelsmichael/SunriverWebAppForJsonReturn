@@ -28,4 +28,19 @@
         <item>25000</item>  
         <item>60000</item>  
         </string-array>
+        
+    <string-array name="logging_preferences">
+    	<item>Log All Messages</item>
+    	<item>Notification Messages</item>
+    	<item>Critical Messages</item>
+    	<item>Turn Off Logging</item>
+    </string-array>
+    <string-array name="loggingvalues_preferences">
+    	<item>0</item>
+    	<item>1</item>
+    	<item>2</item>
+    	<item>3</item>
+    </string-array>
+    
+    
 </resources>

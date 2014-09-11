@@ -52,10 +52,18 @@
 			  	android:defaultValue="@string/defaultvoicetext"
 			  	android:title="Voice Text"
 			  	android:summary="If you choose Voice Notification (above), this is the text that will be spoken. Note: if you include ~destination~ in your text, the system will substitute the location name."
-			  ></EditTextPreference>
-			  			  			  			  
+			  ></EditTextPreference>			  			  			  			  
 		</PreferenceCategory>		
-		
-		
+		<PreferenceCategory
+			android:title="Miscellaneous">  
+		    <ListPreference
+	            android:key="LoggingLevel"
+	            android:defaultValue="@string/default_logginglevel_value"
+	            android:title="@string/defaultlogging_title_list_preference"
+	            android:summary="@string/logging_summary_list_preference"
+	            android:entries="@array/logging_preferences"
+	            android:entryValues="@array/loggingvalues_preferences"
+	            android:dialogTitle="@string/logging_dialog_title_list_preference" />
+			</PreferenceCategory>          
 </PreferenceScreen>
 

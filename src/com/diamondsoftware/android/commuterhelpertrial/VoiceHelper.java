@@ -144,7 +144,7 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 	
 	
 	private String getVoiceAndPopupText() {
-		String replacement=mSharedPreferences.getString("KEY_ReadableAddress", "your destination");
+		String replacement=mSharedPreferences.getString(GlobalStaticValues.KEY_SpeakableAddress, "your destination");
 		String retValue=mSharedPreferences.getString("voicetext", ALERT_TEXT).replace("~destination~", replacement);
 		return retValue;
 	}

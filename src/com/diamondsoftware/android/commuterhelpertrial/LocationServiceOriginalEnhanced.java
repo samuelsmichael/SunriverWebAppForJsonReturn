@@ -26,7 +26,6 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 	
 	@Override
 	protected void disarmLocationManagement(String extraInfo) {
-		getLogger().log("!!!!!!!!!!!!!!!!!!!! disarmLocationManager()", 99);
 		stopHandlerLoop();
 	}
 
@@ -41,7 +40,7 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 		editor.putInt("modifyingValue", 1);
 		editor.commit();
 		getHandler();
-		getLogger().log("Using GPS", 199);
+//		getLogger().log("Using GPS", 199);
 	}
 
 	@Override
@@ -121,7 +120,7 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 				sb.append("Distance from alarm: " + String.valueOf(dx2) + "\n");
 				sb.append("Alert distance: " + String.valueOf(distance2) + "\n");
 				sb.append("\n");
-				getLogger().log(sb.toString(), 99);
+//				getLogger().log(sb.toString(), 99);
 			}
 
 			if (latitude != 0 && mLastKnownLocation != null) {
@@ -136,11 +135,11 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 
 					SharedPreferences settings2 = getSharedPreferences(
 							getPREFS_NAME(), Context.MODE_PRIVATE);
-					getLogger()
+/*					getLogger()
 							.log("****Popping: "
 									+ settings2.getString("locationString", ""),
 									99);
-
+*/
 					notifyUser();
 				}
 			}
@@ -161,15 +160,15 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 			if (getLocationManager().isProviderEnabled(provider)
 					&& !mImGettingLocationUpdates) {
 				mImGettingLocationUpdates = true;
-				getLogger().log("11111111111111 I'm requestion location", 99);
+//				getLogger().log("11111111111111 I'm requestion location", 99);
 				getLocationManager().requestLocationUpdates(provider, 0, 0,
 						new LocationListener() {
 							@Override
 							public void onLocationChanged(Location location) {
 								try {
-									getLogger().log(
+	/*								getLogger().log(
 											"22222222222222 I've got location",
-											99);
+											99);*/
 									SharedPreferences settings = getSharedPreferences(
 											getPREFS_NAME(), MODE_PRIVATE);
 									if (location.hasAccuracy() == false
@@ -232,13 +231,13 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 
 	private void startHandlerLoop(long trigger) {
 		mHandlerLoopIsActive = true;
-		getLogger().log(
+/*		getLogger().log(
 				"aaaaaaaaaaaaaaaaaaa startHandler(triger: "
-						+ String.valueOf(trigger), 99);
+						+ String.valueOf(trigger), 99);*/
 		getHandler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				getLogger().log("bbbbbbbbbbbbbbbbbbbbbbb Handler Popped(", 99);
+/*				getLogger().log("bbbbbbbbbbbbbbbbbbbbbbb Handler Popped(", 99);*/
 				if (mHandlerLoopIsActive) {
 					doS();
 				}
@@ -249,9 +248,9 @@ public class LocationServiceOriginalEnhanced extends LocationService {
 
 		SharedPreferences settings = getSharedPreferences(getPREFS_NAME(),
 				Context.MODE_PRIVATE);
-		getLogger()
+/*		getLogger()
 				.log("LocationName: "
-						+ settings.getString("locationString", ""), 99);
+						+ settings.getString("locationString", ""), 99);*/
 		/*
 		 * getLocationsTimer2().schedule(new TimerTask() { public void run() {
 		 * try { doS();

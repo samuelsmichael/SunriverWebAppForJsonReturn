@@ -29,8 +29,8 @@ import android.view.ContextThemeWrapper;
 
 public class SecurityManager {
 	Activity mActivity;
-	public static final int START_TRIAL_WARNINGS = 5;
-	public static final int TRIAL_ALLOWANCE = 10;
+	public static final int START_TRIAL_WARNINGS = 15;
+	public static final int TRIAL_ALLOWANCE = 30;
 	private static boolean isNonTrialVersionAndIsRegistered = false;
 	private static final String BASE64_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArcOle5ouVLsqrmYiUQkQAQsfyW4mGZhEAn7HY0uICPfCN60AUDOG8ooTT5UjyNP30Fbd7LRyHTYq7STOsi7C1+2+JwBbjcu7bgXl+nHz/XsxCOzALy4KJw9jvZFGBMWx8+17C98OEjiejw9AqU11PvLoZx+cPIqJNxeOX5P0htZiewe4VHrXeZGsitdZwy/uP7sYGxKgZowG/VdAj89KGFuM3+MifYT58dEGBItKs0Y+Eg2LEVddOLkbT+PAL1FJA/MM4nBQ65UR/rBxrgwEk7Ev6LmjgFS9lSaYHh7AYmHBl7H8/Vm6OV0IB3012B3e4l+2lSNzqxWDQKCM3q0PpwIDAQAB";
 	private static boolean haveDoneRegistrationCheck = false;

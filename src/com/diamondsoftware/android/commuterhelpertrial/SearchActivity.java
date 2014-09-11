@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
@@ -41,6 +42,7 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 	private long mNickNameDialogId=-100;
 	private DbAdapter mDbAdapter=null;
     private MyBroadcastReceiver mBroadcastReceiver;
+    private static SharedPreferences settings;
     private static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
     private static final String JUST_FINISH="JUST_FINISH";
     private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK="ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
@@ -56,6 +58,7 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 		final Button trainStations=(Button) findViewById(R.id.searchButtonTrainStations);
 		final Button history=(Button) findViewById(R.id.searchButtonHistory);
 		final Button back=(Button) findViewById(R.id.searchButtonBack);
+		settings=getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
 		addressOrIntersection.setOnClickListener(new View.OnClickListener() {
 			@Override
 				public void onClick(View v) {
@@ -252,6 +255,10 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 				        .putExtra("name", mAddresses.get(which).getAddressLine(0));
 				        // Broadcast whichever result occurred
 				        LocalBroadcastManager.getInstance(SearchRailroadStationsDialogFragment.this.getActivity()).sendBroadcast(broadcastIntent);
+						Editor editor = settings.edit();
+						editor.putString(GlobalStaticValues.KEY_SpeakableAddress, mAddresses.get(which).getAddressLine(0));
+						editor.commit();
+
 						getActivity().finish();
 					}
 				});

@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+	<!-- Logging -->
+	    <string name="default_logginglevel_value">2</string>
+	    <string name="defaultlogging_title_list_preference">Logging Filter</string>
+	    <string name="logging_summary_list_preference">What level of trouble-shooting logging would you	like?</string>
+    	<string name="logging_dialog_title_list_preference">Choose a logging level</string>
+    
     <string name="defaultvoicenotification_title">Voice Notifications</string>
     <string name="defaultvoicenotification_summary">Check this box if you want a spoken notification.</string>
     <!-- TRIAL_VS_NON-TRIAL  change the following to correspond -->
@@ -72,18 +78,18 @@
     <string name="connection_error_outdated">Google Play services is out of date</string>
     <string name="connection_error_sign_in_required">The user is not signed in</string>
     <string name="connection_error_unknown">An unknown error occurred</string>
-    <string name="default_value_list_preference">500</string>
+    <string name="default_value_list_preference">1000</string>
     <string name="title_list_preference">Location Distance</string>
     <string name="dialog_title_list_preference">Choose a Location Distance</string>
     <string name="summary_list_preference">Approximately how close do you want to be to a
 		Location before receiving a notification?</string>
-    <string name="default_value_list_preferencelocationupdatefrequency">15000</string>
+    <string name="default_value_list_preferencelocationupdatefrequency">10000</string>
     <string name="title_list_preferencelocationupdatefrequency">Location Update frequency</string>
     <string name="summary_list_preferencelocationupdatefrequency">How frequent do you want to check for a new location.  The higher the value, the less battery usage.</string>
     <string name="dialog_title_list_preferenceupdatefrequency">Choose a Location Update Frequency</string>
     <!-- TRIAL_VS_NON-TRIAL  change the following to correspond -->
     <string name="title_activity_home2">Commuter Alarm Trial</string>
-    <string name="title_activity_history_list">Commuter Helper - History List</string>
-    <string name="title_activity_search">Computer Helper - Search</string>
+    <string name="title_activity_history_list">Commuter Alarm - History List</string>
+    <string name="title_activity_search">Computer Alarm - Search</string>
 
 </resources>

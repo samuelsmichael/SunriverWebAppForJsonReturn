@@ -47,6 +47,13 @@ com.google.android.gms.location.LocationListener{
 	protected void beginLocationListening(String additionalInfo) {
 		if(mDontReenter==0) {
 			mDontReenter=1;
+			
+    		new Logger(
+    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+    				"beginLocationListening", this)
+    				.log("additionalInfo: "+(additionalInfo==null?"null":additionalInfo), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
+			
+			
 			if(this.mLocationClient==null || !(mLocationClient.isConnected() || mLocationClient.isConnecting())) {
 		        mLocationClient = new LocationClient(this, this, this);
 		        mLocationClient.connect();
@@ -65,7 +72,15 @@ com.google.android.gms.location.LocationListener{
 	protected void disarmLocationManagement(String additionalInfo) {
 		if(mDontReenter3==0) {
 			mDontReenter3=1;
+    		new Logger(
+    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+    				"disarmLocationManagement 1", this)
+    				.log("additionalInfo: "+(additionalInfo==null?"null":additionalInfo), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
+
+			
 			if (mLocationClient!=null) {
+				
+				
 		        if(additionalInfo==null || !additionalInfo.equalsIgnoreCase("CameFromActivityRecognition")) {
 					Intent intent=new Intent(this,ActivityRecognitionService.class)
 						.setAction(GlobalStaticValues.ACTION_STOP_ACTIVITY_RECOGNITION);
@@ -78,7 +93,14 @@ com.google.android.gms.location.LocationListener{
 		             * the argument is "this".
 		             */
 		        	mLocationClient.removeLocationUpdates(this);
-		            mLocationClient.disconnect();	
+		            mLocationClient.disconnect();
+		            
+		    		new Logger(
+		    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+		    				"disarmLocationManagement 2", this)
+		    				.log("mLocationClient.disconnect()", GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
+					
+
 		        }
 			}
 			mDontReenter3=0;
@@ -103,10 +125,16 @@ com.google.android.gms.location.LocationListener{
 					"0"));
 			Location location2 = new Location(getProvider());
 			location2.setLatitude(Double.valueOf(latitude));
-			location2.setLongitude(Double.valueOf(longitude));
-	
+			location2.setLongitude(Double.valueOf(longitude));	
 
 			float dx=location.distanceTo(location2);
+			
+    		new Logger(
+    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+    				"onLocationChanged", this)
+    				.log("Latitude: "+String.valueOf(latitude) + " Longitude: "+ String.valueOf(longitude)+ " dx: " + String.valueOf(dx), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
+
+			
 			if(dx<=distance) {
 				notifyUser();
 			}

@@ -55,6 +55,13 @@ public class ActivityRecognitionIntentService extends IntentService {
             if(activityType==DetectedActivity.TILTING || activityType==DetectedActivity.UNKNOWN) {
             	return;
             }
+            
+    		new Logger(
+    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+    				"ActivityRecognition", this)
+    				.log(activityName, GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
+
+            
             /*
              * At this point, you have retrieved all the information
              * for the current update. You can display this

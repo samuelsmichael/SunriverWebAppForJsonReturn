@@ -21,15 +21,7 @@ public abstract class LocationService extends Service  {
     private NotificationManager mNotificationManager=null;
     private static final int ARMED_NOTIFICATION_ID=3;
     private String mAddressInReadableForm;
-	private Logger mLogger=null;
-
-	
-	protected Logger getLogger() {
-		if(mLogger==null) {
-			mLogger=new Logger(0,"LocationServiceOriginalEnhanced",null);
-		}
-		return mLogger;
-	}
+    private SharedPreferences settings = null;
 	
 	public LocationService() {
 	}
@@ -37,6 +29,11 @@ public abstract class LocationService extends Service  {
 		return getPackageName() + "_preferences";
 	}
 	
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		settings = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);		
+	}
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -69,7 +66,11 @@ public abstract class LocationService extends Service  {
 				 *  	and then set a new one ... only this new one needs to be "not ongoing", because
 				 *  	once the user presses it (or presses the X to clear all notifications), it should go away.
 				 */
-				getLogger().log("LocationService.onStart..JustDisarm", 99);				
+				
+				new Logger(
+					Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+					"LocationService.JustDisarm", this)
+					.log("Doing JustDisarm", GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 
 				disarmLocationManagement(null);
 		    	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
@@ -124,7 +125,6 @@ public abstract class LocationService extends Service  {
 
 	@Override
 	public void onDestroy() {
-		getLogger().log("LocationService.onDestroy", 99);
 		disarmLocationManagement(null);
 	}
 	
@@ -139,8 +139,6 @@ public abstract class LocationService extends Service  {
 	protected void notifyUser() {
 		/* This is it!  We've arrived. Time to wake up our sleeping passenger.*/
     	
-        SharedPreferences settings = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
-		
 		// 1. Remove the "ongoing" item in the notifications bar 
     	getNotificationManager().cancel(ARMED_NOTIFICATION_ID);	
     	// 2. Stop the timer

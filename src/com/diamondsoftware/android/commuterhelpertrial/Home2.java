@@ -33,6 +33,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
@@ -63,6 +64,12 @@ public class Home2 extends Activity implements HomeImplementer,
 	private static float DEFAULT_BEARING = 0f;
 	private Marker mPreviousMarker;
 	private boolean mIveAnimated=false;
+    private SharedPreferences settings = null;
+	private Button disarmButton = null;
+	private CompoundButton armedButton = null;
+	private TextView currentLocation=null;
+
+
 	static final float SOMEKINDOFFACTOR = 720; // this factor is the
 												// "number of meters" under
 												// which when the user presses a
@@ -77,11 +84,14 @@ public class Home2 extends Activity implements HomeImplementer,
 	private IntentFilter mIntentFilter;
 	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n-- Long press the screen\n   at the desired location. \n\n              or\n\n-- Press the Search button.";
 	private static String SPLASH_SCREEN_MESSAGE = "To use Commuter Alarm, select a location by either:\n\n-- long pressing the map\n    at the desired location, or\n\n-- pressing the Search button\n    located at the bottom\n    of the screen.";
-	public static String CURRENT_VERSION = "2.00";
+	public static String CURRENT_VERSION="1.00";
 	private boolean needToBringUpSplashScreen = false;
 	public static Home2 mSingleton=null;
 	public boolean mIveShownGPSNotEnabledWarning=false;
 
+	public SharedPreferences getSettings() {
+		return settings;
+	}
 	public boolean areWeArmed() {
 		try {
 			return ((CompoundButton) findViewById(R.id.switchArmed)).isChecked();
@@ -93,6 +103,20 @@ public class Home2 extends Activity implements HomeImplementer,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_home2);
+
+		disarmButton = (Button) findViewById(R.id.buttonSearch);
+		armedButton = (CompoundButton) findViewById(R.id.switchArmed);
+		currentLocation=(TextView)findViewById(R.id.tvCurrentLocation2);
+
+		try {
+			CURRENT_VERSION = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+		} catch (NameNotFoundException e) {
+			CURRENT_VERSION ="1.0";
+		}
+
+		
+		settings = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);		
 		if(!mIveShownGPSNotEnabledWarning) {
 			mIveShownGPSNotEnabledWarning=true;
 		    if (! getLocationManager().isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
@@ -145,7 +169,6 @@ public class Home2 extends Activity implements HomeImplementer,
 		calendar.add(GregorianCalendar.DATE, -PURGECACHEDAYSOLD);
 		getHomeManager().getDbAdapter().purgeCacheOfItemsOlderThan(
 				calendar.getTime());
-		setContentView(R.layout.activity_home2);
 
 		final CompoundButton armedButton = (CompoundButton) findViewById(R.id.switchArmed);
 		armedButton.setOnClickListener(new View.OnClickListener() {
@@ -402,16 +425,19 @@ public class Home2 extends Activity implements HomeImplementer,
 		if (mPreviousMarker != null && mPreviousMarker.isVisible()) {
 			mPreviousMarker.setVisible(false);
 		}
-		final Button disarmButton = (Button) findViewById(R.id.buttonSearch);
-		final CompoundButton armedButton = (CompoundButton) findViewById(R.id.switchArmed);
-		final TextView currentLocation=(TextView)findViewById(R.id.tvCurrentLocation2);
+		new Logger(
+				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+				"Arm Button", this)
+				.log(isArmed?("System is Armed: "+(readableAddress==null?"":readableAddress.replaceAll("\n", " "))):"System is Disarmed", GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
+
+
 		if (isArmed) {
 			armedButton.setChecked(true);
 			disarmButton.setVisibility(View.GONE);
 			currentLocation.setVisibility(View.VISIBLE);
-			if(currentLocation.getText().equals("")) {
-				currentLocation.setText(readableAddress.replaceAll("\n", " "));
-			}
+	//		if(currentLocation.getText().equals("")) {
+				currentLocation.setText(settings.getString(GlobalStaticValues.KEY_SpeakableAddress, ""));
+//			}
 			currentLocation.setSelected(true);
 		} else {
 			currentLocation.setText("");
@@ -576,8 +602,13 @@ public class Home2 extends Activity implements HomeImplementer,
 									.show();
 						} else {
 							// arm the system
+							Editor editor = getSettings().edit();
+							editor.putString(GlobalStaticValues.KEY_SpeakableAddress, useThisAddress.getAddressLine(0));
+							editor.commit();
+							currentLocation.setText(Home2.this.settings.getString(GlobalStaticValues.KEY_SpeakableAddress, ""));
 							armTheSystem(useThisAddress);
 						}
+
 					}
 				});
 			}
@@ -678,12 +709,18 @@ public class Home2 extends Activity implements HomeImplementer,
 							if(!nickName.getText().toString().trim().equals("")) {
 								mAddress.setAddressLine(0, nickName.getText()
 										.toString());
+								Editor editor = ((Home2)mActivity).getSettings().edit();
+								editor.putString(GlobalStaticValues.KEY_SpeakableAddress, nickName.getText().toString());
+								editor.commit();
 							}
 							((Home2) mActivity).armTheSystem(mAddress);
 						}
 					}).setNegativeButton("No",
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
+							Editor editor = ((Home2)mActivity).getSettings().edit();
+							editor.putString(GlobalStaticValues.KEY_SpeakableAddress, mAddress.getAddressLine(0));
+							editor.commit();
 							((Home2) mActivity).armTheSystem(mAddress);
 						}
 					});

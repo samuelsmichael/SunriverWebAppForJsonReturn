@@ -142,7 +142,7 @@ ConnectionCallbacks, OnConnectionFailedListener {
          * detection interval and PendingIntent. This call is
          * synchronous.
          */
-			int heartbeatFrequency=Integer.valueOf(settings.getString("locationupdatefrequency", "15000"));
+			int heartbeatFrequency=30000;
 			mActivityRecognitionClient.requestActivityUpdates(
                 heartbeatFrequency,
                 mActivityRecognitionPendingIntent);

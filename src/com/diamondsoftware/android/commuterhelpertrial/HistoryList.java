@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.ContextMenu;
@@ -75,10 +76,14 @@ public class HistoryList extends ListActivity {
 	        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 	        // Broadcast whichever result occurred
 	        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+
 			finish();
 			return;
 		}
 
+		Editor editor = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE).edit();
+		editor.putString(GlobalStaticValues.KEY_SpeakableAddress, name);
+		editor.commit();
 		Address a=new Address(Locale.getDefault());
 		a.setLatitude(latitude);
 		a.setLongitude(longitude);

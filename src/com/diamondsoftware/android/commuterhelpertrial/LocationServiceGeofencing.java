@@ -92,7 +92,7 @@ public class LocationServiceGeofencing extends LocationService {
 		// Store a list of geofences to add
 		List<Geofence> geofences = new ArrayList<Geofence>();
 		mCurrentGeofences.clear();
-		getLogger().log("Using Fences", 199);
+//		getLogger().log("Using Fences", 199);
 	}
 
 	protected void beginLocationListening(String extraInfo) {
