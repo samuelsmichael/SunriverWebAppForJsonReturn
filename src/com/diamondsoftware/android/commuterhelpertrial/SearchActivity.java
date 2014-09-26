@@ -1,11 +1,11 @@
 package com.diamondsoftware.android.commuterhelpertrial;
 
+import com.diamondsoftware.android.commuterhelpertrial.HomeManager.LocationAndWantsSurroundingTrainStations;
 import com.diamondsoftware.android.commuterhelpertrial.R;
 
 import java.util.ArrayList;
 import java.util.Locale;
 
-import com.diamondsoftware.android.commuterhelpertrial.HomeManager.LocationAndWantsSurroundingTrainStations;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
@@ -34,7 +34,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class SearchActivity extends FragmentActivity implements WantsSurroundingTrainStations, 
+public class SearchActivity extends AbstractActivityForMenu implements WantsSurroundingTrainStations, 
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
     private LocationClient mLocationClient;
@@ -292,5 +292,10 @@ public class SearchActivity extends FragmentActivity implements WantsSurrounding
 	}    
 	public String getPREFS_NAME() {
 		return getApplicationContext().getPackageName() + "_preferences";
+	}
+	@Override
+	protected void refreshHelp() {
+		// TODO Auto-generated method stub
+		
 	}
 }

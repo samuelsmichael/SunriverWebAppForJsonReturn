@@ -17,6 +17,7 @@ public class GlobalStaticValues {
 	public static final String ACTION_ACTIVITY_RECOGNITION_CHANGE_ALERT="ACTIONactivityrecognitionchangealert";
 	public static final String ACTION_START_ACTIVITY_RECOGNITION="ACTIONSTARTACTIVITYRECOGNITION";
 	public static final String ACTION_STOP_ACTIVITY_RECOGNITION="ACTIONSTOPACTIVITYRECOGNITION";
+	public static final String KEY_HELP_OVERLAY_STATE = "HelpOverlayState";
 	
 	public static final String KEY_SpeakableAddress="k_spa";
 	

@@ -15,6 +15,36 @@
         android:layout_marginBottom="35dp"
         android:layout_height="match_parent" />
     
+        <!-- Transparent layer -->   
+    <ImageView
+        android:id="@+id/image_help_main_1"
+        android:layout_height="205dip"
+        android:layout_width="174dip"
+        android:src="@drawable/help_main_1a"
+        android:layout_above="@+id/linearLayout1"
+        android:layout_marginBottom="-21dip"
+        android:layout_marginLeft="65dip"
+         />
+        <ImageView
+        android:id="@+id/image_help_main_2"
+        android:layout_height="205dip"
+        android:layout_width="174dip"
+        android:src="@drawable/help_main_2"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="5dip"
+         />
+            <ImageView
+        android:id="@+id/image_help_main_3"
+        android:layout_height="205dip"
+        android:layout_width="174dip"
+        android:src="@drawable/help_main_3"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="-15dip"
+        android:layout_marginRight="20dip"
+         />
+        
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
@@ -30,16 +60,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="" />
- 
+
         <Button
             android:id="@+id/buttonSearch"
             android:layout_width="wrap_content"
             android:alpha="1"
             android:layout_height="32dp"
             android:gravity="center"
-            android:textColor="#FFFFFF"
+            android:textColor="#000000"
             style="?android:attr/buttonStyleSmall"
-            android:text="Search" />
+            android:text="SEARCH" />
         
 	    <TextView
 	        android:id="@+id/tvCurrentLocation2"

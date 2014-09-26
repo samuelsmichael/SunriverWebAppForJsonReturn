@@ -8,7 +8,7 @@
 		android:icon="@drawable/ic_action_settings" />
     <item
         android:id="@+id/action_rateapp"
-        android:orderInCategory="98"
+        android:orderInCategory="97"
         android:showAsAction="collapseActionView"
         android:title="@string/action_rateapp"
 		android:icon="@drawable/ic_menu_star2" />
@@ -18,7 +18,10 @@
         android:showAsAction="always"
         android:title="@string/action_help"
 		android:icon="@drawable/ic_action_help" />
-    
-    
+    <item
+        android:id="@+id/action_contactus"
+        android:orderInCategory="96"
+        android:showAsAction="collapseActionView"
+        android:title="Contact Us" />
     
 </menu>

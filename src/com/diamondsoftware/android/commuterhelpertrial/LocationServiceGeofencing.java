@@ -1,13 +1,13 @@
 package com.diamondsoftware.android.commuterhelpertrial;
 
+import com.diamondsoftware.android.commuterhelpertrial.GeofenceUtils.REMOVE_TYPE;
+import com.diamondsoftware.android.commuterhelpertrial.GeofenceUtils.REQUEST_TYPE;
 import com.diamondsoftware.android.commuterhelpertrial.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.diamondsoftware.android.commuterhelpertrial.GeofenceUtils.REMOVE_TYPE;
-import com.diamondsoftware.android.commuterhelpertrial.GeofenceUtils.REQUEST_TYPE;
 import com.google.android.gms.location.Geofence;
 
 import android.content.Context;

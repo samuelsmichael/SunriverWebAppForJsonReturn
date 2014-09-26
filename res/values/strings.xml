@@ -7,6 +7,7 @@
 	    <string name="logging_summary_list_preference">What level of trouble-shooting logging would you	like?</string>
     	<string name="logging_dialog_title_list_preference">Choose a logging level</string>
     
+    <string name="emailto">diamondsoftware222@gmail.com</string>
     <string name="defaultvoicenotification_title">Voice Notifications</string>
     <string name="defaultvoicenotification_summary">Check this box if you want a spoken notification.</string>
     <!-- TRIAL_VS_NON-TRIAL  change the following to correspond -->
@@ -89,7 +90,7 @@
     <string name="dialog_title_list_preferenceupdatefrequency">Choose a Location Update Frequency</string>
     <!-- TRIAL_VS_NON-TRIAL  change the following to correspond -->
     <string name="title_activity_home2">Commuter Alarm Trial</string>
-    <string name="title_activity_history_list">Commuter Alarm - History List</string>
-    <string name="title_activity_search">Computer Alarm - Search</string>
+    <string name="title_activity_history_list">Commuter Alarm Trial - History List</string>
+    <string name="title_activity_search">Computer Alarm Trial - Search</string>
 
 </resources>

@@ -37,6 +37,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,16 +45,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
 /*
  * To change from regular version to trial (and visa versa):
- * 		1. Right click on com.diamondsoftware.android.commuterhelper, refactor, rename to com.diamondsoftware.android.commuterhelpertrial
- * 		2. There will be several "import import com.diamondsoftware.android.commuterhelper.R;"s that have to be renamed.
+ * 		1. Right click on com.diamondsoftware.android.commuterhelper, refactor, rename to com.diamondsoftware.android.commuterhelper
+ * 		2. There will be several "import import com.diamondsoftware.android.commuterhelpertrial.R;"s that have to be renamed.
  * 		3. Scan the entire project for TRIAL_VS_NON-TRIAL and follow instructions
  */
-public class Home2 extends Activity implements HomeImplementer,
+public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		WantsSurroundingTrainStations {
 	private GoogleMap mMap = null;
 	private MapFragment mMapFragment;
@@ -68,6 +70,7 @@ public class Home2 extends Activity implements HomeImplementer,
 	private Button disarmButton = null;
 	private CompoundButton armedButton = null;
 	private TextView currentLocation=null;
+	
 
 
 	static final float SOMEKINDOFFACTOR = 720; // this factor is the
@@ -83,11 +86,13 @@ public class Home2 extends Activity implements HomeImplementer,
 	private MyBroadcastReceiver mBroadcastReceiver;
 	private IntentFilter mIntentFilter;
 	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n-- Long press the screen\n   at the desired location. \n\n              or\n\n-- Press the Search button.";
-	private static String SPLASH_SCREEN_MESSAGE = "To use Commuter Alarm, select a location by either:\n\n-- long pressing the map\n    at the desired location, or\n\n-- pressing the Search button\n    located at the bottom\n    of the screen.";
 	public static String CURRENT_VERSION="1.00";
 	private boolean needToBringUpSplashScreen = false;
 	public static Home2 mSingleton=null;
 	public boolean mIveShownGPSNotEnabledWarning=false;
+	private ImageView mHelp1;
+	private ImageView mHelp2;
+	private ImageView mHelp3;
 
 	public SharedPreferences getSettings() {
 		return settings;
@@ -104,6 +109,9 @@ public class Home2 extends Activity implements HomeImplementer,
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home2);
+		mHelp1=(ImageView)findViewById(R.id.image_help_main_1);
+		mHelp2=(ImageView)findViewById(R.id.image_help_main_2);
+		mHelp3=(ImageView)findViewById(R.id.image_help_main_3);
 
 		disarmButton = (Button) findViewById(R.id.buttonSearch);
 		armedButton = (CompoundButton) findViewById(R.id.switchArmed);
@@ -280,37 +288,6 @@ public class Home2 extends Activity implements HomeImplementer,
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.home2, menu);
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.action_settings:
-				Intent i2 = new Intent(this, Preferences.class);
-				startActivity(i2);
-				return true;
-			case R.id.action_rateapp:
-				String uri = "market://details?id="
-						+ getPackageName();
-				Intent ii3 = new Intent(Intent.ACTION_VIEW,
-						Uri.parse(uri));
-				startActivity(ii3);	
-				return true;
-			case R.id.action_help:
-				new WarningAndInitialDialog(
-						"Select a Location",
-						INSTRUCTIONS_MESSAGE, Home2.this).show();
-
-				return true;
-		}
-
-		return super.onMenuItemSelected(featureId, item);
-	}
-
 	/*
 	 * Do a check to see if the map object (mMap) has already been created. If
 	 * not, then we have to prepare for displaying it, and that involves also
@@ -415,8 +392,11 @@ public class Home2 extends Activity implements HomeImplementer,
 		}
 		if (needToBringUpSplashScreen) {
 			needToBringUpSplashScreen = false;
+			mSettingsManager.setHelpOverlayStateOn(true);
+			invalidateOptionsMenu();
+
 			new WarningAndInitialDialog("Thank you for using Commuter Alarm!",
-					SPLASH_SCREEN_MESSAGE, Home2.this).show();
+					"We hope that you find Commuter Alarm useful.", Home2.this).show();
 		}
 	}
 
@@ -762,6 +742,19 @@ public class Home2 extends Activity implements HomeImplementer,
 
 			AlertDialog dialog = builder.create();
 			dialog.show();
+		}
+	}
+
+	@Override
+	protected void refreshHelp() {
+		if(mSettingsManager.getHelpOverlayStateOn()) {
+			this.mHelp1.setVisibility(View.VISIBLE);
+			mHelp2.setVisibility(View.VISIBLE);
+			mHelp3.setVisibility(View.VISIBLE);
+		} else {
+			mHelp1.setVisibility(View.INVISIBLE);
+			mHelp2.setVisibility(View.INVISIBLE);
+			mHelp3.setVisibility(View.INVISIBLE);
 		}
 	}
 
