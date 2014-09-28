@@ -148,13 +148,28 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 		String retValue=mSharedPreferences.getString("voicetext", ALERT_TEXT).replace("~destination~", replacement);
 		return retValue;
 	}
-	
+	private boolean ringerModeNormal=false;
+	private boolean ringerModeSilent=false;
+	private boolean ringerModeVibrate=false;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if(getIntent()==null || !getIntent().getAction().equals("doit")) {
 			this.finish();
 		} else {
+			AudioManager audio = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);				
+			switch( audio.getRingerMode() ){
+				case AudioManager.RINGER_MODE_NORMAL:
+					ringerModeNormal=true;
+				   break;
+				case AudioManager.RINGER_MODE_SILENT:
+					ringerModeSilent=true;
+				   break;
+				case AudioManager.RINGER_MODE_VIBRATE:
+					ringerModeVibrate=true;
+				   break;
+			}				
+
 			setTitle(getString(R.string.app_name));
 			mSharedPreferences=getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
 			_theText=getVoiceAndPopupText();

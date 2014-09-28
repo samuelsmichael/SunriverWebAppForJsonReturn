@@ -93,6 +93,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 	private ImageView mHelp1;
 	private ImageView mHelp2;
 	private ImageView mHelp3;
+	private ImageView mHelp4;
 
 	public SharedPreferences getSettings() {
 		return settings;
@@ -112,6 +113,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		mHelp1=(ImageView)findViewById(R.id.image_help_main_1);
 		mHelp2=(ImageView)findViewById(R.id.image_help_main_2);
 		mHelp3=(ImageView)findViewById(R.id.image_help_main_3);
+		mHelp4=(ImageView)findViewById(R.id.image_help_main_4);
 
 		disarmButton = (Button) findViewById(R.id.buttonSearch);
 		armedButton = (CompoundButton) findViewById(R.id.switchArmed);
@@ -122,9 +124,14 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		} catch (NameNotFoundException e) {
 			CURRENT_VERSION ="1.0";
 		}
-
 		
 		settings = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);		
+		if (Double.valueOf(settings.getString("latitude","0")) == 0) {
+			armedButton.setVisibility(View.GONE);
+		} else {
+			armedButton.setVisibility(View.VISIBLE);
+		}
+
 		if(!mIveShownGPSNotEnabledWarning) {
 			mIveShownGPSNotEnabledWarning=true;
 		    if (! getLocationManager().isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
@@ -203,7 +210,11 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 						if (!isChecked) {
 							getHomeManager().disarmLocationService();
 							setControlState(false,null);
+							armedButton.setVisibility(View.GONE);
+						} else {
+							armedButton.setVisibility(View.VISIBLE);
 						}
+						refreshHelp();
 					}
 
 				});
@@ -609,6 +620,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 					.snippet("You will be notified when you are near it"));
 			marker.showInfoWindow();
 			mPreviousMarker = marker;
+			refreshHelp();
 		}
 	}
 
@@ -748,13 +760,21 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 	@Override
 	protected void refreshHelp() {
 		if(mSettingsManager.getHelpOverlayStateOn()) {
-			this.mHelp1.setVisibility(View.VISIBLE);
-			mHelp2.setVisibility(View.VISIBLE);
+			if (Double.valueOf(settings.getString("latitude","0")) == 0) {
+				mHelp1.setVisibility(View.VISIBLE);
+				mHelp2.setVisibility(View.VISIBLE);
+				mHelp4.setVisibility(View.INVISIBLE);
+			} else {
+				mHelp4.setVisibility(View.VISIBLE);
+				mHelp1.setVisibility(View.INVISIBLE);
+				mHelp2.setVisibility(View.INVISIBLE);
+			}
 			mHelp3.setVisibility(View.VISIBLE);
 		} else {
 			mHelp1.setVisibility(View.INVISIBLE);
 			mHelp2.setVisibility(View.INVISIBLE);
 			mHelp3.setVisibility(View.INVISIBLE);
+			mHelp4.setVisibility(View.INVISIBLE);
 		}
 	}
 

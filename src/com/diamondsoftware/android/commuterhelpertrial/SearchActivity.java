@@ -4,6 +4,7 @@ import com.diamondsoftware.android.commuterhelpertrial.HomeManager.LocationAndWa
 import com.diamondsoftware.android.commuterhelpertrial.R;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Locale;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -30,6 +31,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -215,13 +217,25 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
     	public SearchRailroadStationsDialogFragment() {super();}
 		public SearchRailroadStationsDialogFragment(ArrayList<Address> addresses, SearchActivity activity) {
     		super();
-    		mAddresses=addresses;
+    		mAddresses=distinctNameAFy(addresses); // remove multiples
     		mActivity=activity;
-    		mItems=new CharSequence[addresses.size()];
-    		for(int c=0;c<addresses.size();c++) {
-    			mItems[c]=addresses.get(c).getAddressLine(0);
+    		mItems=new CharSequence[mAddresses.size()];
+    		for(int c=0;c<mAddresses.size();c++) {
+    			mItems[c]=mAddresses.get(c).getAddressLine(0);
     		}
     	}
+		private ArrayList<Address> distinctNameAFy(ArrayList<Address> addresses) {
+			Hashtable<String,String> names=new Hashtable<String,String>();
+			ArrayList<Address> newList=new ArrayList<Address>();
+			for(Address address: addresses ) {
+				String address1=address.getAddressLine(0);
+				if(names.get(address1)==null) {
+					newList.add(address);
+					names.put(address1,"");
+				}
+			}
+			return newList;
+		}
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -298,4 +312,10 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 		// TODO Auto-generated method stub
 		
 	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.searchactivity_menu, menu);
+		return true;
+	}
+
 }

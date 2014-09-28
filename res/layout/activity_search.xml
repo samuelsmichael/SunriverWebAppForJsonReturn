@@ -16,7 +16,8 @@
         android:text="Key in location"
         android:paddingBottom="4dp"
         android:gravity="center_horizontal"
-        android:layout_gravity="center_horizontal"        
+        android:layout_gravity="center_horizontal"   
+        android:textSize="22sp"     
         android:textStyle="bold" />
 
 
@@ -101,6 +102,7 @@
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
 	        android:text="or"
+	        android:textSize="22sp"     
             android:gravity="center_horizontal"
             android:layout_gravity="center_horizontal"
 	        android:layout_marginTop="8dp"
@@ -114,7 +116,7 @@
 	        android:layout_gravity="center_horizontal"
 	        android:layout_marginTop="8dp"
 	        android:gravity="center_horizontal"
-	        android:text="Major Train Stations in this Vicinity" >
+	        android:text="Train Stations in this Vicinity" >
 </Button>
 		<View
 			android:layout_width="fill_parent"
@@ -125,6 +127,7 @@
 	        android:id="@+id/textView9"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
+	        android:textSize="22sp"     
 	        android:text="or"
             android:gravity="center_horizontal"
             android:layout_gravity="center_horizontal"
