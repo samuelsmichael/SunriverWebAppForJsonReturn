@@ -271,8 +271,7 @@ public class DbAdapter {
 				KEY_HISTORY_COUNT
 			    };	
 		String sortOrder = null;
-		String whereClause = KEY_LATITUDE + " = " + address.getLatitude() + 
-				" AND " + KEY_LONGITUDE + " = " + address.getLongitude();
+		String whereClause = KEY_NAME + " = '" + address.getAddressLine(0).replace("'", "''") + "'";
 		try {
 			Cursor cu = getSqlDb().query(
 				DATABASE_TABLE_HISTORY,  				// The table to query

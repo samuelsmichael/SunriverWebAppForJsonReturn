@@ -1,6 +1,8 @@
 package com.diamondsoftware.android.commuterhelpertrial;
 
 import com.diamondsoftware.android.commuterhelpertrial.R;
+
+import java.util.ArrayList;
 import java.util.Locale;
 import android.location.Address;
 import android.os.Bundle;
@@ -27,7 +29,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 public class HistoryList extends ListActivity {
 	private DbAdapter mDbAdapter=null;
 	private Cursor mCursor;
-	private SimpleCursorAdapter mAdapter;
+	private HistoryListAdapter mHistoryListAdapter=null; 
     private static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
 	private long mId;
     private static final String JUST_FINISH="JUST_FINISH";
@@ -36,6 +38,7 @@ public class HistoryList extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mHistoryListAdapter=new HistoryListAdapter(this,new ArrayList<HistoryListItem>());
 		setContentView(R.layout.activity_history_list);
 		Button cancelHistory=(Button) findViewById(R.id.cancelhistory);
 		cancelHistory.setOnClickListener(new View.OnClickListener() {
@@ -57,17 +60,32 @@ public class HistoryList extends ListActivity {
 		
 		
 		mCursor=getDbAdapter().getHistoryInMostUsedDescendingOrder();
-		startManagingCursor(mCursor);
-		mAdapter=new SimpleCursorAdapter(
-				this,
-				android.R.layout.simple_dropdown_item_1line,
-				mCursor,
-				new String[] {DbAdapter.KEY_NAME},
-				new int[] {android.R.id.text1});
-		setListAdapter(mAdapter);
+		ArrayList<HistoryListItem> theItems=new ArrayList<HistoryListItem>();
+		//mCursor.moveToFirst();
+		while(mCursor.moveToNext()) {
+			String name=mCursor.getString(mCursor.getColumnIndex("name"));
+			int id=mCursor.getInt(mCursor.getColumnIndex("_id"));
+			if(!itemExistsWhoseNameIs(name,theItems)) {
+				theItems.add(new HistoryListItem(name,id,
+						mCursor.getDouble(mCursor.getColumnIndex(DbAdapter.KEY_LATITUDE)),
+						mCursor.getDouble(mCursor.getColumnIndex(DbAdapter.KEY_LONGITUDE))
+						));
+			}
+		}
+		mCursor.close();
+		mHistoryListAdapter = new HistoryListAdapter(this,theItems);
+		setListAdapter(mHistoryListAdapter);
 		registerForContextMenu(getListView());
 	}
-	
+	private boolean itemExistsWhoseNameIs(String theName,ArrayList<HistoryListItem> mItems) {
+		for(HistoryListItem item: mItems ) {
+			if(item.getmName().equalsIgnoreCase(theName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private void selectIt(double latitude, double longitude, String name) {
 		/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
 		if(!Home2.mSingleton.getHomeManager().getSecurityManager().doTrialCheck()) {
@@ -102,13 +120,10 @@ public class HistoryList extends ListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		mAdapter.getCursor().moveToPosition(position);
-		double latitude=mAdapter.getCursor().getDouble(mAdapter.getCursor().getColumnIndex(DbAdapter.KEY_LATITUDE));
-		double longitude=mAdapter.getCursor().getDouble(mAdapter.getCursor().getColumnIndex(DbAdapter.KEY_LONGITUDE));
-		String name=mAdapter.getCursor().getString(mAdapter.getCursor().getColumnIndex(DbAdapter.KEY_NAME));
-		if(name == null || name.trim().equals("")) {
-			name=mAdapter.getCursor().getString(mAdapter.getCursor().getColumnIndex(DbAdapter.KEY_NAME));
-		}
+		HistoryListItem historyListItem=mHistoryListAdapter.getItem(position);
+		double latitude=historyListItem.getmLatitude();
+		double longitude=historyListItem.getmLongitude();
+		String name=historyListItem.getmName();
 		// broadcast the intend so that the system can be armed.
 		selectIt(latitude, longitude, name);
         finish();

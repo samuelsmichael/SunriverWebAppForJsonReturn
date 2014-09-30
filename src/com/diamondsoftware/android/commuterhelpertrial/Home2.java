@@ -406,8 +406,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			mSettingsManager.setHelpOverlayStateOn(true);
 			invalidateOptionsMenu();
 
-			new WarningAndInitialDialog("Thank you for using Commuter Alarm!",
-					"We hope that you find Commuter Alarm useful.", Home2.this).show();
+			new WarningAndInitialDialog("Thank you for using Commuter Alert!",
+					"We hope that you find it useful.", Home2.this).show();
 		}
 	}
 

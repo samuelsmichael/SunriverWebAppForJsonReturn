@@ -93,8 +93,8 @@ public abstract class LocationService extends Service  {
 										public void run() {
 											mAddressInReadableForm=locationAddress;
 									    	Notification.Builder mBuilder=new Notification.Builder(LocationService.this)
-										    	.setSmallIcon(R.drawable.launcher)
-										    	.setContentTitle("Commuter Alarm is on")
+										    	.setSmallIcon(R.drawable.ic_launcher_new)
+										    	.setContentTitle("Commuter Alert is on")
 										    	.setContentText(mAddressInReadableForm)
 										    	.setOngoing(true);
 									    	// Creates an explicit intent for an Activity in your app

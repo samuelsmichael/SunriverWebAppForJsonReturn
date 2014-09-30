@@ -102,7 +102,7 @@ int drawable help_main_4 0x7f02001e
 int drawable ic_action_help 0x7f02001f
 int drawable ic_action_help_on 0x7f020020
 int drawable ic_action_settings 0x7f020021
-int drawable ic_launcher 0x7f020022
+int drawable ic_launcher_new 0x7f020022
 int drawable ic_launcher_original 0x7f020023
 int drawable ic_menu_preferences 0x7f020024
 int drawable ic_menu_settings_holo_light 0x7f020025

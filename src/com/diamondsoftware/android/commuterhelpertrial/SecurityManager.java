@@ -86,7 +86,7 @@ public class SecurityManager {
 				if (hasExceededTrials()) {
 					new TrialVersionDialog(
 							"Trial Software",
-							"Your trial period is over. In order to continue using Commuter Alarm you will have to purchase it.",
+							"Your trial period is over. In order to continue using Commuter Alert you will have to purchase it.",
 							mActivity, true).show();
 					return false;
 				} else {
@@ -94,14 +94,14 @@ public class SecurityManager {
 					if (startWarnings()) {
 						new TrialVersionDialog(
 								"Trial Software Alert",
-								"Your trial period is nearing its end. In order to continue using Commuter Alarm without seeing this warning, you will have to purchase it.",
+								"Your trial period is nearing its end. In order to continue using Commuter Alert without seeing this warning, you will have to purchase it.",
 								mActivity, false).show();
 					}
 				}
 			} else {
 				new TrialVersionDialog(
 						"Unregistered Version",
-						"It appears that you are using an un-registered version. In order to continue using Commuter Alarm you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alarm again.",
+						"It appears that you are using an un-registered version. In order to continue using Commuter Alert you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alert again.",
 						mActivity, true).show();
 				return false;
 				

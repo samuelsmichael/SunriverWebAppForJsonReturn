@@ -418,7 +418,7 @@ containing a value of this type.
         public static final int ic_action_help=0x7f02001f;
         public static final int ic_action_help_on=0x7f020020;
         public static final int ic_action_settings=0x7f020021;
-        public static final int ic_launcher=0x7f020022;
+        public static final int ic_launcher_new=0x7f020022;
         public static final int ic_launcher_original=0x7f020023;
         public static final int ic_menu_preferences=0x7f020024;
         public static final int ic_menu_settings_holo_light=0x7f020025;
