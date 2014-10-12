@@ -509,6 +509,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 				// 3. Initiate what needs to be done to arm the system.
 				mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 					public void onMapLongClick(LatLng point) {
+						boolean isStation=false;
 						/*
 						 * If a trial version, and has exceeded the number of
 						 * trials
@@ -549,6 +550,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 								useThisOne = latlng2;
 								useThisAddress = resultF.mAddresses.get(i);
 								gotRRStation = true;
+								isStation=true;
 								break;
 							}
 						}
@@ -597,7 +599,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 							editor.putString(GlobalStaticValues.KEY_SpeakableAddress, useThisAddress.getAddressLine(0));
 							editor.commit();
 							currentLocation.setText(Home2.this.settings.getString(GlobalStaticValues.KEY_SpeakableAddress, ""));
-							armTheSystem(useThisAddress);
+							armTheSystem(useThisAddress,isStation);
 						}
 
 					}
@@ -606,8 +608,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		}
 	}
 
-	public void armTheSystem(Address useThisAddress) {
-		getHomeManager().getDbAdapter().writeOrUpdateHistory(useThisAddress);
+	public void armTheSystem(Address useThisAddress, boolean isStation) {
+		getHomeManager().getDbAdapter().writeOrUpdateHistory(useThisAddress, isStation);
 		getHomeManager().newLocation(useThisAddress);
 	}
 
@@ -705,7 +707,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 								editor.putString(GlobalStaticValues.KEY_SpeakableAddress, nickName.getText().toString());
 								editor.commit();
 							}
-							((Home2) mActivity).armTheSystem(mAddress);
+							((Home2) mActivity).armTheSystem(mAddress,false);
 						}
 					}).setNegativeButton("No",
 					new DialogInterface.OnClickListener() {
@@ -713,7 +715,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 							Editor editor = ((Home2)mActivity).getSettings().edit();
 							editor.putString(GlobalStaticValues.KEY_SpeakableAddress, mAddress.getAddressLine(0));
 							editor.commit();
-							((Home2) mActivity).armTheSystem(mAddress);
+							((Home2) mActivity).armTheSystem(mAddress,false);
 						}
 					});
 

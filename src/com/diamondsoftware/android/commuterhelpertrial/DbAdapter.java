@@ -23,7 +23,7 @@ import android.location.Location;
 import android.location.LocationManager;
 
 public class DbAdapter {
-	private static final int DATABASE_VERSION = 8;
+	private static final int DATABASE_VERSION = 9;
 
 	public static final DateFormat mDateFormat = new SimpleDateFormat(
 	"yyyy-MM-dd HH:mm:ss.S");
@@ -36,6 +36,7 @@ public class DbAdapter {
 	public static final String KEY_DATECREATED = "datecreated";
 	public static final String KEY_HISTORY_COUNT="historycount";
 	public static final String KEY_HISTORY_NICKNAME="historynickname";
+	public static final String KEY_HISTORY_IS_STATION="isstation";
 
 	private LocationManager mLocationManager=null;
 	private final Activity mActivity;
@@ -75,7 +76,8 @@ public class DbAdapter {
 			KEY_LATITUDE,
 			KEY_LONGITUDE,
 			KEY_NAME,
-			KEY_HISTORY_NICKNAME
+			KEY_HISTORY_NICKNAME,
+			KEY_HISTORY_IS_STATION
 		    };
 
 		String whereClause = KEY_ROWID + " = " + id;
@@ -211,13 +213,18 @@ public class DbAdapter {
 		}
 	}
 	
+	public synchronized void deleteHistoryItemsWhoseNameIs(String name) {
+		String query = "DELETE FROM "+ DATABASE_TABLE_HISTORY + " WHERE " + this.KEY_NAME + " = '" + name + "' OR "+this.KEY_HISTORY_NICKNAME+"='" + name + "'";
+		getSqlDb().execSQL(query);
+	}
+	
 	public synchronized Cursor getHistoryInMostUsedDescendingOrder() {
 		String query=
 				"SELECT IFNULL("+KEY_HISTORY_NICKNAME +","+KEY_NAME+") as "+KEY_NAME+", " +
 						KEY_HISTORY_COUNT+"," +
 						KEY_LATITUDE+"," +
 						KEY_LONGITUDE+"," +
-						KEY_ROWID +
+						KEY_ROWID + "," + KEY_HISTORY_IS_STATION +
 		" FROM " +DATABASE_TABLE_HISTORY+ " ORDER BY " + KEY_HISTORY_COUNT + " DESC ";
 		return getSqlDb().rawQuery(query,null);
 		
@@ -246,18 +253,20 @@ public class DbAdapter {
 		*/
 	}
 
-	public synchronized void writeOrUpdateHistory(Address address) {
-		new Thread(new MyRunnable2(address)).run();
+	public synchronized void writeOrUpdateHistory(Address address, boolean isStation) {
+		new Thread(new MyRunnable2(address,isStation)).run();
 	}
 	
 	private class MyRunnable2 implements Runnable {
 		private Address mAddress;
-		public MyRunnable2(Address address ) {
+		private boolean mIsStation;
+		public MyRunnable2(Address address, boolean isStation ) {
 			mAddress=address;
+			mIsStation=isStation;
 		}
 		@Override
 		public void run() {
-			internalWriteOrUpdateHistory(mAddress);
+			internalWriteOrUpdateHistory(mAddress,mIsStation);
 		}
 	}
 	
@@ -265,7 +274,7 @@ public class DbAdapter {
 	 * 1. Look for a record (by latitude and longitude
 	 * 2. If found, increment its count, otherwise, create a new record
 	 */
-	private synchronized void internalWriteOrUpdateHistory(Address address) {
+	private synchronized void internalWriteOrUpdateHistory(Address address, boolean isStation) {
 		String[] projection = {
 				KEY_ROWID,
 				KEY_HISTORY_COUNT
@@ -298,6 +307,7 @@ public class DbAdapter {
 				.getTime()));
 				values.put(KEY_HISTORY_COUNT, 1);
 				values.put(KEY_NAME, address.getAddressLine(0));
+				values.put(KEY_HISTORY_IS_STATION, isStation?1:0);
 
 				// Insert the new row, returning the primary key value of the new row
 				long newRowId = getSqlDb().insert(
@@ -409,7 +419,8 @@ public class DbAdapter {
 				"name string not null, " +
 				"datecreated datetime not null, " +
 				"historycount int not null,"  +
-				"historynickname string null); ";
+				"historynickname string null, " +
+				KEY_HISTORY_IS_STATION + " bit null); ";
 				
 		
 		private static final String DATABASE_NAME = "data";
@@ -448,7 +459,7 @@ public class DbAdapter {
 				}
 			}
 			*/
-			if(newVersion<=8) {
+			if(newVersion==9) {
 				db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_HISTORY);
 			}
 			onCreate(db);

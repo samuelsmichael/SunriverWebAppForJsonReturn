@@ -2,13 +2,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".SearchActivity" >
-
+    
+    <ImageView 
+        	android:layout_width="fill_parent"
+        	android:layout_height="fill_parent"
+        	android:alpha=".15"
+        	android:src="@drawable/emptymap_cropped_scaled"
+        	android:padding="-100dp"
+    >
+        
+    </ImageView>
+    
     <TextView
+	    android:paddingTop="@dimen/activity_vertical_margin"
         android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,7 +32,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="15dp" >
+        android:paddingTop="37dp" >
 
 
         <TextView
@@ -117,7 +124,7 @@
 	        android:layout_marginTop="8dp"
 	        android:gravity="center_horizontal"
 	        android:text="Train Stations in this Vicinity" >
-</Button>
+		</Button>
 		<View
 			android:layout_width="fill_parent"
 			android:layout_height="2dip"
@@ -143,7 +150,7 @@
 	        android:layout_marginTop="8dp"
 	        android:gravity="center_horizontal"
 	        android:text="Search History" >
-</Button>
+		</Button>
 	</LinearLayout>
     <LinearLayout
            android:id="@+id/jedis"
@@ -159,8 +166,7 @@
 	   	    android:layout_width="fill_parent"
 	   	    android:layout_height="34dp"
 	   	    android:text="Back" >
-</Button>
+		</Button>
 
  	</LinearLayout>	
-    
 </RelativeLayout>

@@ -3,6 +3,8 @@ package com.diamondsoftware.android.commuterhelpertrial;
 import com.diamondsoftware.android.commuterhelpertrial.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
 import android.location.Address;
 import android.os.Bundle;
@@ -65,28 +67,44 @@ public class HistoryList extends ListActivity {
 		while(mCursor.moveToNext()) {
 			String name=mCursor.getString(mCursor.getColumnIndex("name"));
 			int id=mCursor.getInt(mCursor.getColumnIndex("_id"));
-			if(!itemExistsWhoseNameIs(name,theItems)) {
+			int count=mCursor.getInt(mCursor.getColumnIndex(DbAdapter.KEY_HISTORY_COUNT));
+			boolean isStation=mCursor.getInt(mCursor.getColumnIndex(DbAdapter.KEY_HISTORY_IS_STATION))==1?true:false;
+			HistoryListItem theFoundItem=itemExistsWhoseNameIs(name,theItems);
+			if(theFoundItem==null) {
 				theItems.add(new HistoryListItem(name,id,
 						mCursor.getDouble(mCursor.getColumnIndex(DbAdapter.KEY_LATITUDE)),
-						mCursor.getDouble(mCursor.getColumnIndex(DbAdapter.KEY_LONGITUDE))
+						mCursor.getDouble(mCursor.getColumnIndex(DbAdapter.KEY_LONGITUDE)),count,isStation
 						));
+			} else {
+				theFoundItem.addToCount(count);
 			}
 		}
 		mCursor.close();
+		Collections.sort(theItems, new Comparator<HistoryListItem>() {
+	        @Override
+	        public int compare(HistoryListItem  item1, HistoryListItem  item2)
+	        {
+	        	if(!(item1.getmCount()>=item2.getmCount())) {
+	        		return 1;
+	        	} else {
+	        		return -1;
+	        	}
+	        }
+	    });
 		mHistoryListAdapter = new HistoryListAdapter(this,theItems);
 		setListAdapter(mHistoryListAdapter);
 		registerForContextMenu(getListView());
 	}
-	private boolean itemExistsWhoseNameIs(String theName,ArrayList<HistoryListItem> mItems) {
+	private HistoryListItem itemExistsWhoseNameIs(String theName,ArrayList<HistoryListItem> mItems) {
 		for(HistoryListItem item: mItems ) {
 			if(item.getmName().equalsIgnoreCase(theName)) {
-				return true;
+				return item;
 			}
 		}
-		return false;
+		return null;
 	}
 
-	private void selectIt(double latitude, double longitude, String name) {
+	private void selectIt(double latitude, double longitude, String name,boolean isStation) {
 		/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
 		if(!Home2.mSingleton.getHomeManager().getSecurityManager().doTrialCheck()) {
 	        Intent broadcastIntent = new Intent();
@@ -106,7 +124,7 @@ public class HistoryList extends ListActivity {
 		a.setLatitude(latitude);
 		a.setLongitude(longitude);
 		a.setAddressLine(0, name);
-		getDbAdapter().writeOrUpdateHistory(a);
+		getDbAdapter().writeOrUpdateHistory(a,isStation);
 		Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(ACTION_HERES_AN_ADDRESS_TO_ARM)
         .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
@@ -123,9 +141,10 @@ public class HistoryList extends ListActivity {
 		HistoryListItem historyListItem=mHistoryListAdapter.getItem(position);
 		double latitude=historyListItem.getmLatitude();
 		double longitude=historyListItem.getmLongitude();
+		boolean isStation=historyListItem.ismIsStation();
 		String name=historyListItem.getmName();
 		// broadcast the intend so that the system can be armed.
-		selectIt(latitude, longitude, name);
+		selectIt(latitude, longitude, name,isStation);
         finish();
 	}	
 	
@@ -151,19 +170,21 @@ public class HistoryList extends ListActivity {
 			String name="";
 			String nickName="";
 			String nameToUseForSelectIt="";
+			boolean isStation=false;
 			Cursor cu=getDbAdapter().getHistoryItemFromId(mId);
 			while(cu.moveToNext()) {
 				longitude=cu.getDouble(cu.getColumnIndex("longitude"));
 				latitude=cu.getDouble(cu.getColumnIndex("latitude"));
 				nickName=cu.getString(cu.getColumnIndex(DbAdapter.KEY_HISTORY_NICKNAME));
 				name=cu.getString(cu.getColumnIndex(DbAdapter.KEY_NAME));
+				isStation=cu.getInt(cu.getColumnIndex(DbAdapter.KEY_HISTORY_IS_STATION))==1?true:false;
 			}
 			nameToUseForSelectIt=nickName;
 			if(nameToUseForSelectIt==null || nameToUseForSelectIt.trim().equals("")) {
 				nameToUseForSelectIt=name;
 			}
 			cu.close();
-			selectIt(latitude,longitude,nameToUseForSelectIt);
+			selectIt(latitude,longitude,nameToUseForSelectIt,isStation);
 			finish();
 			break;
 		case R.id.history_renameit:

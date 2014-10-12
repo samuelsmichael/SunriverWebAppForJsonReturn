@@ -94,6 +94,10 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 		history.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {
+				finish();
+				Intent intent=new Intent(SearchActivity.this,ActivityHistoryList.class);
+				startActivity(intent);
+/*
 		        // Create a new broadcast receiver to receive updates from the listeners and service
 				if(mBroadcastReceiver!=null) {
 					LocalBroadcastManager.getInstance(SearchActivity.this).unregisterReceiver(mBroadcastReceiver);
@@ -112,8 +116,9 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 		        // Register the broadcast receiver to receive status updates
 		        LocalBroadcastManager.getInstance(SearchActivity.this).registerReceiver(mBroadcastReceiver, mIntentFilter);
 
-				Intent intent=new Intent(SearchActivity.this,HistoryList.class);
+				Intent intent=new Intent(SearchActivity.this,ActivityHistoryList.class);
 				startActivity(intent);
+*/				
 			}
 		});
 	}
@@ -260,7 +265,7 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 						a.setLatitude(mAddresses.get(which).getLatitude());
 						a.setLongitude(mAddresses.get(which).getLongitude());
 						a.setAddressLine(0, mAddresses.get(which).getAddressLine(0));
-						mActivity.getDbAdapter().writeOrUpdateHistory(a);
+						mActivity.getDbAdapter().writeOrUpdateHistory(a,true);
 				        Intent broadcastIntent = new Intent();
 				        broadcastIntent.setAction(ACTION_HERES_AN_ADDRESS_TO_ARM)
 				        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)

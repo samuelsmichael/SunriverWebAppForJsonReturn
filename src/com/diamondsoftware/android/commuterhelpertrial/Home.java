@@ -410,6 +410,7 @@ public class Home extends Activity implements HomeImplementer, WantsSurroundingT
 				// 3. Initiate what needs to be done to arm the system.
 				mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 					public void onMapLongClick(LatLng point) {
+						boolean isStation=false;
 						LatLng useThisOne=null;
 						if (mPreviousMarker != null) {
 							mPreviousMarker.setVisible(false);
@@ -435,6 +436,7 @@ public class Home extends Activity implements HomeImplementer, WantsSurroundingT
 							if (results[0] < errorMarginMetersUnderWhichWeAssumeHePressedTheTrain ) {
 								useThisOne = latlng2;
 								useThisAddress = resultF.mAddresses.get(i);
+								isStation=true;
 								break;
 							}
 						}
@@ -469,7 +471,7 @@ public class Home extends Activity implements HomeImplementer, WantsSurroundingT
 									"Address for red marker, below");
 						}
 						// arm the system
-						getHomeManager().getDbAdapter().writeOrUpdateHistory(useThisAddress);
+						getHomeManager().getDbAdapter().writeOrUpdateHistory(useThisAddress,isStation);
 						getHomeManager().newLocation(useThisAddress);
 						
 					}

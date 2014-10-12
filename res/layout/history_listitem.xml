@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_selector"
+    android:orientation="horizontal"
+    android:padding="5dip"
+    android:paddingLeft="9dip" >
+ 
+    <!--  ListRow Left side Thumbnail image -->
+    <LinearLayout android:id="@+id/thumbnail"
+        android:layout_width="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_height="wrap_content"
+        android:padding="3dip"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/image_bg"
+        android:layout_marginRight="5dip">
+ 
+        <ImageView
+            android:id="@+id/historylist_image"
+            android:layout_width="19dip"
+            android:layout_height="19dip" />
+ 
+    </LinearLayout>
+ 
+    <!-- Name -->
+    <TextView
+        android:id="@+id/historyname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/thumbnail"
+        android:layout_toRightOf="@+id/thumbnail"
+        android:textColor="#040404"
+        android:typeface="sans"
+        android:textSize="19sp"
+        android:textStyle="bold"/>
+ 
+    <!-- Description -->
+    <TextView
+        android:id="@+id/historydescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/historyname"
+        android:layout_marginLeft="3dip"
+        android:textColor="#dba02c"
+        android:textSize="13sp"
+        android:layout_marginTop="3dip"
+        android:layout_marginRight="8dip"
+        
+        android:singleLine="true" 
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit ="marquee_forever"
+        android:scrollHorizontally="true"       
+        
+        android:textStyle="bold"
+        android:layout_toRightOf="@+id/thumbnail" />
+ 
+     <!-- Rightend Arrow -->
+     <ImageView android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/arrow"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true" />
+ 
+</RelativeLayout>

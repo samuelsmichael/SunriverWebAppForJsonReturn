@@ -90,7 +90,7 @@
     <string name="dialog_title_list_preferenceupdatefrequency">Choose a Location Update Frequency</string>
     <!-- TRIAL_VS_NON-TRIAL  change the following to correspond -->
     <string name="title_activity_home2">Commuter Alert Trial</string>
-    <string name="title_activity_history_list">Commuter Alert Trial - History List</string>
+    <string name="title_activity_history_list">History List</string>
     <string name="title_activity_search">Computer Alarm Trial - Search</string>
 
 </resources>

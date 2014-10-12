@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-		<item android:id="@+id/history_selectit" android:title="Select as your destination"/>
 		<item android:id="@+id/history_renameit" android:title="Give a nickname"/>
+		<item android:id="@+id/history_selectit" android:title="Select as your destination"/>
+		<item android:id="@+id/history_deleteit" android:title="Delete from history"/>
 </menu>

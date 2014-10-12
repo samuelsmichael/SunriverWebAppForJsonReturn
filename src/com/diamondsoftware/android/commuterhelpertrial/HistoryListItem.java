@@ -5,11 +5,30 @@ public class HistoryListItem {
 	private long _id;
 	private double mLatitude;
 	private double mLongitude;
-	public HistoryListItem(String name,long rowId, double latitude, double longitude) {
+	private int mCount;
+	private boolean mIsStation;
+	public HistoryListItem(String name,long rowId, double latitude, double longitude, int count, boolean isStation) {
 		mName=name;
+		mIsStation=isStation;
 		_id=rowId;
 		mLatitude=latitude;
 		mLongitude=longitude;
+		mCount=count;
+	}
+	public boolean ismIsStation() {
+		return mIsStation;
+	}
+	public void setmIsStation(boolean mIsStation) {
+		this.mIsStation = mIsStation;
+	}
+	public void addToCount(int count) {
+		mCount+=count;
+	}
+	public int getmCount() {
+		return mCount;
+	}
+	public void setmCount(int mCount) {
+		this.mCount = mCount;
 	}
 	public double getmLatitude() {
 		return mLatitude;

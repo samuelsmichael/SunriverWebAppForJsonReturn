@@ -501,11 +501,11 @@ public class HomeManager implements
 				try {
 					getTrainStationsNear(mLocation, trainStationAddresses,
 							null, LIMIT_NBR_ACCESSES,1);
-					Address sa=new Address(Locale.getDefault());
+	/*				Address sa=new Address(Locale.getDefault());
 					sa.setLatitude(40.655593210761204);
 					sa.setLongitude(-74.30356130003929);
 					sa.setAddressLine(0, "Cranford Station");
-					trainStationAddresses.add(sa);
+					trainStationAddresses.add(sa); */
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -606,7 +606,7 @@ public class HomeManager implements
 										try {
 											HomeManager.this.newLocationButFirstPrompt(a);
 										} catch (Exception e) {
-											((Home2) mActivity).armTheSystem(a);
+											((Home2) mActivity).armTheSystem(a,false);
 										}
 									}
 								});
@@ -621,7 +621,7 @@ public class HomeManager implements
 						try {
 							newLocationButFirstPrompt(a);
 						} catch (Exception e) {
-							((Home2) mActivity).armTheSystem(a);
+							((Home2) mActivity).armTheSystem(a,false);
 						}
 					}
 				} else {
