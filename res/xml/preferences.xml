@@ -30,6 +30,12 @@
 			android:title="Notifications"
 		>
 			  <CheckBoxPreference
+			  	android:key="continuousalarm"
+			  	android:defaultValue="false"
+			  	android:title="Continuous Alarm"
+			  	android:summary="Are you a heavy sleeper? Check this box if you want the alarm to continue until you cancel it. Otherwise, it will stop after 15 seconds."
+			  ></CheckBoxPreference>
+		      <CheckBoxPreference
 			  	android:key="sound"
 			  	android:defaultValue="true"
 			  	android:title="Notifications Use Sound Alarm"

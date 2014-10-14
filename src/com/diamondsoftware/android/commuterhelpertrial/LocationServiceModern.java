@@ -8,6 +8,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -18,6 +19,7 @@ import com.google.android.gms.location.LocationRequest;
 public class LocationServiceModern extends LocationService  implements GooglePlayServicesClient.ConnectionCallbacks,
 GooglePlayServicesClient.OnConnectionFailedListener,
 com.google.android.gms.location.LocationListener{
+	private static final String ACTION_ETA="actioneta";
     private LocationClient mLocationClient;
     LocationRequest mLocationRequest;
 	private LocationManager mLocationManager = null;
@@ -137,6 +139,26 @@ com.google.android.gms.location.LocationListener{
 			
 			if(dx<=distance) {
 				notifyUser();
+			} else {
+				String notificationTimeTillArrival="";
+				if(location.hasSpeed()) {
+					float metersPerSecond=location.getSpeed();
+					if(metersPerSecond>0) {
+						float secondsLeft=dx/metersPerSecond;						
+						float minutesLeft=secondsLeft/60;
+						int minutesLeftWholeNumber=(int)minutesLeft;
+						int secondsLeftWholeNumber=minutesLeftWholeNumber % 60;
+						notificationTimeTillArrival="ETA: "+ String.valueOf(minutesLeftWholeNumber) +
+								" m " + String.valueOf(secondsLeftWholeNumber) + "s ";
+					}
+				}
+		        Intent broadcastIntent = new Intent();
+		        broadcastIntent.setAction(ACTION_ETA)
+		        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
+		        .putExtra("eta", notificationTimeTillArrival);
+		        // Broadcast whichever result occurred
+		        LocalBroadcastManager.getInstance(LocationServiceModern.this).sendBroadcast(broadcastIntent);			
+
 			}
 		}
 		mDontReenter2=0;

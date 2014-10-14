@@ -26,6 +26,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -58,6 +61,8 @@ import android.widget.TextView;
 public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		WantsSurroundingTrainStations {
 	private GoogleMap mMap = null;
+    private static final int ARMED_NOTIFICATION_ID=3;
+    private NotificationManager mNotificationManager=null;
 	private MapFragment mMapFragment;
 	static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
 	private HomeManager mHomeManager;
@@ -83,6 +88,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 												// which items in the cache are
 												// purged.
 	private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK = "ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
+	private static final String ACTION_ETA="actioneta";
 	private MyBroadcastReceiver mBroadcastReceiver;
 	private IntentFilter mIntentFilter;
 	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n-- Long press the screen\n   at the desired location. \n\n              or\n\n-- Press the Search button.";
@@ -176,6 +182,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		mIntentFilter.addAction(ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK);
 		// All Location Services sample apps use this category
 		mIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+		// Time left notification
+		mIntentFilter.addAction(ACTION_ETA);
 
 		// Register the broadcast receiver to receive status updates
 		LocalBroadcastManager.getInstance(this).registerReceiver(
@@ -666,8 +674,34 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 					getHomeManager().manageKeyedInAddress(
 						intent.getStringExtra("SeekAddressString"));
 				}
+			} else {
+				if(TextUtils.equals(action,ACTION_ETA)) {
+					String jdText=settings.getString(GlobalStaticValues.KEY_SpeakableAddress, "") +
+							" " + intent.getStringExtra("eta");
+					currentLocation.setText(jdText);
+			    	Notification.Builder mBuilder=new Notification.Builder(Home2.this)
+			    	.setSmallIcon(R.drawable.ic_launcher_new)
+			    	.setContentTitle("Commuter Alert is on")
+			    	.setContentText(jdText)
+			    	.setOngoing(true);
+
+			    	// Creates an explicit intent for an Activity in your app
+			    	Intent resultIntent = new Intent(Home2.this,Home2.class);
+					PendingIntent pendingIntent = PendingIntent.getActivity(Home2.this,
+							(int)System.currentTimeMillis(), resultIntent, 0);
+			    	mBuilder.setContentIntent(pendingIntent);    	    	
+			    	getNotificationManager().notify(ARMED_NOTIFICATION_ID, mBuilder.getNotification());
+
+				}
 			}
 		}
+	}
+	private NotificationManager getNotificationManager() {
+		if (mNotificationManager==null) {
+			mNotificationManager =
+	    		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		}
+		return mNotificationManager;
 	}
 
 	public static class NickNameDialog {

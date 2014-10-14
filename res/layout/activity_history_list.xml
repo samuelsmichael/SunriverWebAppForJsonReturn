@@ -38,7 +38,7 @@
 		android:text="Cancel" 
 		android:layout_alignParentBottom="true"
 	/>      
-	    <ImageView 
+	<ImageView 
         	android:layout_width="fill_parent"
         	android:layout_height="fill_parent"
         	android:alpha=".11"
@@ -47,6 +47,14 @@
     >
         
     </ImageView>
-    
+   		 <!-- Transparent layer -->   
+    <ImageView
+        android:id="@+id/image_help_history_1"
+        android:layout_height="160dip"
+        android:layout_width="331dip"
+        android:src="@drawable/help_history_1"
+        android:layout_marginBottom="40dip"
+        android:layout_centerInParent="true"
+         />
 	
  </RelativeLayout>

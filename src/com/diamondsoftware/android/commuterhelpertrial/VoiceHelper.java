@@ -9,6 +9,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.Vibrator;
@@ -53,6 +54,7 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 	private AudioManager mAudioManager=null;
 	private Vibrator vibrator=null;
     private Ringtone mRingTone;
+    private SettingsManager mSettingsManager;
 
 	/*
 	 * When we're all done (after the TextToSpeech object informs me that its done speaking), then I can
@@ -169,7 +171,7 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 					ringerModeVibrate=true;
 				   break;
 			}				
-
+			mSettingsManager=new SettingsManager(this);
 			setTitle(getString(R.string.app_name));
 			mSharedPreferences=getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
 			_theText=getVoiceAndPopupText();
@@ -237,6 +239,26 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 				 * which provider ... that dialog doesn't shows (it's hidden).
 				 */
 				doPopupNotifications();
+			}
+			if(!mSettingsManager.getContinuousAlarmOn()) {
+				new CountDownTimer(15000, 1000) {
+
+				     public void onTick(long millisUntilFinished) {
+				         
+				     }
+
+				     public void onFinish() {
+							removeView();
+							closeRequestedSoStopLooping=true;
+						//	if(_countDoing<=0) { // Don't close the whole window if we're still in the middle of speaking  (why not?)
+								finish();
+								
+								if(mMediaPlayer!=null) {
+									mMediaPlayer.stop();
+								}
+						//	}
+				     }
+				  }.start();
 			}
 		}
 	}

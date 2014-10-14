@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
@@ -221,7 +222,11 @@ public class ActivityHistoryList extends AbstractActivityForMenu {
 	
 	@Override
 	protected void refreshHelp() {
-		// TODO Auto-generated method stub
+		ImageView iv=(ImageView)findViewById(R.id.image_help_history_1);
+		iv.setVisibility(View.INVISIBLE);
+		if(mHistoryListItems!=null && mHistoryListItems.size()>0 && mSettingsManager.getHelpOverlayStateOn()) {
+			iv.setVisibility(View.VISIBLE);
+		}
 
 	}
 	

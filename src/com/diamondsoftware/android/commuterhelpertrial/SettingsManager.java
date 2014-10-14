@@ -37,4 +37,12 @@ public class SettingsManager {
 		String value= getValue(GlobalStaticValues.KEY_HELP_OVERLAY_STATE,"false");
 		return value.equals("true")?true:false;
 	}
+	public void setContinousAlarmOn(boolean value) {
+		Editor editor=mSharedPreferences.edit();
+		editor.putBoolean(GlobalStaticValues.KEY_CONTINUOUS_ALARM_STATE, value);
+		editor.commit();
+	}
+	public boolean getContinuousAlarmOn() {
+		return mSharedPreferences.getBoolean(GlobalStaticValues.KEY_CONTINUOUS_ALARM_STATE, false);
+	}
 }
