@@ -1,5 +1,8 @@
 package com.diamondsoftware.android.commuterhelpertrial;
 
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +18,7 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.model.LatLng;
 
 public class LocationServiceModern extends LocationService  implements GooglePlayServicesClient.ConnectionCallbacks,
 GooglePlayServicesClient.OnConnectionFailedListener,
@@ -51,7 +55,7 @@ com.google.android.gms.location.LocationListener{
 			mDontReenter=1;
 			
     		new Logger(
-    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
     				"beginLocationListening", this)
     				.log("additionalInfo: "+(additionalInfo==null?"null":additionalInfo), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 			
@@ -75,7 +79,7 @@ com.google.android.gms.location.LocationListener{
 		if(mDontReenter3==0) {
 			mDontReenter3=1;
     		new Logger(
-    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
     				"disarmLocationManagement 1", this)
     				.log("additionalInfo: "+(additionalInfo==null?"null":additionalInfo), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 
@@ -98,7 +102,7 @@ com.google.android.gms.location.LocationListener{
 		            mLocationClient.disconnect();
 		            
 		    		new Logger(
-		    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+		    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
 		    				"disarmLocationManagement 2", this)
 		    				.log("mLocationClient.disconnect()", GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 					
@@ -132,7 +136,7 @@ com.google.android.gms.location.LocationListener{
 			float dx=location.distanceTo(location2);
 			
     		new Logger(
-    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
     				"onLocationChanged", this)
     				.log("Latitude: "+String.valueOf(latitude) + " Longitude: "+ String.valueOf(longitude)+ " dx: " + String.valueOf(dx), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 
@@ -142,23 +146,67 @@ com.google.android.gms.location.LocationListener{
 			} else {
 				String notificationTimeTillArrival="";
 				if(location.hasSpeed()) {
-					float metersPerSecond=location.getSpeed();
-					if(metersPerSecond>0) {
-						float secondsLeft=dx/metersPerSecond;						
-						float minutesLeft=secondsLeft/60;
-						int minutesLeftWholeNumber=(int)minutesLeft;
-						int secondsLeftWholeNumber=minutesLeftWholeNumber % 60;
-						notificationTimeTillArrival="ETA: "+ String.valueOf(minutesLeftWholeNumber) +
-								" m " + String.valueOf(secondsLeftWholeNumber) + "s ";
+					float speed=location.getSpeed();
+					double effectiveSpeedMPH=((speed)*(double)3600)/1609.34;
+					if(effectiveSpeedMPH>5) {
+						if(mSettingsManager.getEffectiveLocation()==null) {
+							mSettingsManager.setEffectiveLocation(location.getLatitude(), location.getLongitude());
+							mSettingsManager.setEffectiveDatetiem(new Date());
+							mSettingsManager.setJustPreviousLocation(location.getLatitude(), location.getLongitude());
+						}
+						LatLng latLng = mSettingsManager.getEffectiveLocation();
+						if(latLng!=null) {
+							Location effectiveLocation = new Location(getProvider());
+							effectiveLocation.setLatitude(latLng.latitude);
+							effectiveLocation.setLongitude(latLng.longitude);	
+							float dxOriginal=effectiveLocation.distanceTo(location2);
+							if(dxOriginal>=dx) {
+								LatLng justPreviousLatLng=mSettingsManager.getJustPreviousLocation();
+								mSettingsManager.setJustPreviousLocation(location.getLatitude(), location.getLongitude());
+								if(justPreviousLatLng!=null) {
+									Location justPreviousLocation=new Location(getProvider());
+									justPreviousLocation.setLatitude(justPreviousLatLng.latitude);
+									justPreviousLocation.setLongitude(justPreviousLatLng.longitude);
+									float justPreviousDx=justPreviousLocation.distanceTo(location2);
+									if(justPreviousDx>=dx) { // we're moving closer
+										float effectiveDistance=dxOriginal-dx;
+										Date effectiveDate=mSettingsManager.getEffectiveDatetime();
+										long nbrOfSecondsSinceStart=GlobalStaticValues.getDateDiff(effectiveDate, new Date(), TimeUnit.SECONDS);
+										if(nbrOfSecondsSinceStart>0) {
+											float effectiveSpeedMetersPerSecond=effectiveDistance/nbrOfSecondsSinceStart;
+											if(effectiveSpeedMetersPerSecond>0) {
+												double effectiveSpeedMilesPerHour=(((double)effectiveDistance/(double)effectiveSpeedMetersPerSecond)*(double)3600)/1609.34;
+												if(effectiveSpeedMilesPerHour>5) { // otherwise, we're angling
+													float secondsLeft=dx/effectiveSpeedMetersPerSecond;	
+													int secondsLeftInt=(int)secondsLeft;
+													float minutesLeft=secondsLeft/60;
+													int minutesLeftWholeNumber=(int)minutesLeft;
+													int secondsLeftWholeNumber=secondsLeftInt % 60;
+													notificationTimeTillArrival="ETA: "+ String.valueOf(minutesLeftWholeNumber) +
+															" m " + String.valueOf(secondsLeftWholeNumber) + "s ";
+												} else {
+													mSettingsManager.setEffectiveLocation(0, 0);
+												}
+											}
+										}
+									} else {
+										mSettingsManager.setEffectiveLocation(0, 0);
+									}
+								}
+							} else {
+								mSettingsManager.setEffectiveLocation(0, 0);
+							}
+						}
 					}
 				}
-		        Intent broadcastIntent = new Intent();
-		        broadcastIntent.setAction(ACTION_ETA)
-		        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
-		        .putExtra("eta", notificationTimeTillArrival);
-		        // Broadcast whichever result occurred
-		        LocalBroadcastManager.getInstance(LocationServiceModern.this).sendBroadcast(broadcastIntent);			
-
+				if(!notificationTimeTillArrival.equals("")) {
+			        Intent broadcastIntent = new Intent();
+			        broadcastIntent.setAction(ACTION_ETA)
+			        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
+			        .putExtra("eta", notificationTimeTillArrival);
+			        // Broadcast whichever result occurred
+			        LocalBroadcastManager.getInstance(LocationServiceModern.this).sendBroadcast(broadcastIntent);			
+				}
 			}
 		}
 		mDontReenter2=0;

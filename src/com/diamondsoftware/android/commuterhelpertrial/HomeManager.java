@@ -26,6 +26,7 @@ import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
+import android.view.View;
 import android.widget.Toast;
 
 import com.diamondsoftware.android.commuterhelpertrial.Home2.NickNameDialog;
@@ -76,10 +77,11 @@ public class HomeManager implements
 	private SecurityManager mSecurityManager = null;
     
 
-	public static final int LIMIT_NBR_ACCESSES = 10;
+	public static final int LIMIT_NBR_ACCESSES = 50;
 	public static final String GOOGLE_API_KEY = "AIzaSyCiLgS6F41lPD-aHj7yMycVDv38gb1vd2o";
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	public static final float CLOSE_TO_RADIUS_IN_METERS = 1000;
+	public static final float CLOSE_TO_RADIUS_IN_METERS_FOR_SEARCH = 50000;
 	
 
 	/*
@@ -524,6 +526,45 @@ public class HomeManager implements
 		}
 	}
 
+	public class RetrieveAllAddressesForSearch extends
+			AsyncTask<LocationAndWantsSurroundingTrainStations, Void, List<Address>> {
+		private Location mLocation = null;
+		private WantsSurroundingTrainStations mClient=null;
+		
+		protected List<Address> doInBackground(LocationAndWantsSurroundingTrainStations... locationsParm) {
+			if (locationsParm != null) {
+				mLocation = locationsParm[0].mLocation;
+				mClient=locationsParm[0].mClient;
+				ArrayList<Address> trainStationAddresses = new ArrayList<Address>();
+				try {
+					getTrainStationsNear(mLocation, trainStationAddresses,
+							null, LIMIT_NBR_ACCESSES,1);
+					getDbAdapter().getStationsCloseTo(mLocation, CLOSE_TO_RADIUS_IN_METERS_FOR_SEARCH, trainStationAddresses);
+
+		/*				Address sa=new Address(Locale.getDefault());
+					sa.setLatitude(40.655593210761204);
+					sa.setLongitude(-74.30356130003929);
+					sa.setAddressLine(0, "Cranford Station");
+					trainStationAddresses.add(sa); */
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return trainStationAddresses;
+			} else {
+				return null;
+			}
+		}
+		
+		protected void onPostExecute(List<Address> result) {
+			if (mLocation != null && result != null) {
+		
+				mClient.hereAreTheTrainStationAddresses(
+								(ArrayList) result, mLocation);
+			}
+		}
+}
+
+	
 	/*  All web fetches have to be done on a background thread. (See
 	 * https://developer.android.com/training/multiple-threads
 	 * /communicate-ui.html for a discussion about this.)  The "AsyncTask" 
@@ -625,14 +666,17 @@ public class HomeManager implements
 						}
 					}
 				} else {
-					if (exceptionMessage == null) {
-						Toast.makeText(mActivity.getApplicationContext(),
-								"No locations found for this address.",
-								Toast.LENGTH_LONG).show();
-					} else {
-						Toast.makeText(mActivity.getApplicationContext(),
-								exceptionMessage, Toast.LENGTH_LONG).show();
-					}
+					AlertDialog.Builder builder = new AlertDialog.Builder(
+							mActivity);
+					builder.setTitle("No Address Found");
+					builder.setMessage(exceptionMessage==null?"Please try a more succinct address. Note also, that if you're in a Wifi area, sometimes better results can be achieved when Wifi is on.":"The address finding mechanism failed with the following message: "+exceptionMessage);
+					builder.setPositiveButton("Okay",new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+					});
 				}
 			}  catch (Exception ee) {
 				Toast.makeText(mActivity.getApplicationContext(),

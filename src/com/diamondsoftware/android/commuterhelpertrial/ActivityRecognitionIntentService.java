@@ -57,7 +57,7 @@ public class ActivityRecognitionIntentService extends IntentService {
             }
             
     		new Logger(
-    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
     				"ActivityRecognition", this)
     				.log(activityName, GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 

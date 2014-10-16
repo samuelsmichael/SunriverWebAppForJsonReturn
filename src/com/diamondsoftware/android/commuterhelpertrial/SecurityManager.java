@@ -212,6 +212,7 @@ public class SecurityManager {
 				out.append(buffer, 0, rsz);
 			}
 			String contents = out.toString();
+			contents=decrypticate(contents);
 			int index = contents.indexOf("~.");
 			if (index >= 0) {
 				countUsed = Integer.valueOf(contents.substring(index + 2));
@@ -225,6 +226,26 @@ public class SecurityManager {
 		return countUsed;
 	}
 
+	private static String decrypticate(String string) {
+		StringBuffer sb=new StringBuffer();
+		int length=(string.length());
+		for (int c=0;c<length;c++) {
+			char ch=string.charAt(c);
+			ch+=c;
+			sb.append(ch);
+		}
+		return sb.toString();
+	}
+	private static String encrypticate(String string) {
+		StringBuffer sb=new StringBuffer();
+		int length=(string.length());
+		for (int c=0;c<length;c++) {
+			char ch=string.charAt(c);
+			ch-=c;
+			sb.append(ch);
+		}
+		return sb.toString();
+	}
 	private boolean getExistsVersionFile() {
 		boolean retValue = false;
 		File file = null;
@@ -255,8 +276,11 @@ public class SecurityManager {
 		try {
 			fos = getVersionOutputStream();
 			pw = new PrintWriter(fos);
-			pw.write(Home2.CURRENT_VERSION);
+			String toWrite=Home2.CURRENT_VERSION+"~."+String.valueOf(nbrOfAlertSets);
+			pw.write(encrypticate(toWrite));
+/*			pw.write(Home2.CURRENT_VERSION);
 			pw.write("~." + String.valueOf(nbrOfAlertSets));
+*/
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

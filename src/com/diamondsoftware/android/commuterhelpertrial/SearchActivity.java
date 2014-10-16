@@ -301,7 +301,7 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 		LocationAndWantsSurroundingTrainStations client=new HomeManager(this).new LocationAndWantsSurroundingTrainStations();
 		client.mClient=(WantsSurroundingTrainStations)SearchActivity.this;
 		client.mLocation=location;
-		new HomeManager(this).new RetrieveAddressDataForMap()
+		new HomeManager(this).new RetrieveAllAddressesForSearch()
 		.execute(client);					
 	}
 	@Override

@@ -241,7 +241,7 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 				doPopupNotifications();
 			}
 			if(!mSettingsManager.getContinuousAlarmOn()) {
-				new CountDownTimer(15000, 1000) {
+				new CountDownTimer(18000, 1000) {
 
 				     public void onTick(long millisUntilFinished) {
 				         

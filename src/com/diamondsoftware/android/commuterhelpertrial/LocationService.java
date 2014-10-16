@@ -22,6 +22,7 @@ public abstract class LocationService extends Service  {
     private static final int ARMED_NOTIFICATION_ID=3;
     private String mAddressInReadableForm;
     private SharedPreferences settings = null;
+    protected SettingsManager mSettingsManager;
 	
 	public LocationService() {
 	}
@@ -33,6 +34,7 @@ public abstract class LocationService extends Service  {
 	public void onCreate() {
 		super.onCreate();
 		settings = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);		
+		mSettingsManager=new SettingsManager(this);
 	}
 	
 	@Override
@@ -68,7 +70,7 @@ public abstract class LocationService extends Service  {
 				 */
 				
 				new Logger(
-					Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+					Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
 					"LocationService.JustDisarm", this)
 					.log("Doing JustDisarm", GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 

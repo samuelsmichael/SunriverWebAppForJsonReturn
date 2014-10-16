@@ -45,4 +45,48 @@ public class SettingsManager {
 	public boolean getContinuousAlarmOn() {
 		return mSharedPreferences.getBoolean(GlobalStaticValues.KEY_CONTINUOUS_ALARM_STATE, false);
 	}
+	public Date getEffectiveDatetime () {
+		String value=getValue(GlobalStaticValues.KEY_EFFECTIVE_DATETIME,"");
+		if(value.equals("")) {
+			return new GregorianCalendar().getTime();
+		}
+		try {
+			return DbAdapter.mDateFormat.parse(value);
+		} catch (Exception e) {
+			return new Date();
+		}
+	}
+	public void setEffectiveDatetiem(Date date) {
+		setValue(GlobalStaticValues.KEY_EFFECTIVE_DATETIME,DbAdapter.mDateFormat.format(date));
+	}
+	public LatLng getEffectiveLocation() {
+		String value=getValue(GlobalStaticValues.KEY_EFFECTIVE_LOCATION,"");
+		if(value.equals("")) {
+			return null;
+		} else {
+			String[] sa=value.split("\\|");
+			LatLng latlng=new LatLng(Double.parseDouble(sa[0]), Double.parseDouble(sa[1]));
+			return latlng;
+		}
+	}
+	public void setJustPreviousLocation(double latitude, double longitude) {
+		setValue(GlobalStaticValues.KEY_JUSTPREVIOUS_LOCATION, String.valueOf(latitude)+"|"+String.valueOf(longitude));
+	}
+	public LatLng getJustPreviousLocation() {
+		String value=getValue(GlobalStaticValues.KEY_JUSTPREVIOUS_LOCATION,"");
+		if(value.equals("")) {
+			return null;
+		} else {
+			String[] sa=value.split("\\|");
+			LatLng latlng=new LatLng(Double.parseDouble(sa[0]), Double.parseDouble(sa[1]));
+			return latlng;
+		}
+	}
+	public void setEffectiveLocation(double latitude, double longitude) {
+		if(latitude==0) {
+			setValue(GlobalStaticValues.KEY_EFFECTIVE_LOCATION,null);
+		} else {
+			setValue(GlobalStaticValues.KEY_EFFECTIVE_LOCATION, String.valueOf(latitude)+"|"+String.valueOf(longitude));
+		}
+	}
 }

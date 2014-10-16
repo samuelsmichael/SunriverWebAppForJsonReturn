@@ -2,6 +2,7 @@ package com.diamondsoftware.android.commuterhelpertrial;
 
 import com.diamondsoftware.android.commuterhelpertrial.R;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -425,7 +426,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			mPreviousMarker.setVisible(false);
 		}
 		new Logger(
-				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_NOTIFICATION))),
+				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
 				"Arm Button", this)
 				.log(isArmed?("System is Armed: "+(readableAddress==null?"":readableAddress.replaceAll("\n", " "))):"System is Disarmed", GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 
@@ -619,6 +620,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 	public void armTheSystem(Address useThisAddress, boolean isStation) {
 		getHomeManager().getDbAdapter().writeOrUpdateHistory(useThisAddress, isStation);
 		getHomeManager().newLocation(useThisAddress);
+		mSettingsManager.setEffectiveLocation(0,0);
 	}
 
 	@Override
