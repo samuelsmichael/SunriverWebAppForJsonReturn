@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Timer;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -27,6 +28,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -51,6 +54,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 /*
@@ -237,6 +241,15 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			}
 
 		});
+		Intent intent=getIntent();
+		String action=intent.getAction();
+		if(action!=null&&action.equals("seekingaddress")) {
+			if(getHomeManager().mPreventReentry==0) {
+				HomeManager.mPreventReentry++;
+				getHomeManager().manageKeyedInAddress(
+					intent.getStringExtra("SeekAddressString"));
+			}
+		}
 	}
 
 	private LocationManager mLocationManager = null;
@@ -416,7 +429,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			invalidateOptionsMenu();
 
 			new WarningAndInitialDialog("Thank you for using Commuter Alert!",
-					"We hope that you find it useful.", Home2.this).show();
+					"We hope that you find it useful.\n\nPlease ... if you like our app, give it a good rating.\nIf you don't, then please contact us. We're passionate about our software; and will fix any bugs, and take any requests for enhancements very seriously.\n\nYou can do either of these tasks from the menu button.", Home2.this).show();
 		}
 	}
 
@@ -671,7 +684,6 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			if (TextUtils
 					.equals(action, ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK)) {
 				if(getHomeManager().mPreventReentry==0) {
-					getHomeManager();
 					HomeManager.mPreventReentry++;
 					getHomeManager().manageKeyedInAddress(
 						intent.getStringExtra("SeekAddressString"));
@@ -794,6 +806,41 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			dialog.show();
 		}
 	}
+    public static class NoAddressFoundWarning extends DialogFragment {
+		private String mTitle;
+		private String mMessage;
+		private Activity mActivity;
+    	
+    	
+    	private NoAddressFoundWarning() {
+    		super();
+    	}
+		public NoAddressFoundWarning(String title, String message,
+				Activity activity) {
+			super();
+			mTitle = title;
+			mMessage = message;
+			mActivity = activity;
+		}
+
+		
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+            builder.setTitle(mTitle)
+            			.setMessage(mMessage)
+						.setNegativeButton("Okay",
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										dismiss();
+									}
+								});
+            // Create the AlertDialog object and return it
+            return builder.create();
+        }
+    }
 
 	@Override
 	protected void refreshHelp() {

@@ -80,8 +80,8 @@ public class HomeManager implements
 	public static final int LIMIT_NBR_ACCESSES = 50;
 	public static final String GOOGLE_API_KEY = "AIzaSyCiLgS6F41lPD-aHj7yMycVDv38gb1vd2o";
     public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-	public static final float CLOSE_TO_RADIUS_IN_METERS = 1000;
-	public static final float CLOSE_TO_RADIUS_IN_METERS_FOR_SEARCH = 50000;
+	public static final float CLOSE_TO_RADIUS_IN_METERS = 49500;
+	public static final float CLOSE_TO_RADIUS_IN_METERS_FOR_SEARCH =100000;
 	
 
 	/*
@@ -376,8 +376,13 @@ public class HomeManager implements
 		String rememberLastGoodNextPageToken=null;
 		int countRetries=0;
 		int priorRunningListCount=0;
+		boolean doWriteStationsToCache=true;
 		while (true) {
 			nextPageToken=getTrainStationsNearPrivate(location,runningList,nextPageToken,nbrOfAccessesLeft,nthAccessStartingAt1);
+			if(nextPageToken!=null&&nextPageToken.equalsIgnoreCase("didcache")) {
+				nextPageToken=null;
+				doWriteStationsToCache=false;
+			}
 			nbrOfAccessesLeft--;
 			nthAccessStartingAt1++;
 			/* for some reason, Google returns nothing if called to quickly with "nextpage"*/
@@ -395,7 +400,9 @@ public class HomeManager implements
 				}
 				priorRunningListCount=runningList.size();
 				if(nextPageToken==null || nbrOfAccessesLeft<=0) {
-					getDbAdapter().createCacheItem(location, runningList);
+					if(doWriteStationsToCache) {
+						getDbAdapter().createCacheItem(location, runningList);
+					}
 					break;
 				}
 			}
@@ -409,7 +416,7 @@ public class HomeManager implements
 			// try the cache first
 			getDbAdapter().getStationsCloseTo(location, CLOSE_TO_RADIUS_IN_METERS, runningList);
 			if (runningList.size()>0) {
-				return null;  
+				return "didcache";  
 			}
 		}
 		
@@ -419,7 +426,7 @@ public class HomeManager implements
 				+ location.getLongitude()
 				+ "&pagetoken="
 				+ (nextPageToken == null ? "" : nextPageToken)
-				+ "&radius=50000&types=train_station|subway_station&sensor=true&key="
+				+ "&radius=50000&types=train_station|subway_station|transit_station&sensor=true&key="
 				+ GOOGLE_API_KEY;
 		URL u = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) u.openConnection();
@@ -503,11 +510,11 @@ public class HomeManager implements
 				try {
 					getTrainStationsNear(mLocation, trainStationAddresses,
 							null, LIMIT_NBR_ACCESSES,1);
-	/*				Address sa=new Address(Locale.getDefault());
+					Address sa=new Address(Locale.getDefault());
 					sa.setLatitude(40.655593210761204);
 					sa.setLongitude(-74.30356130003929);
 					sa.setAddressLine(0, "Cranford Station");
-					trainStationAddresses.add(sa); */
+					trainStationAddresses.add(sa); 
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -595,7 +602,8 @@ public class HomeManager implements
 					}
 				}
 				return addressList;
-			} catch (Exception e) {
+			} catch (Exception e3) {
+				exceptionMessage=e3.getMessage();
 				return null;
 			}
 		}
@@ -620,7 +628,7 @@ public class HomeManager implements
 							longitudes[i] = addressList.get(i).getLongitude();
 						}
 						new ManyAddressHits(addresses, latitudes, longitudes, mActivity, addressList, HomeManager.this).show(mActivity.getFragmentManager(),"Addresses");
-						AlertDialog.Builder builder = new AlertDialog.Builder(
+		/*				AlertDialog.Builder builder = new AlertDialog.Builder(
 								mActivity);
 						builder.setTitle("More than one location found. Pick one.");
 						builder.setNegativeButton("Cancel",
@@ -632,6 +640,7 @@ public class HomeManager implements
 												mActivity.getApplicationContext(),
 												"No selection made..",
 												Toast.LENGTH_SHORT).show();
+										dialog.dismiss();
 									}
 								});
 
@@ -642,7 +651,7 @@ public class HomeManager implements
 									public void onClick(DialogInterface dialog,
 											int which) {
 										Address a = addressList.get(which);
-										/* Write address to history*/
+										// Write address to history
 										dialog.dismiss();
 										try {
 											HomeManager.this.newLocationButFirstPrompt(a);
@@ -653,6 +662,7 @@ public class HomeManager implements
 								});
 						AlertDialog alert = builder.create();
 						alert.show();
+						*/
 					} else {
 						Address a = addressList.get(0);
 						/* Write address to history*/
@@ -666,22 +676,15 @@ public class HomeManager implements
 						}
 					}
 				} else {
-					AlertDialog.Builder builder = new AlertDialog.Builder(
-							mActivity);
-					builder.setTitle("No Address Found");
-					builder.setMessage(exceptionMessage==null?"Please try a more succinct address. Note also, that if you're in a Wifi area, sometimes better results can be achieved when Wifi is on.":"The address finding mechanism failed with the following message: "+exceptionMessage);
-					builder.setPositiveButton("Okay",new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-					});
+					new  Home2.NoAddressFoundWarning("No Address Found", 
+							exceptionMessage==null?"Please try a more succinct address. Note also, that if you're in a Wifi area, sometimes better results can be achieved when Wifi is on.":"The address finding mechanism failed with the following message: "+exceptionMessage,
+							mActivity).show(mActivity.getFragmentManager(),"NoneFound1");
 				}
 			}  catch (Exception ee) {
-				Toast.makeText(mActivity.getApplicationContext(),
-						"Search failed with this message: "+ ee.getLocalizedMessage()+". Please try again.",
-						Toast.LENGTH_LONG).show();
+				new  Home2.NoAddressFoundWarning("No Address Found", 
+						ee.getMessage()==null?"Please try a more succinct address. Note also, that if you're in a Wifi area, sometimes better results can be achieved when Wifi is on.":"The address finding mechanism failed with the following message: "+ee.getMessage()+" Please try again.",
+						mActivity).show(mActivity.getFragmentManager(),"NoneFound1");
+				
 			} finally {
 				mPreventReentry--;
 			}
@@ -770,6 +773,11 @@ public class HomeManager implements
 	    }
 		
 		if(location!=null) {
+			// simulate Scott's address
+///			location.setLatitude(40.658421);
+	//		location.setLongitude(-74.29959);
+			//
+
 			editor.putString("locationmanager", "networklocation");
 			editor.commit();
 			initialize(new LatLng(location.getLatitude(), location.getLongitude()));
@@ -792,8 +800,8 @@ public class HomeManager implements
 						@Override
 						public void onLocationChanged(Location location) {
 							// simulate Scott's address
-							//location.setLatitude(40.658421);
-							//location.setLongitude(-74.29959);
+	//						location.setLatitude(40.658421);
+		//					location.setLongitude(-74.29959);
 							//
 							getLocationManager().removeUpdates(this);
 							initialize(new LatLng(location.getLatitude(), location.getLongitude()));
@@ -997,19 +1005,8 @@ public class HomeManager implements
 									public void onClick(DialogInterface dialog,
 											int which) {
 										final Address a = mAddressList.get(which);
-										/* Write address to history*/
-										getLocationsTimer2().schedule(new TimerTask() {
-											public void run() {
-												try {
-													mHomeManager.newLocationButFirstPrompt(a);
-
-												} catch (Exception ee) {
-													
-												}
-											}
-										}, 2000);
-										dialog.dismiss();
 										dismiss();
+										mHomeManager.newLocationButFirstPrompt(a);
 									}
 								});
             // Create the AlertDialog object and return it

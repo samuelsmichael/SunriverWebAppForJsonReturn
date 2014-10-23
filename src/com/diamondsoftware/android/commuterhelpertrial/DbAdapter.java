@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -138,7 +140,8 @@ public class DbAdapter {
 	 */
 	public synchronized void getStationsCloseTo(Location myLocation, float closeToRadiusInMeters,
 			ArrayList<Address> addressList) {
-		int rowIdToUse=0;
+		//int rowIdToUse=0;
+		ArrayList<Integer> rowsToUse=new ArrayList<Integer>();
 		// Define a projection that specifies which columns from the database
 		// you will actually use after this query.
 		
@@ -170,46 +173,57 @@ public class DbAdapter {
 	    		location.setLongitude(locationLongitude);
 				double dx=(double)myLocation.distanceTo(location);
 				if (dx<=HomeManager.CLOSE_TO_RADIUS_IN_METERS) {
-					rowIdToUse=cu.getInt(cu.getColumnIndex(KEY_ROWID));
-					break;
+					rowsToUse.add(cu.getInt(cu.getColumnIndex(KEY_ROWID)));
 				}
 			}
 			cu.close();
-			if(rowIdToUse!=0) {
-				String whereClause = KEY_FOREIGNID + " = " + String.valueOf(rowIdToUse);
-				sortOrder = KEY_NAME + " ASC ";
-				String[] projection2 = {
-						KEY_LATITUDE,
-						KEY_LONGITUDE,
-						KEY_NAME
-					    };
-				cu = getSqlDb().query(
-						DATABASE_TABLE_STATION,  				// The table to query
-					    projection2,                             // The columns to return
-					    whereClause,                                	// The columns for the WHERE clause
-					    null,                            		// The values for the WHERE clause
-					    null,                                   // don't group the rows
-					    null,                                   // don't filter by row groups
-					    sortOrder                              	// The sort order
-					    );
-				if(cu.getCount()>0) {
-					while(cu.moveToNext()) {
-						double locationLongitude=cu.getDouble(cu.getColumnIndex(KEY_LONGITUDE));
-						double locationLatitude=cu.getDouble(cu.getColumnIndex(KEY_LATITUDE));
-						String name=cu.getString(cu.getColumnIndex(KEY_NAME));
-						Address address=new Address(Locale.getDefault());
-						address.setLatitude(locationLatitude);
-						address.setLongitude(locationLongitude);
-						address.setAddressLine(0, name);
-						addressList.add(address);
+			if(rowsToUse.size()>0) {
+				for(Integer row: rowsToUse) {
+					int rowIdToUse = row;
+					String whereClause = KEY_FOREIGNID + " = " + String.valueOf(rowIdToUse);
+					sortOrder = KEY_NAME + " ASC ";
+					String[] projection2 = {
+							KEY_LATITUDE,
+							KEY_LONGITUDE,
+							KEY_NAME
+						    };
+					cu = getSqlDb().query(
+							DATABASE_TABLE_STATION,  				// The table to query
+						    projection2,                             // The columns to return
+						    whereClause,                                	// The columns for the WHERE clause
+						    null,                            		// The values for the WHERE clause
+						    null,                                   // don't group the rows
+						    null,                                   // don't filter by row groups
+						    sortOrder                              	// The sort order
+						    );
+					if(cu.getCount()>0) {
+						while(cu.moveToNext()) {
+							double locationLongitude=cu.getDouble(cu.getColumnIndex(KEY_LONGITUDE));
+							double locationLatitude=cu.getDouble(cu.getColumnIndex(KEY_LATITUDE));
+							String name=cu.getString(cu.getColumnIndex(KEY_NAME));
+							Address address=new Address(Locale.getDefault());
+							address.setLatitude(locationLatitude);
+							address.setLongitude(locationLongitude);
+							address.setAddressLine(0, name);
+							addressList.add(address);
+						}
+						cu.close();
+					} else {
+						cu.close();
 					}
-					cu.close();
-				} else {
-					cu.close();
 				}
 			}
 		} else {
 			cu.close();
+		}
+		if(addressList!=null && addressList.size()>1) {
+			Collections.sort(addressList, new Comparator<Address>() {
+		        @Override
+		        public int compare(Address  item1, Address  item2)
+		        {
+		        	return item1.getAddressLine(0).compareTo(item2.getAddressLine(0));
+		        }
+		    });
 		}
 	}
 	

@@ -64,15 +64,20 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 		addressOrIntersection.setOnClickListener(new View.OnClickListener() {
 			@Override
 				public void onClick(View v) {
-				
 				String locationAddress=
 						intersection.getText().toString();
+				Intent intent=new Intent(SearchActivity.this,Home2.class)
+					.setAction("seekingaddress")
+		        	.putExtra("SeekAddressString", locationAddress);
+				startActivity(intent);
+				/*
 			        Intent broadcastIntent = new Intent();
 			        broadcastIntent.setAction(ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK)
 			        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
 			        .putExtra("SeekAddressString", locationAddress);
 			        // Broadcast whichever result occurred
-			        LocalBroadcastManager.getInstance(SearchActivity.this).sendBroadcast(broadcastIntent);			
+			        LocalBroadcastManager.getInstance(SearchActivity.this).sendBroadcast(broadcastIntent);	
+			    */
 			        finish();
 				}		
 		});
