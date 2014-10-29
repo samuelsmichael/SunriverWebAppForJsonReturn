@@ -261,7 +261,7 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 					public void onClick(DialogInterface dialog, int which) {
 						
 						/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
-						if(!Home2.mSingleton.getHomeManager().getSecurityManager().doTrialCheck()) {
+						if(!Home2.mSingleton.doTrialCheck()) {
 							mActivity.finish();
 							return;
 						}

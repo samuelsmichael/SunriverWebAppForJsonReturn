@@ -86,6 +86,9 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
     // The helper object
     IabHelper mHelper;
+    
+	public static final int TRIAL_ALLOWANCE = 4;
+
     private static final int ARMED_NOTIFICATION_ID=3;
     private NotificationManager mNotificationManager=null;
 	private MapFragment mMapFragment;
@@ -218,9 +221,6 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		}
 		
 		mSingleton=this;
-		if (!getHomeManager().getSecurityManager().initializeVersion()) {
-			needToBringUpSplashScreen = true;
-		}
 		// Create a new broadcast receiver to receive updates from the listeners
 		// and service
 		if(mBroadcastReceiver!=null) {
@@ -375,7 +375,12 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
             Log.d(TAG, "Query inventory finished.");
 
             // Have we been disposed of in the meantime? If so, quit.
-            if (mHelper == null) return;
+            if (mHelper == null) {
+        		if (!getHomeManager().getSecurityManager().initializeVersion()) {
+        			needToBringUpSplashScreen = true;
+        		}
+            	return;
+            }
 
             // Is it a failure?
             if (result.isFailure()) {
@@ -413,6 +418,10 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
                 return;
             }
             Log.d(TAG, "Initial inventory query finished; enabling main UI.");
+    		if (!getHomeManager().getSecurityManager().initializeVersion()) {
+    			needToBringUpSplashScreen = true;
+    		}
+
         }
     };
     /** Verifies the developer payload of a purchase. */
@@ -616,6 +625,38 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	public boolean doTrialCheck() {
+		if (mHomeManager.getSecurityManager().isTrialVersion() || mHomeManager.getSecurityManager().isUnregisteredLiveVersion()) {
+			if(mHomeManager.getSecurityManager().isTrialVersion()) {
+				if (mHomeManager.getSecurityManager().hasExceededTrials()) {
+					new TrialVersionDialog(
+							"Trial Period Has Expired",
+							"Your trial period is over. In order to continue using Commuter Alert you will have make one of the following purchases.",
+							this, true).show();
+					return false;
+				} else {
+					mHomeManager.getSecurityManager().incrementTrials();
+					if (mHomeManager.getSecurityManager().startWarnings()) {
+						new TrialVersionDialog(
+								"Trial Software Alert",
+								"Your trial period is nearing its end. You have "+ String.valueOf((TRIAL_ALLOWANCE-mHomeManager.getSecurityManager().getCountUserArmed())) +" trials left.",
+								this, false).show();
+					}
+				}
+			} else {
+				new TrialVersionDialog(
+						"Unregistered Version",
+						"It appears that you are using an un-registered version. In order to continue using Commuter Alert you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alert again.",
+						this, true).show();
+				return false;
+				
+			}
+		}
+		return true;
+	}
+
+	
+	
 	/*
 	 * Do a check to see if the map object (mMap) has already been created. If
 	 * not, then we have to prepare for displaying it, and that involves also
@@ -753,6 +794,96 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			disarmButton.setVisibility(View.VISIBLE);
 			currentLocation.setVisibility(View.INVISIBLE);
 		}
+		
+	}
+
+	public class TrialVersionDialog {
+		private String mTitle;
+		private String mMessage;
+		private Activity mActivity;
+		private boolean mTrialPeriodIsOver;
+
+		private TrialVersionDialog() {
+			super();
+		}
+
+		public TrialVersionDialog(String title, String message,
+				Activity activity, boolean trialPeriodIsOver) {
+			super();
+			mTitle = title;
+			mMessage = message;
+			mActivity = activity;
+			mTrialPeriodIsOver = trialPeriodIsOver;
+		}
+
+		public void show() {
+			AlertDialog.Builder builder=null;
+			if(!mTrialPeriodIsOver) {
+				builder = new AlertDialog.Builder(
+						new ContextThemeWrapper(mActivity,
+								R.style.AlertDialogCustomDark));
+				builder.setTitle(mTitle);
+				builder.setMessage(mMessage);
+				String negativeButtonVerbiage = "Okay";
+				builder.setNegativeButton(negativeButtonVerbiage,
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+							}
+						});
+				AlertDialog dialog = builder.create();
+				dialog.show();
+			} else {
+				builder = new AlertDialog.Builder(
+						new ContextThemeWrapper(mActivity,
+								R.style.AlertDialogCustomDark));
+
+				LayoutInflater inflater = mActivity.getLayoutInflater();
+				final View view=inflater.inflate(R.layout.purchase, null);
+				final Button buttonPermanent = (Button) view.findViewById(R.id.purchase_button_permanent);
+				buttonPermanent.setOnClickListener(new View.OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						if(Home2.mSingleton!=null) {
+							Home2.mSingleton.onUpgradeAppButtonClicked();
+						}
+					}
+				});
+				final Button buttonSubscription = (Button) view.findViewById(R.id.purchase_button_subscription); 
+				buttonSubscription.setOnClickListener(new View.OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						if(Home2.mSingleton!=null) {
+							Home2.mSingleton.onInfiniteGasButtonClicked();
+						}
+						
+					}
+				});
+				final Button buttonTenUsages = (Button) view.findViewById(R.id.purchase_button_ticketfortenusages); 
+				buttonTenUsages.setOnClickListener(new View.OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						if(Home2.mSingleton!=null) {
+							Home2.mSingleton.onBuyGasButtonClicked();
+						}
+						
+					}
+				});
+				final Button buttonCancel = (Button) view.findViewById(R.id.purchase_button_cancel); 
+				buttonCancel.setOnClickListener(new View.OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+					}
+				});
+			}
+			AlertDialog dialog = builder.create();
+			dialog.show();
+		}
 	}
 
 	private class LocationAndAssociatedTrainStations {
@@ -831,8 +962,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 						 * If a trial version, and has exceeded the number of
 						 * trials
 						 */
-						if (!getHomeManager().getSecurityManager()
-								.doTrialCheck()) {
+						if (!doTrialCheck()) {
 							return;
 						}
 						if (mPreviousMarker != null) {

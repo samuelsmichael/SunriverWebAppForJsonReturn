@@ -666,7 +666,7 @@ public class HomeManager implements
 					} else {
 						Address a = addressList.get(0);
 						/* Write address to history*/
-						if(!getSecurityManager().doTrialCheck()) {
+						if(Home2.mSingleton==null || !Home2.mSingleton.doTrialCheck()) {
 							return;
 						}
 						try {

@@ -200,7 +200,7 @@ public class ActivityHistoryList extends AbstractActivityForMenu {
 	}	
 	private void selectIt(double latitude, double longitude, String name, boolean isStation) {
 		/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
-		if(!Home2.mSingleton.getHomeManager().getSecurityManager().doTrialCheck()) {
+		if(!Home2.mSingleton.doTrialCheck()) {
 			finish();
 		}
 		Editor editor = getSharedPreferences(getApplicationContext().getPackageName() + "_preferences", MODE_PRIVATE).edit();

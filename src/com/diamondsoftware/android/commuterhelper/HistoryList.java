@@ -106,7 +106,7 @@ public class HistoryList extends ListActivity {
 
 	private void selectIt(double latitude, double longitude, String name,boolean isStation) {
 		/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
-		if(!Home2.mSingleton.getHomeManager().getSecurityManager().doTrialCheck()) {
+		if(!Home2.mSingleton.doTrialCheck()) {
 	        Intent broadcastIntent = new Intent();
 	        broadcastIntent.setAction(JUST_FINISH)
 	        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);

@@ -32,8 +32,7 @@ import android.widget.Button;
 
 public class SecurityManager {
 	Activity mActivity;
-	public static final int START_TRIAL_WARNINGS = 15;
-	public static final int TRIAL_ALLOWANCE = 30;
+	public static final int START_TRIAL_WARNINGS = 2;
 	private static boolean isNonTrialVersionAndIsRegistered = false;
 	private static final String BASE64_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArcOle5ouVLsqrmYiUQkQAQsfyW4mGZhEAn7HY0uICPfCN60AUDOG8ooTT5UjyNP30Fbd7LRyHTYq7STOsi7C1+2+JwBbjcu7bgXl+nHz/XsxCOzALy4KJw9jvZFGBMWx8+17C98OEjiejw9AqU11PvLoZx+cPIqJNxeOX5P0htZiewe4VHrXeZGsitdZwy/uP7sYGxKgZowG/VdAj89KGFuM3+MifYT58dEGBItKs0Y+Eg2LEVddOLkbT+PAL1FJA/MM4nBQ65UR/rBxrgwEk7Ev6LmjgFS9lSaYHh7AYmHBl7H8/Vm6OV0IB3012B3e4l+2lSNzqxWDQKCM3q0PpwIDAQAB";
 	private static boolean haveDoneRegistrationCheck = false;
@@ -76,62 +75,32 @@ public class SecurityManager {
 		}
 	}
 
-	private boolean isUnregisteredLiveVersion() {
+	boolean isUnregisteredLiveVersion() {
 		if (haveDoneRegistrationCheck && !isNonTrialVersionAndIsRegistered) {
 			return true;
 		}
 		return false;
 	}
 
-	public boolean doTrialCheck() {
-		if (isTrialVersion() || isUnregisteredLiveVersion()) {
-			if(isTrialVersion()) {
-				if (hasExceededTrials()) {
-					new TrialVersionDialog(
-							"Trial Period Has Expired",
-							"Your trial period is over. In order to continue using Commuter Alert you will have make one of the following purchases.",
-							mActivity, true).show();
-					return false;
-				} else {
-					incrementTrials();
-					if (startWarnings()) {
-						new TrialVersionDialog(
-								"Trial Software Alert",
-								"Your trial period is nearing its end. You have "+ String.valueOf((START_TRIAL_WARNINGS-getCountUserArmed())) +" left.",
-								mActivity, false).show();
-					}
-				}
-			} else {
-				new TrialVersionDialog(
-						"Unregistered Version",
-						"It appears that you are using an un-registered version. In order to continue using Commuter Alert you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alert again.",
-						mActivity, true).show();
-				return false;
-				
-			}
-		}
-		return true;
-	}
-
-	private boolean isTrialVersion() {
-		return 
+	boolean isTrialVersion() {
+		boolean isTrial= 
 				Home2.mIsPremium!=null &&
 				Home2.mSubscribedToInfiniteGas!=null &&
-				Home2.mTank!=null &&
+				(Home2.mTank==null || Home2.mTank.intValue()==0) &&
 				!Home2.mIsPremium.booleanValue() &&
-				!Home2.mSubscribedToInfiniteGas.booleanValue() &&
-				Home2.mTank.intValue()==0;
+				!Home2.mSubscribedToInfiniteGas.booleanValue();
+		return isTrial;
 	}
 
-	private boolean hasExceededTrials() {
+	boolean hasExceededTrials() {
 		if(Home2.mTank == null) {
-			return getCountUserArmed() > TRIAL_ALLOWANCE;
+			return getCountUserArmed() > Home2.TRIAL_ALLOWANCE;
 		} else {
 			return Home2.mTank.intValue()==0;
 		}
 	}
 
-	private boolean startWarnings() {
+	boolean startWarnings() {
 		if(Home2.mTank == null) {
 			return getCountUserArmed() > START_TRIAL_WARNINGS;
 		} else {
@@ -139,100 +108,11 @@ public class SecurityManager {
 		}
 	}
 
-	private void incrementTrials() {
+	void incrementTrials() {
 		if(Home2.mTank==null) {
 			stampVersion(getCountUserArmed() + 1);
 		} else {
 			Home2.mTank--;
-		}
-	}
-
-	public static class TrialVersionDialog {
-		private String mTitle;
-		private String mMessage;
-		private Activity mActivity;
-		private boolean mTrialPeriodIsOver;
-
-		private TrialVersionDialog() {
-			super();
-		}
-
-		public TrialVersionDialog(String title, String message,
-				Activity activity, boolean trialPeriodIsOver) {
-			super();
-			mTitle = title;
-			mMessage = message;
-			mActivity = activity;
-			mTrialPeriodIsOver = trialPeriodIsOver;
-		}
-
-		public void show() {
-			AlertDialog.Builder builder=null;
-			if(!mTrialPeriodIsOver) {
-				builder = new AlertDialog.Builder(
-						new ContextThemeWrapper(mActivity,
-								R.style.AlertDialogCustomDark));
-				builder.setTitle(mTitle);
-				builder.setMessage(mMessage);
-				String negativeButtonVerbiage = "Okay";
-				builder.setNegativeButton(negativeButtonVerbiage,
-						new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog, int id) {
-							}
-						});
-				AlertDialog dialog = builder.create();
-				dialog.show();
-			} else {
-				builder = new AlertDialog.Builder(
-						new ContextThemeWrapper(mActivity,
-								R.style.AlertDialogCustomDark));
-
-				LayoutInflater inflater = mActivity.getLayoutInflater();
-				final View view=inflater.inflate(R.layout.purchase, null);
-				final Button buttonPermanent = (Button) view.findViewById(R.id.purchase_button_permanent);
-				buttonPermanent.setOnClickListener(new View.OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						if(Home2.mSingleton!=null) {
-							Home2.mSingleton.onUpgradeAppButtonClicked();
-						}
-					}
-				});
-				final Button buttonSubscription = (Button) view.findViewById(R.id.purchase_button_subscription); 
-				buttonSubscription.setOnClickListener(new View.OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						if(Home2.mSingleton!=null) {
-							Home2.mSingleton.onInfiniteGasButtonClicked();
-						}
-						
-					}
-				});
-				final Button buttonTenUsages = (Button) view.findViewById(R.id.purchase_button_ticketfortenusages); 
-				buttonTenUsages.setOnClickListener(new View.OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						if(Home2.mSingleton!=null) {
-							Home2.mSingleton.onBuyGasButtonClicked();
-						}
-						
-					}
-				});
-				final Button buttonCancel = (Button) view.findViewById(R.id.purchase_button_cancel); 
-				buttonCancel.setOnClickListener(new View.OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-					}
-				});
-			}
-			AlertDialog dialog = builder.create();
-			dialog.show();
 		}
 	}
 
