@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- TRIAL_VS_NON-TRIAL  rename package and answer Yes to the prompt -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.diamondsoftware.android.commuterhelpertrial"
+    package="com.diamondsoftware.android.commuterhelper"
     android:versionCode="7"
     android:versionName="1.07" >
 
@@ -34,11 +34,11 @@
        <meta-data android:name="com.google.android.gms.version"
           android:value="@integer/google_play_services_version" />
        <activity
-            android:name="com.diamondsoftware.android.commuterhelpertrial.Home"
+            android:name="com.diamondsoftware.android.commuterhelper.Home"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.diamondsoftware.android.commuterhelpertrial.Home2"
+            android:name="com.diamondsoftware.android.commuterhelper.Home2"
             android:screenOrientation="portrait"            
             android:label="@string/title_activity_home2" >
             <intent-filter>
@@ -47,50 +47,50 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.diamondsoftware.android.commuterhelpertrial.Preferences" >
+        <activity android:name="com.diamondsoftware.android.commuterhelper.Preferences" >
         </activity>
         <activity
-            android:name="com.diamondsoftware.android.commuterhelpertrial.HistoryList"
+            android:name="com.diamondsoftware.android.commuterhelper.HistoryList"
             android:label="@string/title_activity_history_list"
             android:theme="@android:style/Theme.Holo.Dialog" >
         </activity>
         <activity
-            android:name="com.diamondsoftware.android.commuterhelpertrial.ActivityHistoryList"
+            android:name="com.diamondsoftware.android.commuterhelper.ActivityHistoryList"
             android:label="@string/title_activity_history_list" >
         </activity>
         		<service
-		    android:name="com.diamondsoftware.android.commuterhelpertrial.ActivityRecognitionService"
+		    android:name="com.diamondsoftware.android.commuterhelper.ActivityRecognitionService"
 		    android:enabled="true"
 		    android:exported="false" >
 		</service> 
 		<service
-		    android:name="com.diamondsoftware.android.commuterhelpertrial.ActivityRecognitionIntentService"
+		    android:name="com.diamondsoftware.android.commuterhelper.ActivityRecognitionIntentService"
 		    android:enabled="true"
 		    android:exported="false" >
 		</service> 
 		<service
-            android:name="com.diamondsoftware.android.commuterhelpertrial.LocationServiceGeofencing"
+            android:name="com.diamondsoftware.android.commuterhelper.LocationServiceGeofencing"
             android:enabled="true"
             android:exported="false" >
         </service>
         <service
-            android:name="com.diamondsoftware.android.commuterhelpertrial.LocationServiceOriginalEnhanced"
+            android:name="com.diamondsoftware.android.commuterhelper.LocationServiceOriginalEnhanced"
             android:enabled="true"
             android:exported="false" >
         </service>
         <service
-            android:name="com.diamondsoftware.android.commuterhelpertrial.LocationServiceModern"
+            android:name="com.diamondsoftware.android.commuterhelper.LocationServiceModern"
             android:enabled="true"
             android:exported="false" >
         </service>
         <service
-            android:name="com.diamondsoftware.android.commuterhelpertrial.LocationServiceOriginal"
+            android:name="com.diamondsoftware.android.commuterhelper.LocationServiceOriginal"
             android:enabled="true"
             android:exported="false" >
         </service>
 
         <activity
-            android:name="com.diamondsoftware.android.commuterhelpertrial.VoiceHelper"
+            android:name="com.diamondsoftware.android.commuterhelper.VoiceHelper"
             android:label="@string/title_activity_voice_helper"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.Transparent" >
@@ -107,10 +107,10 @@
          -->        
 		<meta-data 
 		    android:name="com.google.android.maps.v2.API_KEY"
-		    android:value="AIzaSyCwRYSAAKuXYjQ852G8LLMaXmY0HxRgw2A" />        
+		    android:value="AIzaSyDRB2FlpUa1eFKeiJJ2LBffATMy29bPBMQ" />        
 
 		<activity
-            android:name="com.diamondsoftware.android.commuterhelpertrial.SearchActivity"
+            android:name="com.diamondsoftware.android.commuterhelper.SearchActivity"
             android:label="@string/title_activity_search" >
         </activity>
     </application>

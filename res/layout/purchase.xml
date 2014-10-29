@@ -1,0 +1,78 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="50dip"
+    >
+
+
+    <TextView
+        android:id="@+id/textViewTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="17sp"
+        android:textStyle="bold" 
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:text="Choose from one of the purchase options below, or press Cancel" />   
+    <LinearLayout 
+        android:id="@+id/purchase_allthebuttons"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textViewTitle"
+        android:layout_margin="19dp"
+        android:orientation="vertical"
+		>
+    	<Button
+        	android:id="@+id/purchase_button_permanent"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+        	style="?android:attr/buttonStyleSmall"
+        	android:layout_marginTop="20dip"
+        	android:layout_marginLeft="50dip"
+	       	android:layout_marginRight="50dip"
+	        android:layout_gravity="center_horizontal"
+	        android:gravity="center_horizontal"
+	        android:text="Unlimited usage forever ... USD 10.99"
+        ></Button>
+    	<Button
+        	android:id="@+id/purchase_button_subscription"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+        	style="?android:attr/buttonStyleSmall"
+        	android:layout_marginTop="20dip"
+        	android:layout_marginLeft="50dip"
+	       	android:layout_marginRight="50dip"
+	        android:layout_gravity="center_horizontal"
+	        android:gravity="center_horizontal"
+	        android:text="Unlimited usage for 1 year ... USD 5.99"
+        ></Button>
+    	<Button
+        	android:id="@+id/purchase_button_ticketfortenusages"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+        	style="?android:attr/buttonStyleSmall"
+        	android:layout_marginTop="20dip"
+        	android:layout_marginLeft="50dip"
+	       	android:layout_marginRight="50dip"
+	        android:layout_gravity="center_horizontal"
+	        android:gravity="center_horizontal"
+	        android:text="10 usages ... USD 0.99"
+        ></Button>
+   </LinearLayout>
+   	<Button
+       	android:id="@+id/purchase_button_cancel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+       	style="?android:attr/buttonStyleSmall"
+       	android:layout_marginTop="50dip"
+       	android:layout_marginLeft="50dip"
+       	android:layout_marginRight="50dip"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
+        android:text="10 usages ... USD 0.99"
+       ></Button>
+</RelativeLayout>
