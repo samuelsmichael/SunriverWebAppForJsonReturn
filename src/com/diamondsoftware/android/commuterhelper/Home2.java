@@ -1,30 +1,9 @@
 package com.diamondsoftware.android.commuterhelper;
 
-import com.diamondsoftware.android.commuterhelper.R;
-import com.diamondsoftware.android.commuterhelpertrial.util.*;
-
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -40,17 +19,41 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.diamondsoftware.android.commuterhelpertrial.util.IabHelper;
+import com.diamondsoftware.android.commuterhelpertrial.util.IabResult;
+import com.diamondsoftware.android.commuterhelpertrial.util.Inventory;
+import com.diamondsoftware.android.commuterhelpertrial.util.Purchase;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 
 /*
@@ -87,7 +90,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
     // The helper object
     IabHelper mHelper;
     
-	public static final int TRIAL_ALLOWANCE = 4;
+	public static final int TRIAL_ALLOWANCE = 10;
 
     private static final int ARMED_NOTIFICATION_ID=3;
     private NotificationManager mNotificationManager=null;
@@ -128,6 +131,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 	private ImageView mHelp2;
 	private ImageView mHelp3;
 	private ImageView mHelp4;
+	AlertDialog mFAlertDialog;
 
 	public SharedPreferences getSettings() {
 		return settings;
@@ -216,6 +220,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		                   }
 		               });
 		        final AlertDialog alert = builder.create();
+		        final Handler handler = new Handler();
+
 		        alert.show();	    	
 		    }
 		}
@@ -291,14 +297,28 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			}
 
 		});
-		Intent intent=getIntent();
-		String action=intent.getAction();
-		if(action!=null&&action.equals("seekingaddress")) {
-			getHomeManager();
-			if(HomeManager.mPreventReentry==0) {
-				HomeManager.mPreventReentry++;
-				getHomeManager().manageKeyedInAddress(
-					intent.getStringExtra("SeekAddressString"));
+		Intent intent22=getIntent();
+		if(intent22!=null) {
+			String action=intent22.getAction();
+			if(action!=null) {
+				if(action.equals("seekingaddress")) {
+					getHomeManager();
+					if(HomeManager.mPreventReentry==0) {
+						HomeManager.mPreventReentry++;
+						getHomeManager().manageKeyedInAddress(
+							intent22.getStringExtra("SeekAddressString"));
+					}
+				} else {
+					if(action.equals("TrialVersionDialog")) {
+						String title=intent22.getExtras().getString("Title", "Setting Location");
+						String message=intent22.getExtras().getString("Message", "");
+						boolean trialPeriodIsOver=intent22.getExtras().getBoolean("TrialPeriodIsOver");
+						TrialVersionDialog tvdd=new TrialVersionDialog(title,message,trialPeriodIsOver,this);
+						TrialVersionDialog[] tvdds= new TrialVersionDialog[1];
+						tvdds[0]=tvdd;
+						new ShowExpiredDialog().execute(tvdds);
+					}
+				}
 			}
 		}
 	}
@@ -629,25 +649,42 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		if (mHomeManager.getSecurityManager().isTrialVersion() || mHomeManager.getSecurityManager().isUnregisteredLiveVersion()) {
 			if(mHomeManager.getSecurityManager().isTrialVersion()) {
 				if (mHomeManager.getSecurityManager().hasExceededTrials()) {
-					new TrialVersionDialog(
+/*					TrialVersionDialog tvdd=new TrialVersionDialog(
 							"Trial Period Has Expired",
 							"Your trial period is over. In order to continue using Commuter Alert you will have make one of the following purchases.",
-							this, true).show();
+							true,this
+							);
+					tvdd.show(getFragmentManager(), "marre_mais_marre");
+			//		TrialVersionDialog[] tvdds= new TrialVersionDialog[1];
+				//	tvdds[0]=tvdd;
+					//new ShowExpiredDialog().execute(tvdds);
+*/
+					Intent intent = new Intent(this,Home2.class)
+						.setAction("TrialVersionDialog")
+						.putExtra("Title", "Trial Period Has Expired")
+						.putExtra("Message", "Your trial period is over. In order to continue using Commuter Alert you will have make one of the following purchases.")
+						.putExtra("TrialPeriodIsOver", true);
+					startActivity(intent);
+					
 					return false;
 				} else {
 					mHomeManager.getSecurityManager().incrementTrials();
 					if (mHomeManager.getSecurityManager().startWarnings()) {
-						new TrialVersionDialog(
-								"Trial Software Alert",
-								"Your trial period is nearing its end. You have "+ String.valueOf((TRIAL_ALLOWANCE-mHomeManager.getSecurityManager().getCountUserArmed())) +" trials left.",
-								this, false).show();
+						Intent intent = new Intent(this,Home2.class)
+						.setAction("TrialVersionDialog")
+						.putExtra("Title", "Trial Software Alert")
+						.putExtra("Message", "Your trial period is nearing its end. You have "+ String.valueOf((TRIAL_ALLOWANCE-mHomeManager.getSecurityManager().getCountUserArmed()+1)) +" trials left.")
+						.putExtra("TrialPeriodIsOver", false);
+					startActivity(intent);
 					}
 				}
 			} else {
-				new TrialVersionDialog(
-						"Unregistered Version",
-						"It appears that you are using an un-registered version. In order to continue using Commuter Alert you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alert again.",
-						this, true).show();
+				Intent intent = new Intent(this,Home2.class)
+					.setAction("TrialVersionDialog")
+					.putExtra("Title", "Unregistered Version")
+					.putExtra("Message", "It appears that you are using an un-registered version. In order to continue using Commuter Alert you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alert again.")
+					.putExtra("TrialPeriodIsOver", true);
+				startActivity(intent);
 				return false;
 				
 			}
@@ -797,31 +834,33 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		
 	}
 
-	public class TrialVersionDialog {
+	private class TrialVersionDialog extends DialogFragment {
 		private String mTitle;
 		private String mMessage;
-		private Activity mActivity;
 		private boolean mTrialPeriodIsOver;
+		private Activity mActivityX;
 
 		private TrialVersionDialog() {
 			super();
 		}
 
 		public TrialVersionDialog(String title, String message,
-				Activity activity, boolean trialPeriodIsOver) {
+				boolean trialPeriodIsOver, Activity activity) {
 			super();
 			mTitle = title;
 			mMessage = message;
-			mActivity = activity;
 			mTrialPeriodIsOver = trialPeriodIsOver;
+			mActivityX=activity;
 		}
-
-		public void show() {
+		
+		@Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+			
 			AlertDialog.Builder builder=null;
 			if(!mTrialPeriodIsOver) {
-				builder = new AlertDialog.Builder(
-						new ContextThemeWrapper(mActivity,
-								R.style.AlertDialogCustomDark));
+				builder = new AlertDialog.Builder(getActivity());
+//						new ContextThemeWrapper(mActivity,
+	//							R.style.AlertDialogCustomDark));
 				builder.setTitle(mTitle);
 				builder.setMessage(mMessage);
 				String negativeButtonVerbiage = "Okay";
@@ -830,17 +869,66 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
+								mFAlertDialog.dismiss();
 							}
 						});
-				AlertDialog dialog = builder.create();
-				dialog.show();
+				builder.setCancelable(false);
+				mFAlertDialog = builder.create();
+				return mFAlertDialog;
 			} else {
-				builder = new AlertDialog.Builder(
-						new ContextThemeWrapper(mActivity,
-								R.style.AlertDialogCustomDark));
+				builder = new AlertDialog.Builder(getActivity());
+//				new ContextThemeWrapper(mActivity,
+//							R.style.AlertDialogCustomDark));
+		builder.setTitle(mTitle);
+		builder.setMessage("Your alerts have expired. Choose from one of the purchase options below, or press your phone's back key to Cancel");
+		String negativeButtonVerbiage = "Unlimited: USD 10.99";
+		builder.setNegativeButton(negativeButtonVerbiage,
+				new DialogInterface.OnClickListener() {
 
-				LayoutInflater inflater = mActivity.getLayoutInflater();
-				final View view=inflater.inflate(R.layout.purchase, null);
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						if(Home2.mSingleton!=null) {
+							Home2.mSingleton.onUpgradeAppButtonClicked();
+						}
+						mFAlertDialog.dismiss();
+					}
+				});
+		builder.setCancelable(true);
+		builder.setPositiveButton("1 year: USD 5.99",
+				new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						if(Home2.mSingleton!=null) {
+							Home2.mSingleton.onInfiniteGasButtonClicked();
+						}
+						mFAlertDialog.dismiss();	
+
+					}
+				});
+		builder.setNeutralButton("10 usages: USD 0.99",
+				new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						if(Home2.mSingleton!=null) {
+							Home2.mSingleton.onBuyGasButtonClicked();
+						}
+						mFAlertDialog.dismiss();	
+
+					}
+				});
+		mFAlertDialog = builder.create();
+		return mFAlertDialog;
+
+				/*builder = new AlertDialog.Builder(getActivity());
+	//					new ContextThemeWrapper(mActivity,
+		//						R.style.AlertDialogCustomDark));
+
+				LayoutInflater inflater = getActivity().getLayoutInflater();
+				mFAlertDialog = builder.create();
+
+				final View view=inflater.inflate(R.layout.purchase,(ViewGroup)getActivity().getWindow().getDecorView().findViewById(android.R.id.content));
 				final Button buttonPermanent = (Button) view.findViewById(R.id.purchase_button_permanent);
 				buttonPermanent.setOnClickListener(new View.OnClickListener() {
 					
@@ -849,6 +937,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 						if(Home2.mSingleton!=null) {
 							Home2.mSingleton.onUpgradeAppButtonClicked();
 						}
+						mFAlertDialog.dismiss();
 					}
 				});
 				final Button buttonSubscription = (Button) view.findViewById(R.id.purchase_button_subscription); 
@@ -859,7 +948,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 						if(Home2.mSingleton!=null) {
 							Home2.mSingleton.onInfiniteGasButtonClicked();
 						}
-						
+						mFAlertDialog.dismiss();	
 					}
 				});
 				final Button buttonTenUsages = (Button) view.findViewById(R.id.purchase_button_ticketfortenusages); 
@@ -870,19 +959,19 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 						if(Home2.mSingleton!=null) {
 							Home2.mSingleton.onBuyGasButtonClicked();
 						}
-						
+						mFAlertDialog.dismiss();	
 					}
 				});
 				final Button buttonCancel = (Button) view.findViewById(R.id.purchase_button_cancel); 
 				buttonCancel.setOnClickListener(new View.OnClickListener() {
 					
 					@Override
-					public void onClick(View v) {
+					public void onClick(View v) {	
+						mFAlertDialog.dismiss();
 					}
 				});
+				return mFAlertDialog;*/
 			}
-			AlertDialog dialog = builder.create();
-			dialog.show();
 		}
 	}
 
@@ -894,6 +983,15 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 				ArrayList<Address> addresses) {
 			mLocation = location;
 			mAddresses = addresses;
+		}
+	}
+	class ShowExpiredDialog extends AsyncTask<TrialVersionDialog,Void,TrialVersionDialog> {
+		protected TrialVersionDialog doInBackground(TrialVersionDialog...dialogs) {
+			TrialVersionDialog tvd=dialogs[0];
+			return tvd;
+		}
+		protected void onPostExecute(TrialVersionDialog result) {
+			result.show(getFragmentManager(), "Out ov Trials");
 		}
 	}
 

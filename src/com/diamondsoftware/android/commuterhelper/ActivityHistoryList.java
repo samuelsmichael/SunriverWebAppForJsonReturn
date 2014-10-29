@@ -202,6 +202,7 @@ public class ActivityHistoryList extends AbstractActivityForMenu {
 		/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
 		if(!Home2.mSingleton.doTrialCheck()) {
 			finish();
+			return;
 		}
 		Editor editor = getSharedPreferences(getApplicationContext().getPackageName() + "_preferences", MODE_PRIVATE).edit();
 		editor.putString(GlobalStaticValues.KEY_SpeakableAddress, name);

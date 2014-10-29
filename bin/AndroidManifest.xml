@@ -107,7 +107,7 @@
          -->        
 		<meta-data 
 		    android:name="com.google.android.maps.v2.API_KEY"
-		    android:value="AIzaSyCwRYSAAKuXYjQ852G8LLMaXmY0HxRgw2A" />        
+		    android:value="AIzaSyDRB2FlpUa1eFKeiJJ2LBffATMy29bPBMQ" />        
 
 		<activity
             android:name="com.diamondsoftware.android.commuterhelper.SearchActivity"
