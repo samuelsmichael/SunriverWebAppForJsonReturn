@@ -690,8 +690,13 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 				}
 			} else {
 				if(TextUtils.equals(action,ACTION_ETA)) {
+
 					String jdText=settings.getString(GlobalStaticValues.KEY_SpeakableAddress, "") +
 							" " + intent.getStringExtra("eta");
+		    		new Logger(
+		    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
+		    				"Home2.onReceive", context)
+		    				.log("jdText: "+String.valueOf(jdText), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 					currentLocation.setText(jdText);
 			    	Notification.Builder mBuilder=new Notification.Builder(Home2.this)
 			    	.setSmallIcon(R.drawable.ic_launcher_new)

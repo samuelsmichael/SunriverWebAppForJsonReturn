@@ -145,10 +145,14 @@ com.google.android.gms.location.LocationListener{
 				notifyUser();
 			} else {
 				String notificationTimeTillArrival="";
-				if(location.hasSpeed()) {
-					float speed=location.getSpeed();
-					double effectiveSpeedMPH=((speed)*(double)3600)/1609.34;
-					if(effectiveSpeedMPH>5) {
+				if(location.hasSpeed() || true /*I don't know why we no longer get speed*/) {
+					float speedNic=location.getSpeed();
+					double effectiveSpeedMPHNic=((speedNic)*(double)3600)/1609.34;
+		    		new Logger(
+		    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
+		    				"onLocationChanged", this)
+		    				.log("Effective Speed: "+String.valueOf(effectiveSpeedMPHNic), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
+					if(effectiveSpeedMPHNic>5 || true /*ditto*/) {
 						if(mSettingsManager.getEffectiveLocation()==null) {
 							mSettingsManager.setEffectiveLocation(location.getLatitude(), location.getLongitude());
 							mSettingsManager.setEffectiveDatetiem(new Date());
@@ -156,26 +160,57 @@ com.google.android.gms.location.LocationListener{
 						}
 						LatLng latLng = mSettingsManager.getEffectiveLocation();
 						if(latLng!=null) {
+				    		new Logger(
+				    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
+				    				"onLocationChanged", this)
+				    				.log("LatLng: "+latLng.toString(), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 							Location effectiveLocation = new Location(getProvider());
 							effectiveLocation.setLatitude(latLng.latitude);
 							effectiveLocation.setLongitude(latLng.longitude);	
 							float dxOriginal=effectiveLocation.distanceTo(location2);
 							if(dxOriginal>=dx) {
+					    		new Logger(
+					    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
+					    				"onLocationChanged", this)
+					    				.log("dxOriginal: "+String.valueOf(dxOriginal)+" dx: "+String.valueOf(dx), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 								LatLng justPreviousLatLng=mSettingsManager.getJustPreviousLocation();
 								mSettingsManager.setJustPreviousLocation(location.getLatitude(), location.getLongitude());
 								if(justPreviousLatLng!=null) {
+						    		new Logger(
+						    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
+						    				"onLocationChanged", this)
+						    				.log("jusPreviousLatLng: "+justPreviousLatLng.toString(), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
+
 									Location justPreviousLocation=new Location(getProvider());
 									justPreviousLocation.setLatitude(justPreviousLatLng.latitude);
 									justPreviousLocation.setLongitude(justPreviousLatLng.longitude);
 									float justPreviousDx=justPreviousLocation.distanceTo(location2);
 									if(justPreviousDx>=dx) { // we're moving closer
+							    		new Logger(
+							    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
+							    				"onLocationChanged", this)
+							    				.log("justPreviousDx: "+String.valueOf(justPreviousDx), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 										float effectiveDistance=dxOriginal-dx;
 										Date effectiveDate=mSettingsManager.getEffectiveDatetime();
 										long nbrOfSecondsSinceStart=GlobalStaticValues.getDateDiff(effectiveDate, new Date(), TimeUnit.SECONDS);
+							    		new Logger(
+							    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
+							    				"onLocationChanged", this)
+							    				.log("nbrOfSecondsSinceStart: "+String.valueOf(nbrOfSecondsSinceStart), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
+
 										if(nbrOfSecondsSinceStart>0) {
 											float effectiveSpeedMetersPerSecond=effectiveDistance/nbrOfSecondsSinceStart;
+								    		new Logger(
+								    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
+								    				"onLocationChanged", this)
+								    				.log("effectiveSpeedMetersPerSecond: "+String.valueOf(effectiveSpeedMetersPerSecond), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
+
 											if(effectiveSpeedMetersPerSecond>0) {
 												double effectiveSpeedMilesPerHour=(((double)effectiveDistance/(double)effectiveSpeedMetersPerSecond)*(double)3600)/1609.34;
+									    		new Logger(
+									    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
+									    				"onLocationChanged", this)
+									    				.log("effectiveSpeedMilesPerHour: "+String.valueOf(effectiveSpeedMilesPerHour), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
 												if(effectiveSpeedMilesPerHour>5) { // otherwise, we're angling
 													float secondsLeft=dx/effectiveSpeedMetersPerSecond;	
 													int secondsLeftInt=(int)secondsLeft;
@@ -200,6 +235,11 @@ com.google.android.gms.location.LocationListener{
 					}
 				}
 				if(!notificationTimeTillArrival.equals("")) {
+		    		new Logger(
+		    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
+		    				"onLocationChanged", this)
+		    				.log("notificationTimeTillArrival: "+notificationTimeTillArrival, GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
+
 			        Intent broadcastIntent = new Intent();
 			        broadcastIntent.setAction(ACTION_ETA)
 			        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
