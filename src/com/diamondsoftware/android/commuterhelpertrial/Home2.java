@@ -1,6 +1,8 @@
 package com.diamondsoftware.android.commuterhelpertrial;
 
 import com.diamondsoftware.android.commuterhelpertrial.R;
+import com.diamondsoftware.android.commuterhelpertrial.util.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -23,7 +25,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
@@ -43,18 +44,15 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 /*
@@ -66,6 +64,30 @@ import android.widget.Toast;
 public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		WantsSurroundingTrainStations {
 	private GoogleMap mMap = null;
+    // Debug tag, for logging
+    static final String TAG = "CommuterAlert";
+    // Does the user have the premium upgrade?
+    boolean mIsPremium = false;
+    // Current amount of gas in tank, in units
+    int mTank;
+
+    
+
+    // Does the user have an active subscription to the infinite gas plan?
+    boolean mSubscribedToInfiniteGas = false;
+
+    // SKUs for our products: the premium upgrade (non-consumable) and gas (consumable)
+    static final String SKU_PREMIUM = "premium";
+    static final String SKU_GAS = "gas";
+
+    // SKU for our subscription (infinite gas)
+    static final String SKU_INFINITE_GAS = "infinite_gas";
+
+    // (arbitrary) request code for the purchase flow
+    static final int RC_REQUEST = 10001;
+
+    // The helper object
+    IabHelper mHelper;
     private static final int ARMED_NOTIFICATION_ID=3;
     private NotificationManager mNotificationManager=null;
 	private MapFragment mMapFragment;
@@ -121,6 +143,34 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home2);
+		
+		String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA14rS4bA3hKKS0xUq239+qygEqxwkpvDKEtcAptoZXsprt8uL6IY3gO9mbOUcIFc6sQRAGE7+KRXH3tWkHmBIVKjmX1qFvu7HZWdYfZeg1qJUGpI12LHDeFL3c533njNrzP+eHPetmqgbOTexeQbzEuZP8POzXhEXICNMYvgM3MMrXpEbw1IjxTUmMyZfwz5TSfbnqqgyZ4qSxLzb8gAuOQbIe2dYyNMj8IZ+yMH6HBorvXOj2Zig/EaYL7mvcb5/oXmp/jXJjcP408URM2xoSyraxeSTNGp+0c5lQZNLp5ex0/fi3ZbRn3qgATxTAeFktIeBYxlyS/g1A+GEhHzsHwIDAQAB";
+		mHelper = new IabHelper(this,base64EncodedPublicKey);
+		mHelper.enableDebugLogging(true);
+        // Start setup. This is asynchronous and the specified listener
+        // will be called once setup completes.
+        Log.d(TAG, "Starting setup.");
+        mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
+            public void onIabSetupFinished(IabResult result) {
+                Log.d(TAG, "Setup finished.");
+
+                if (!result.isSuccess()) {
+                    // Oh noes, there was a problem.
+                    complain("Problem setting up in-app billing: " + result);
+                    return;
+                }
+
+                // Have we been disposed of in the meantime? If so, quit.
+                if (mHelper == null) return;
+
+                // IAB is fully set up. Now, let's get an inventory of stuff we own.
+                Log.d(TAG, "Setup successful. Querying inventory.");
+                mHelper.queryInventoryAsync(mGotInventoryListener);
+            }
+        });
+        
+
+
 		mHelp1=(ImageView)findViewById(R.id.image_help_main_1);
 		mHelp2=(ImageView)findViewById(R.id.image_help_main_2);
 		mHelp3=(ImageView)findViewById(R.id.image_help_main_3);
@@ -252,6 +302,165 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		}
 	}
 
+    // Listener that's called when we finish querying the items and subscriptions we own
+    IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
+        public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
+            Log.d(TAG, "Query inventory finished.");
+
+            // Have we been disposed of in the meantime? If so, quit.
+            if (mHelper == null) return;
+
+            // Is it a failure?
+            if (result.isFailure()) {
+                complain("Failed to query inventory: " + result);
+                return;
+            }
+
+            Log.d(TAG, "Query inventory was successful.");
+
+            /*
+             * Check for items we own. Notice that for each purchase, we check
+             * the developer payload to see if it's correct! See
+             * verifyDeveloperPayload().
+             */
+
+            // Do we have the premium upgrade?
+            Purchase premiumPurchase = inventory.getPurchase(SKU_PREMIUM);
+            mIsPremium = (premiumPurchase != null && verifyDeveloperPayload(premiumPurchase));
+            Log.d(TAG, "User is " + (mIsPremium ? "PREMIUM" : "NOT PREMIUM"));
+
+            // Do we have the infinite gas plan?
+            Purchase infiniteGasPurchase = inventory.getPurchase(SKU_INFINITE_GAS);
+            mSubscribedToInfiniteGas = (infiniteGasPurchase != null &&
+                    verifyDeveloperPayload(infiniteGasPurchase));
+            Log.d(TAG, "User " + (mSubscribedToInfiniteGas ? "HAS" : "DOES NOT HAVE")
+                        + " infinite gas subscription.");
+
+            // Check for gas delivery -- if we own gas, we should fill up the tank immediately
+            Purchase gasPurchase = inventory.getPurchase(SKU_GAS);
+            if (gasPurchase != null && verifyDeveloperPayload(gasPurchase)) {
+                Log.d(TAG, "We have gas. Consuming it.");
+                mHelper.consumeAsync(inventory.getPurchase(SKU_GAS), mConsumeFinishedListener);
+                return;
+            }
+            Log.d(TAG, "Initial inventory query finished; enabling main UI.");
+        }
+    };
+    /** Verifies the developer payload of a purchase. */
+    boolean verifyDeveloperPayload(Purchase p) {
+        String payload = p.getDeveloperPayload();
+
+        /*
+         * TODO: verify that the developer payload of the purchase is correct. It will be
+         * the same one that you sent when initiating the purchase.
+         *
+         * WARNING: Locally generating a random string when starting a purchase and
+         * verifying it here might seem like a good approach, but this will fail in the
+         * case where the user purchases an item on one device and then uses your app on
+         * a different device, because on the other device you will not have access to the
+         * random string you originally generated.
+         *
+         * So a good developer payload has these characteristics:
+         *
+         * 1. If two different users purchase an item, the payload is different between them,
+         *    so that one user's purchase can't be replayed to another user.
+         *
+         * 2. The payload must be such that you can verify it even when the app wasn't the
+         *    one who initiated the purchase flow (so that items purchased by the user on
+         *    one device work on other devices owned by the user).
+         *
+         * Using your own server to store and verify developer payloads across app
+         * installations is recommended.
+         */
+
+        return true;
+    }
+
+    // Callback for when a purchase is finished
+    IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {
+        public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
+            Log.d(TAG, "Purchase finished: " + result + ", purchase: " + purchase);
+
+            // if we were disposed of in the meantime, quit.
+            if (mHelper == null) return;
+
+            if (result.isFailure()) {
+                complain("Error purchasing: " + result);
+                return;
+            }
+            if (!verifyDeveloperPayload(purchase)) {
+                complain("Error purchasing. Authenticity verification failed.");
+                return;
+            }
+
+            Log.d(TAG, "Purchase successful.");
+
+            if (purchase.getSku().equals(SKU_GAS)) {
+                // bought 1/4 tank of gas. So consume it.
+                Log.d(TAG, "Purchase is gas. Starting gas consumption.");
+                mHelper.consumeAsync(purchase, mConsumeFinishedListener);
+            }
+            else if (purchase.getSku().equals(SKU_PREMIUM)) {
+                // bought the premium upgrade!
+                Log.d(TAG, "Purchase is premium upgrade. Congratulating user.");
+                alert("Thank you for upgrading to premium!");
+                mIsPremium = true;
+            }
+            else if (purchase.getSku().equals(SKU_INFINITE_GAS)) {
+                // bought the infinite gas subscription
+                Log.d(TAG, "Infinite gas subscription purchased.");
+                alert("Thank you for subscribing to infinite gas!");
+                mSubscribedToInfiniteGas = true;
+            }
+        }
+    };
+
+    // Called when consumption is complete
+    IabHelper.OnConsumeFinishedListener mConsumeFinishedListener = new IabHelper.OnConsumeFinishedListener() {
+        public void onConsumeFinished(Purchase purchase, IabResult result) {
+            Log.d(TAG, "Consumption finished. Purchase: " + purchase + ", result: " + result);
+
+            // if we were disposed of in the meantime, quit.
+            if (mHelper == null) return;
+
+            // We know this is the "gas" sku because it's the only one we consume,
+            // so we don't check which sku was consumed. If you have more than one
+            // sku, you probably should check...
+            if (result.isSuccess()) {
+                // successfully consumed, so we apply the effects of the item in our
+                // game world's logic, which in our case means filling the gas tank a bit
+                Log.d(TAG, "Consumption successful. Provisioning.");
+                saveData();
+                alert("You have purchased 10 usages.");
+            }
+            else {
+                complain("Error while consuming: " + result);
+            }
+            Log.d(TAG, "End consumption flow.");
+        }
+    };
+	
+    void saveData() {
+
+        /*
+         * WARNING: on a real application, we recommend you save data in a secure way to
+         * prevent tampering. For simplicity in this sample, we simply store the data using a
+         * SharedPreferences.
+         */
+
+        SharedPreferences.Editor spe = getPreferences(MODE_PRIVATE).edit();
+        spe.putInt("tank", mTank);
+        spe.commit();
+        Log.d(TAG, "Saved data: tank = " + String.valueOf(mTank));
+    }
+
+    void loadData() {
+        SharedPreferences sp = getPreferences(MODE_PRIVATE);
+        mTank = sp.getInt("tank", 0);
+        Log.d(TAG, "Loaded data: tank = " + String.valueOf(mTank));
+    }
+
+	
 	private LocationManager mLocationManager = null;
 	
 	private LocationManager getLocationManager() {
@@ -429,7 +638,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			invalidateOptionsMenu();
 
 			new WarningAndInitialDialog("Thank you for using Commuter Alert!",
-					"We hope that you find it useful.\n\nPlease ... if you like our app, give it a good rating.\nIf you don't, then please contact us. We're passionate about our software; and will fix any bugs, and take any requests for enhancements very seriously.\n\nYou can do either of these tasks from the menu button.", Home2.this).show();
+					"We hope that you find it useful.\n\nPlease ... if you like our app, give it a good rating.\nIf you don't, then please contact us. We will fix all bugs, and take any requests for enhancements very, very seriously.\n\nTo rate our app, or to contact us, press the menu.", Home2.this).show();
 		}
 	}
 
@@ -867,5 +1076,16 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			mHelp4.setVisibility(View.INVISIBLE);
 		}
 	}
+    void complain(String message) {
+        Log.e(TAG, "**** TrivialDrive Error: " + message);
+        alert("Error: " + message);
+    }
 
+    void alert(String message) {
+        AlertDialog.Builder bld = new AlertDialog.Builder(this);
+        bld.setMessage(message);
+        bld.setNeutralButton("OK", null);
+        Log.d(TAG, "Showing alert dialog: " + message);
+        bld.create().show();
+    }
 }

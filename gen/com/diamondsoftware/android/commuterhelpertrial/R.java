@@ -9,12 +9,12 @@ package com.diamondsoftware.android.commuterhelpertrial;
 
 public final class R {
     public static final class array {
-        public static final int entries_list_preference=0x7f0b0000;
-        public static final int entries_list_preferenceupdatefrequency=0x7f0b0002;
-        public static final int entryvalues_list_preference=0x7f0b0001;
-        public static final int entryvalues_list_preferenceupdatefrequency=0x7f0b0003;
-        public static final int logging_preferences=0x7f0b0004;
-        public static final int loggingvalues_preferences=0x7f0b0005;
+        public static final int entries_list_preference=0x7f0a0000;
+        public static final int entries_list_preferenceupdatefrequency=0x7f0a0002;
+        public static final int entryvalues_list_preference=0x7f0a0001;
+        public static final int entryvalues_list_preferenceupdatefrequency=0x7f0a0003;
+        public static final int logging_preferences=0x7f0a0004;
+        public static final int loggingvalues_preferences=0x7f0a0005;
     }
     public static final class attr {
         /** 
@@ -380,8 +380,8 @@ containing a value of this type.
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f0c0000;
-        public static final int activity_vertical_margin=0x7f0c0001;
+        public static final int activity_horizontal_margin=0x7f0b0000;
+        public static final int activity_vertical_margin=0x7f0b0001;
     }
     public static final class drawable {
         public static final int arrow=0x7f020000;
@@ -455,87 +455,87 @@ containing a value of this type.
         public static final int train_new_2=0x7f020044;
     }
     public static final class id {
-        public static final int action_contactus=0x7f09004d;
-        public static final int action_help=0x7f09004c;
-        public static final int action_rateapp=0x7f09004b;
-        public static final int action_settings=0x7f09004a;
-        public static final int book_now=0x7f090010;
-        public static final int btnDisarm=0x7f090027;
-        public static final int buttonAddress=0x7f09001f;
-        public static final int buttonHistory=0x7f090020;
-        public static final int buttonSearch=0x7f090030;
-        public static final int buyButton=0x7f09000a;
-        public static final int buy_now=0x7f09000f;
-        public static final int buy_with_google=0x7f09000e;
-        public static final int cancelhistory=0x7f090015;
-        public static final int cbSound=0x7f090023;
-        public static final int cbVibrate=0x7f090022;
-        public static final int cbVoice=0x7f090024;
-        public static final int checkBoxes=0x7f090021;
-        public static final int classic=0x7f090011;
-        public static final int closeMe=0x7f090045;
-        public static final int editText=0x7f09001e;
-        public static final int editTextNickname=0x7f090019;
-        public static final int emptyhistory=0x7f090017;
-        public static final int grayscale=0x7f090012;
-        public static final int historyListId=0x7f090016;
-        public static final int history_deleteit=0x7f090049;
-        public static final int history_renameit=0x7f090047;
-        public static final int history_selectit=0x7f090048;
-        public static final int historydescription=0x7f090042;
-        public static final int historylist_image=0x7f090040;
-        public static final int historyname=0x7f090041;
-        public static final int holo_dark=0x7f090005;
-        public static final int holo_light=0x7f090006;
-        public static final int hospitalitylist=0x7f090032;
-        public static final int hybrid=0x7f090004;
-        public static final int image_help_history_1=0x7f090018;
-        public static final int image_help_main_1=0x7f09002b;
-        public static final int image_help_main_2=0x7f09002c;
-        public static final int image_help_main_3=0x7f09002e;
-        public static final int image_help_main_4=0x7f09002d;
-        public static final int jedis=0x7f09003d;
-        public static final int linearLayout1=0x7f09001d;
-        public static final int linearLayout2=0x7f09001a;
-        public static final int map=0x7f090029;
-        public static final int map2=0x7f09002a;
-        public static final int match_parent=0x7f09000c;
-        public static final int monochrome=0x7f090013;
-        public static final int needDescription=0x7f090044;
-        public static final int nickname=0x7f090043;
-        public static final int none=0x7f090000;
-        public static final int normal=0x7f090001;
-        public static final int production=0x7f090007;
-        public static final int sandbox=0x7f090008;
-        public static final int satellite=0x7f090002;
-        public static final int searchButtonAddressOrIntersection=0x7f090038;
-        public static final int searchButtonBack=0x7f09003e;
-        public static final int searchButtonHistory=0x7f09003c;
-        public static final int searchButtonTrainStations=0x7f09003a;
-        public static final int searchIntersection=0x7f090037;
-        public static final int selectionDetails=0x7f09000b;
-        public static final int strict_sandbox=0x7f090009;
-        public static final int switchArmed=0x7f09002f;
-        public static final int terrain=0x7f090003;
-        public static final int textView1=0x7f09001b;
-        public static final int textView4=0x7f090033;
-        public static final int textView5=0x7f090034;
-        public static final int textView6=0x7f090035;
-        public static final int textView7=0x7f090036;
-        public static final int textView8=0x7f090039;
-        public static final int textView9=0x7f09003b;
-        public static final int textViewRRName=0x7f090046;
-        public static final int thelist=0x7f090014;
-        public static final int thumbnail=0x7f09003f;
-        public static final int tvCurrentLocation=0x7f090026;
-        public static final int tvCurrentLocation2=0x7f090031;
-        public static final int tvCurrentViewHeading=0x7f090025;
-        public static final int tvId1=0x7f090028;
-        public static final int tvSystemStatus2=0x7f09001c;
-        public static final int wrap_content=0x7f09000d;
+        public static final int action_contactus=0x7f0d004d;
+        public static final int action_help=0x7f0d004c;
+        public static final int action_rateapp=0x7f0d004b;
+        public static final int action_settings=0x7f0d004a;
+        public static final int book_now=0x7f0d000e;
+        public static final int btnDisarm=0x7f0d0027;
+        public static final int buttonAddress=0x7f0d001f;
+        public static final int buttonHistory=0x7f0d0020;
+        public static final int buttonSearch=0x7f0d0030;
+        public static final int buyButton=0x7f0d000a;
+        public static final int buy_now=0x7f0d000f;
+        public static final int buy_with_google=0x7f0d0010;
+        public static final int cancelhistory=0x7f0d0015;
+        public static final int cbSound=0x7f0d0023;
+        public static final int cbVibrate=0x7f0d0022;
+        public static final int cbVoice=0x7f0d0024;
+        public static final int checkBoxes=0x7f0d0021;
+        public static final int classic=0x7f0d0011;
+        public static final int closeMe=0x7f0d0045;
+        public static final int editText=0x7f0d001e;
+        public static final int editTextNickname=0x7f0d0019;
+        public static final int emptyhistory=0x7f0d0017;
+        public static final int grayscale=0x7f0d0012;
+        public static final int historyListId=0x7f0d0016;
+        public static final int history_deleteit=0x7f0d0049;
+        public static final int history_renameit=0x7f0d0047;
+        public static final int history_selectit=0x7f0d0048;
+        public static final int historydescription=0x7f0d0042;
+        public static final int historylist_image=0x7f0d0040;
+        public static final int historyname=0x7f0d0041;
+        public static final int holo_dark=0x7f0d0005;
+        public static final int holo_light=0x7f0d0006;
+        public static final int hospitalitylist=0x7f0d0032;
+        public static final int hybrid=0x7f0d0000;
+        public static final int image_help_history_1=0x7f0d0018;
+        public static final int image_help_main_1=0x7f0d002b;
+        public static final int image_help_main_2=0x7f0d002c;
+        public static final int image_help_main_3=0x7f0d002e;
+        public static final int image_help_main_4=0x7f0d002d;
+        public static final int jedis=0x7f0d003d;
+        public static final int linearLayout1=0x7f0d001d;
+        public static final int linearLayout2=0x7f0d001a;
+        public static final int map=0x7f0d0029;
+        public static final int map2=0x7f0d002a;
+        public static final int match_parent=0x7f0d000c;
+        public static final int monochrome=0x7f0d0013;
+        public static final int needDescription=0x7f0d0044;
+        public static final int nickname=0x7f0d0043;
+        public static final int none=0x7f0d0001;
+        public static final int normal=0x7f0d0002;
+        public static final int production=0x7f0d0007;
+        public static final int sandbox=0x7f0d0008;
+        public static final int satellite=0x7f0d0003;
+        public static final int searchButtonAddressOrIntersection=0x7f0d0038;
+        public static final int searchButtonBack=0x7f0d003e;
+        public static final int searchButtonHistory=0x7f0d003c;
+        public static final int searchButtonTrainStations=0x7f0d003a;
+        public static final int searchIntersection=0x7f0d0037;
+        public static final int selectionDetails=0x7f0d000b;
+        public static final int strict_sandbox=0x7f0d0009;
+        public static final int switchArmed=0x7f0d002f;
+        public static final int terrain=0x7f0d0004;
+        public static final int textView1=0x7f0d001b;
+        public static final int textView4=0x7f0d0033;
+        public static final int textView5=0x7f0d0034;
+        public static final int textView6=0x7f0d0035;
+        public static final int textView7=0x7f0d0036;
+        public static final int textView8=0x7f0d0039;
+        public static final int textView9=0x7f0d003b;
+        public static final int textViewRRName=0x7f0d0046;
+        public static final int thelist=0x7f0d0014;
+        public static final int thumbnail=0x7f0d003f;
+        public static final int tvCurrentLocation=0x7f0d0026;
+        public static final int tvCurrentLocation2=0x7f0d0031;
+        public static final int tvCurrentViewHeading=0x7f0d0025;
+        public static final int tvId1=0x7f0d0028;
+        public static final int tvSystemStatus2=0x7f0d001c;
+        public static final int wrap_content=0x7f0d000d;
     }
     public static final class integer {
-        public static final int google_play_services_version=0x7f0a0000;
+        public static final int google_play_services_version=0x7f090000;
     }
     public static final class layout {
         public static final int activity_history_list=0x7f030000;
@@ -550,13 +550,13 @@ containing a value of this type.
         public static final int railroad_station_name=0x7f030009;
     }
     public static final class menu {
-        public static final int history_contextmenu=0x7f0d0000;
-        public static final int home=0x7f0d0001;
-        public static final int home2=0x7f0d0002;
-        public static final int home2_help_on=0x7f0d0003;
-        public static final int search=0x7f0d0004;
-        public static final int searchactivity_menu=0x7f0d0005;
-        public static final int voice_helper=0x7f0d0006;
+        public static final int history_contextmenu=0x7f0c0000;
+        public static final int home=0x7f0c0001;
+        public static final int home2=0x7f0c0002;
+        public static final int home2_help_on=0x7f0c0003;
+        public static final int search=0x7f0c0004;
+        public static final int searchactivity_menu=0x7f0c0005;
+        public static final int voice_helper=0x7f0c0006;
     }
     public static final class raw {
         public static final int dieselhorn=0x7f050000;

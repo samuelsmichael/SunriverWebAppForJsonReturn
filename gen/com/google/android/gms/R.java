@@ -103,29 +103,29 @@ public final class R {
 		public static final int powered_by_google_light = 0x7f02003c;
 	}
 	public static final class id {
-		public static final int book_now = 0x7f090010;
-		public static final int buyButton = 0x7f09000a;
-		public static final int buy_now = 0x7f09000f;
-		public static final int buy_with_google = 0x7f09000e;
-		public static final int classic = 0x7f090011;
-		public static final int grayscale = 0x7f090012;
-		public static final int holo_dark = 0x7f090005;
-		public static final int holo_light = 0x7f090006;
-		public static final int hybrid = 0x7f090004;
-		public static final int match_parent = 0x7f09000c;
-		public static final int monochrome = 0x7f090013;
-		public static final int none = 0x7f090000;
-		public static final int normal = 0x7f090001;
-		public static final int production = 0x7f090007;
-		public static final int sandbox = 0x7f090008;
-		public static final int satellite = 0x7f090002;
-		public static final int selectionDetails = 0x7f09000b;
-		public static final int strict_sandbox = 0x7f090009;
-		public static final int terrain = 0x7f090003;
-		public static final int wrap_content = 0x7f09000d;
+		public static final int book_now = 0x7f0d000e;
+		public static final int buyButton = 0x7f0d000a;
+		public static final int buy_now = 0x7f0d000f;
+		public static final int buy_with_google = 0x7f0d0010;
+		public static final int classic = 0x7f0d0011;
+		public static final int grayscale = 0x7f0d0012;
+		public static final int holo_dark = 0x7f0d0005;
+		public static final int holo_light = 0x7f0d0006;
+		public static final int hybrid = 0x7f0d0000;
+		public static final int match_parent = 0x7f0d000c;
+		public static final int monochrome = 0x7f0d0013;
+		public static final int none = 0x7f0d0001;
+		public static final int normal = 0x7f0d0002;
+		public static final int production = 0x7f0d0007;
+		public static final int sandbox = 0x7f0d0008;
+		public static final int satellite = 0x7f0d0003;
+		public static final int selectionDetails = 0x7f0d000b;
+		public static final int strict_sandbox = 0x7f0d0009;
+		public static final int terrain = 0x7f0d0004;
+		public static final int wrap_content = 0x7f0d000d;
 	}
 	public static final class integer {
-		public static final int google_play_services_version = 0x7f0a0000;
+		public static final int google_play_services_version = 0x7f090000;
 	}
 	public static final class string {
 		public static final int auth_client_needs_enabling_title = 0x7f070001;
