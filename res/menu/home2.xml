@@ -23,5 +23,10 @@
         android:orderInCategory="96"
         android:showAsAction="collapseActionView"
         android:title="Contact Us" />
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="90"
+        android:showAsAction="collapseActionView"
+        android:title="About" />
     
 </menu>

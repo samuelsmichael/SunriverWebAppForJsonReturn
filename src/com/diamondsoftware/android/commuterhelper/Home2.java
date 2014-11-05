@@ -1,8 +1,10 @@
 package com.diamondsoftware.android.commuterhelper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -68,14 +70,15 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
     // Debug tag, for logging
     static final String TAG = "CommuterAlert";
     // Does the user have the premium upgrade?
-    static Boolean mIsPremium = null;
+    public static Boolean mIsPremium = null;
     // Current amount of gas in tank, in units
-    static Integer mTank=null;
+    public static Integer mTank=null;
 
     
 
     // Does the user have an active subscription to the infinite gas plan?
-    static Boolean mSubscribedToInfiniteGas = null;
+    public static Boolean mSubscribedToInfiniteGas = null;
+    public static GregorianCalendar mSubscriptionEnds;
 
     // SKUs for our products: the premium upgrade (non-consumable) and gas (consumable)
     static final String SKU_PREMIUM = "premium";
@@ -120,8 +123,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 												// purged.
 	private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK = "ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
 	private static final String ACTION_ETA="actioneta";
-	private MyBroadcastReceiver mBroadcastReceiver;
-	private IntentFilter mIntentFilter;
+	private static MyBroadcastReceiver mBroadcastReceiver;
+	private static IntentFilter mIntentFilter;
 	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n-- Long press the screen\n   at the desired location. \n\n              or\n\n-- Press the Search button.";
 	public static String CURRENT_VERSION="1.00";
 	private boolean needToBringUpSplashScreen = false;
@@ -229,26 +232,25 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		mSingleton=this;
 		// Create a new broadcast receiver to receive updates from the listeners
 		// and service
-		if(mBroadcastReceiver!=null) {
-			LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+		if(mBroadcastReceiver==null) {
+			mBroadcastReceiver = new MyBroadcastReceiver();
+			// Create an intent filter for the broadcast receiver
+			mIntentFilter = new IntentFilter();
+			// Action for broadcast Intents containing various types of geofencing
+			// errors
+			mIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCE_ERROR);
+			// Action for broadcast Intents to arm the address
+			mIntentFilter.addAction(ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK);
+			// All Location Services sample apps use this category
+			mIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+			// Time left notification
+			mIntentFilter.addAction(ACTION_ETA);
+
+			// Register the broadcast receiver to receive status updates
+			LocalBroadcastManager.getInstance(this).registerReceiver(
+					mBroadcastReceiver, mIntentFilter);
 		}
 		
-		mBroadcastReceiver = new MyBroadcastReceiver();
-		// Create an intent filter for the broadcast receiver
-		mIntentFilter = new IntentFilter();
-		// Action for broadcast Intents containing various types of geofencing
-		// errors
-		mIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCE_ERROR);
-		// Action for broadcast Intents to arm the address
-		mIntentFilter.addAction(ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK);
-		// All Location Services sample apps use this category
-		mIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
-		// Time left notification
-		mIntentFilter.addAction(ACTION_ETA);
-
-		// Register the broadcast receiver to receive status updates
-		LocalBroadcastManager.getInstance(this).registerReceiver(
-				mBroadcastReceiver, mIntentFilter);
 		GregorianCalendar calendar = new GregorianCalendar();
 		calendar.add(GregorianCalendar.DATE, -PURGECACHEDAYSOLD);
 		getHomeManager().getDbAdapter().purgeCacheOfItemsOlderThan(
@@ -427,6 +429,13 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
             Purchase infiniteGasPurchase = inventory.getPurchase(SKU_INFINITE_GAS);
             mSubscribedToInfiniteGas = (infiniteGasPurchase != null &&
                     verifyDeveloperPayload(infiniteGasPurchase));
+            if(mSubscribedToInfiniteGas) {
+            	Date date=new Date();
+            	date.setTime(infiniteGasPurchase.getPurchaseTime());
+            	GregorianCalendar gc=new GregorianCalendar(Locale.getDefault());
+            	gc.setTime(date);
+            	mSubscriptionEnds=gc;
+            }
             Log.d(TAG, "User " + (mSubscribedToInfiniteGas ? "HAS" : "DOES NOT HAVE")
                         + " infinite gas subscription.");
 
@@ -673,7 +682,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 						Intent intent = new Intent(this,Home2.class)
 						.setAction("TrialVersionDialog")
 						.putExtra("Title", "Trial Software Alert")
-						.putExtra("Message", "Your trial period is nearing its end. You have "+ String.valueOf((TRIAL_ALLOWANCE-mHomeManager.getSecurityManager().getCountUserArmed()+1)) +" trials left.")
+						.putExtra("Message", "Thank you for utilizing Commuter Alert. We sincerely hope that you find it useful. Your usage period is nearing its end. You have "+ String.valueOf((TRIAL_ALLOWANCE-mHomeManager.getSecurityManager().getCountUserArmed()+1)) +" usages left; after which time you will be asked to:\n\n1. Buy a packet of 10 usages: $0.99, \n2. Buy an unlimited-use subscription that lasts a year: $5.99, or\n3. Buy unlimited use forever: $10.99. ")
 						.putExtra("TrialPeriodIsOver", false);
 					startActivity(intent);
 					}
@@ -682,7 +691,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 				Intent intent = new Intent(this,Home2.class)
 					.setAction("TrialVersionDialog")
 					.putExtra("Title", "Unregistered Version")
-					.putExtra("Message", "It appears that you are using an un-registered version. In order to continue using Commuter Alert you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alert again.")
+					.putExtra("Message", "It appears that you are using an un-registered version. In order to continue using Commuter Alert you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alert again; and if that fails, please contact us.")
 					.putExtra("TrialPeriodIsOver", true);
 				startActivity(intent);
 				return false;
@@ -1204,7 +1213,6 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
 			if (TextUtils
 					.equals(action, ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK)) {
-				getHomeManager();
 				if(HomeManager.mPreventReentry==0) {
 					HomeManager.mPreventReentry++;
 					getHomeManager().manageKeyedInAddress(

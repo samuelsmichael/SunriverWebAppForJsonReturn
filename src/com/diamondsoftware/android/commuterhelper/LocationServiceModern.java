@@ -152,7 +152,7 @@ com.google.android.gms.location.LocationListener{
 		    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
 		    				"onLocationChanged", this)
 		    				.log("Effective Speed: "+String.valueOf(effectiveSpeedMPHNic), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
-					if(effectiveSpeedMPHNic>5 || true /*ditto*/) {
+					if(effectiveSpeedMPHNic>5 ||  !location.hasSpeed()) {
 						if(mSettingsManager.getEffectiveLocation()==null) {
 							mSettingsManager.setEffectiveLocation(location.getLatitude(), location.getLongitude());
 							mSettingsManager.setEffectiveDatetiem(new Date());
@@ -215,10 +215,14 @@ com.google.android.gms.location.LocationListener{
 													float secondsLeft=dx/effectiveSpeedMetersPerSecond;	
 													int secondsLeftInt=(int)secondsLeft;
 													float minutesLeft=secondsLeft/60;
-													int minutesLeftWholeNumber=(int)minutesLeft;
-													int secondsLeftWholeNumber=secondsLeftInt % 60;
-													notificationTimeTillArrival="ETA: "+ String.valueOf(minutesLeftWholeNumber) +
-															" m " + String.valueOf(secondsLeftWholeNumber) + "s ";
+													if(minutesLeft<=500) {
+														int minutesLeftWholeNumber=(int)minutesLeft;
+														int secondsLeftWholeNumber=secondsLeftInt % 60;
+														notificationTimeTillArrival="ETA: "+ String.valueOf(minutesLeftWholeNumber) +
+																" m " + String.valueOf(secondsLeftWholeNumber) + "s ";
+													} else {
+														mSettingsManager.setEffectiveLocation(0, 0);  // restart
+													}
 												} else {
 													mSettingsManager.setEffectiveLocation(0, 0);
 												}
