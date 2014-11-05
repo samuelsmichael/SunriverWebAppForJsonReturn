@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,6 +38,7 @@ public class SecurityManager {
 	private static final String BASE64_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArcOle5ouVLsqrmYiUQkQAQsfyW4mGZhEAn7HY0uICPfCN60AUDOG8ooTT5UjyNP30Fbd7LRyHTYq7STOsi7C1+2+JwBbjcu7bgXl+nHz/XsxCOzALy4KJw9jvZFGBMWx8+17C98OEjiejw9AqU11PvLoZx+cPIqJNxeOX5P0htZiewe4VHrXeZGsitdZwy/uP7sYGxKgZowG/VdAj89KGFuM3+MifYT58dEGBItKs0Y+Eg2LEVddOLkbT+PAL1FJA/MM4nBQ65UR/rBxrgwEk7Ev6LmjgFS9lSaYHh7AYmHBl7H8/Vm6OV0IB3012B3e4l+2lSNzqxWDQKCM3q0PpwIDAQAB";
 	private static boolean haveDoneRegistrationCheck = false;
 	private Handler mHandler;	
+	private SettingsManager mSettingsManager;
 
 
 	private String getDeviceId() {
@@ -47,6 +49,7 @@ public class SecurityManager {
 
 	public SecurityManager(Activity activity) {
 		mActivity = activity;
+		mSettingsManager=new SettingsManager(mActivity);
 		if (!haveDoneRegistrationCheck && !isTrialVersion()) {
 			final Timer jdTimer = new Timer("Licensing");
 			jdTimer.schedule(new TimerTask() {
@@ -83,25 +86,26 @@ public class SecurityManager {
 	}
 
 	boolean isTrialVersion() {
+		Integer mTank=mSettingsManager.getMTank();
 		boolean isTrial= 
-				Home2.mIsPremium!=null &&
-				Home2.mSubscribedToInfiniteGas!=null &&
-				(Home2.mTank==null || Home2.mTank.intValue()==0) &&
-				!Home2.mIsPremium.booleanValue() &&
-				!Home2.mSubscribedToInfiniteGas.booleanValue();
+				(mTank==null || mTank.intValue()==0) &&
+				!mSettingsManager.getBoughtPermanentLicense() &&
+				(!mSettingsManager.getBoughtASubscription() || mSettingsManager.getSubscriptionEnds().getTime()<new Date().getTime());
 		return isTrial;
 	}
 
 	boolean hasExceededTrials() {
-		if(Home2.mTank == null) {
+		Integer mTank=mSettingsManager.getMTank();
+		if(mTank == null) {
 			return getCountUserArmed() > Home2.TRIAL_ALLOWANCE;
 		} else {
-			return Home2.mTank.intValue()==0;
+			return mTank.intValue()==0;
 		}
 	}
 
 	boolean startWarnings() {
-		if(Home2.mTank == null) {
+		Integer mTank=mSettingsManager.getMTank();
+		if(mTank == null) {
 			return getCountUserArmed() > START_TRIAL_WARNINGS;
 		} else {
 			return false;
@@ -109,10 +113,13 @@ public class SecurityManager {
 	}
 
 	void incrementTrials() {
-		if(Home2.mTank==null) {
+		Integer mTank=mSettingsManager.getMTank();
+		if(mTank==null) {
 			stampVersion(getCountUserArmed() + 1);
 		} else {
-			Home2.mTank--;
+			int mt=mTank.intValue();
+			mt--;
+			mSettingsManager.setMTank(Integer.valueOf(mt));
 		}
 	}
 

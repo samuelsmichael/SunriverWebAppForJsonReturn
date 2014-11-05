@@ -1,6 +1,9 @@
 package com.diamondsoftware.android.commuterhelper;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -28,6 +31,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings.Secure;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -70,20 +74,11 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
     // Debug tag, for logging
     static final String TAG = "CommuterAlert";
     // Does the user have the premium upgrade?
-    public static Boolean mIsPremium = null;
-    // Current amount of gas in tank, in units
-    public static Integer mTank=null;
-
-    
-
-    // Does the user have an active subscription to the infinite gas plan?
-    public static Boolean mSubscribedToInfiniteGas = null;
-    public static GregorianCalendar mSubscriptionEnds;
 
     // SKUs for our products: the premium upgrade (non-consumable) and gas (consumable)
     static final String SKU_PREMIUM = "premium";
-    static final String SKU_GAS = "gas";
-
+//    static final String SKU_GAS = "gas";
+    static final String SKU_GAS="android.test.purchased";
     // SKU for our subscription (infinite gas)
     static final String SKU_INFINITE_GAS = "infinite_gas";
 
@@ -123,7 +118,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 												// purged.
 	private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK = "ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
 	private static final String ACTION_ETA="actioneta";
-	private static MyBroadcastReceiver mBroadcastReceiver;
+	private  MyBroadcastReceiver mBroadcastReceiver;
 	private static IntentFilter mIntentFilter;
 	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n-- Long press the screen\n   at the desired location. \n\n              or\n\n-- Press the Search button.";
 	public static String CURRENT_VERSION="1.00";
@@ -153,7 +148,6 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		setContentView(R.layout.activity_home2);
 		
 		// load mGas
-		loadData();
 		String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA14rS4bA3hKKS0xUq239+qygEqxwkpvDKEtcAptoZXsprt8uL6IY3gO9mbOUcIFc6sQRAGE7+KRXH3tWkHmBIVKjmX1qFvu7HZWdYfZeg1qJUGpI12LHDeFL3c533njNrzP+eHPetmqgbOTexeQbzEuZP8POzXhEXICNMYvgM3MMrXpEbw1IjxTUmMyZfwz5TSfbnqqgyZ4qSxLzb8gAuOQbIe2dYyNMj8IZ+yMH6HBorvXOj2Zig/EaYL7mvcb5/oXmp/jXJjcP408URM2xoSyraxeSTNGp+0c5lQZNLp5ex0/fi3ZbRn3qgATxTAeFktIeBYxlyS/g1A+GEhHzsHwIDAQAB";
 		mHelper = new IabHelper(this,base64EncodedPublicKey);
 		mHelper.enableDebugLogging(true);
@@ -166,10 +160,20 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
                 if (!result.isSuccess()) {
                     // Oh noes, there was a problem.
-                    complain("Problem setting up in-app billing: " + result);
+                    complain("Problem setting up in-app billing: " + result,false);
                     return;
                 }
-
+                /*
+try {
+                int response = mHelper.mService.consumePurchase(3, getPackageName(),"inapp:"+getPackageName()+":android.test.purchased");
+                int bbhbb=response;
+                int cc=bbhbb;
+                
+} catch (Exception ee) {
+	Exception ff=ee;
+	Exception gg=ff;
+}
+*/
                 // Have we been disposed of in the meantime? If so, quit.
                 if (mHelper == null) return;
 
@@ -341,8 +345,14 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
     public void onBuyGasButtonClicked() {
         Log.d(TAG, "Buy gas button clicked.");
 
-        if (mSubscribedToInfiniteGas) {
-            complain("No need! You're subscribed to infinite gas. Isn't that awesome?");
+        if (
+        		(mSettingsManager.getBoughtASubscription()&&mSettingsManager.getSubscriptionEnds().getTime()>new Date().getTime()) ||
+        		(mSettingsManager.getBoughtPermanentLicense())
+        		) 
+        {
+        	DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        	String reportDate = df.format(mSettingsManager.getSubscriptionEnds());
+            complain("No need! You've bought a subscription that doesn't end until ."+reportDate,false);
             return;
         }
 
@@ -353,7 +363,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
         /* TODO: for security, generate your payload here for verification. See the comments on
          *        verifyDeveloperPayload() for more info. Since this is a SAMPLE, we just use
          *        an empty string, but on a production app you should carefully generate this. */
-        String payload = "";
+        String payload = Secure.getString(this.getContentResolver(),
+                Secure.ANDROID_ID);
 
         mHelper.launchPurchaseFlow(this, SKU_GAS, RC_REQUEST,
                 mPurchaseFinishedListener, payload);
@@ -366,7 +377,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
         /* TODO: for security, generate your payload here for verification. See the comments on
          *        verifyDeveloperPayload() for more info. Since this is a SAMPLE, we just use
          *        an empty string, but on a production app you should carefully generate this. */
-        String payload = "";
+        String payload = Secure.getString(this.getContentResolver(),
+                                                    Secure.ANDROID_ID);
 
         mHelper.launchPurchaseFlow(this, SKU_PREMIUM, RC_REQUEST,
                 mPurchaseFinishedListener, payload);
@@ -376,14 +388,15 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
     // flow for subscription.
     public void onInfiniteGasButtonClicked() {
         if (!mHelper.subscriptionsSupported()) {
-            complain("Subscriptions not supported on your device yet. Sorry!");
+            complain("Subscriptions not supported on your device yet. Sorry!",false);
             return;
         }
 
         /* TODO: for security, generate your payload here for verification. See the comments on
          *        verifyDeveloperPayload() for more info. Since this is a SAMPLE, we just use
          *        an empty string, but on a production app you should carefully generate this. */
-        String payload = "";
+        String payload = Secure.getString(this.getContentResolver(),
+                Secure.ANDROID_ID);
 
         Log.d(TAG, "Launching purchase flow for infinite gas subscription.");
         mHelper.launchPurchaseFlow(this,
@@ -398,15 +411,12 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
             // Have we been disposed of in the meantime? If so, quit.
             if (mHelper == null) {
-        		if (!getHomeManager().getSecurityManager().initializeVersion()) {
-        			needToBringUpSplashScreen = true;
-        		}
             	return;
             }
 
             // Is it a failure?
             if (result.isFailure()) {
-                complain("Failed to query inventory: " + result);
+                complain("Failed to query inventory: " + result,false);
                 return;
             }
 
@@ -419,25 +429,30 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
              */
 
             // Do we have the premium upgrade?
-            mIsPremium=false;
             Purchase premiumPurchase = inventory.getPurchase(SKU_PREMIUM);
-            mIsPremium = (premiumPurchase != null && verifyDeveloperPayload(premiumPurchase));
-            Log.d(TAG, "User is " + (mIsPremium ? "PREMIUM" : "NOT PREMIUM"));
+            mSettingsManager.setBoughtPermanentLicence(premiumPurchase != null && verifyDeveloperPayload(premiumPurchase));
+            Log.d(TAG, "User is " + (mSettingsManager.getBoughtPermanentLicense() ? "PREMIUM" : "NOT PREMIUM"));
 
-            // Do we have the infinite gas plan?
-            mSubscribedToInfiniteGas = false;
+            // Do we have the subscription gas plan?
             Purchase infiniteGasPurchase = inventory.getPurchase(SKU_INFINITE_GAS);
-            mSubscribedToInfiniteGas = (infiniteGasPurchase != null &&
+            Calendar calendar=null;
+            if(infiniteGasPurchase!=null) {
+            	calendar=Calendar.getInstance();
+            	calendar.setTimeInMillis(infiniteGasPurchase.getPurchaseTime());
+            	calendar.add(Calendar.YEAR, 1);
+            }
+            mSettingsManager.setBoughtASubscription(infiniteGasPurchase != null &&
+            		(calendar.getTimeInMillis()>new Date().getTime()) &&
                     verifyDeveloperPayload(infiniteGasPurchase));
-            if(mSubscribedToInfiniteGas) {
+            if(mSettingsManager.getBoughtASubscription()) {
             	Date date=new Date();
             	date.setTime(infiniteGasPurchase.getPurchaseTime());
             	GregorianCalendar gc=new GregorianCalendar(Locale.getDefault());
             	gc.setTime(date);
-            	mSubscriptionEnds=gc;
+            	mSettingsManager.setSubscriptionEnds(gc.getTime());
             }
-            Log.d(TAG, "User " + (mSubscribedToInfiniteGas ? "HAS" : "DOES NOT HAVE")
-                        + " infinite gas subscription.");
+            Log.d(TAG, "User " + (mSettingsManager.getBoughtASubscription() ? "HAS" : "DOES NOT HAVE")
+                        + " gas subscription.");
 
             // Check for gas delivery -- if we own gas, we should fill up the tank immediately
             Purchase gasPurchase = inventory.getPurchase(SKU_GAS);
@@ -456,6 +471,12 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
     /** Verifies the developer payload of a purchase. */
     boolean verifyDeveloperPayload(Purchase p) {
         String payload = p.getDeveloperPayload();
+        if(payload.equals(Secure.getString(this.getContentResolver(),
+                Secure.ANDROID_ID))) {
+        	return true;
+        } else {
+        	return false;
+        }
 
         /*
          * TODO: verify that the developer payload of the purchase is correct. It will be
@@ -480,7 +501,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
          * installations is recommended.
          */
 
-        return true;
+        
     }
 
     // Callback for when a purchase is finished
@@ -492,11 +513,11 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
             if (mHelper == null) return;
 
             if (result.isFailure()) {
-                complain("Error purchasing: " + result);
+                complain("Error purchasing: " + result,true);
                 return;
             }
             if (!verifyDeveloperPayload(purchase)) {
-                complain("Error purchasing. Authenticity verification failed.");
+                complain("Error purchasing. Authenticity verification failed.",true);
                 return;
             }
 
@@ -510,14 +531,16 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
             else if (purchase.getSku().equals(SKU_PREMIUM)) {
                 // bought the premium upgrade!
                 Log.d(TAG, "Purchase is premium upgrade. Congratulating user.");
-                alert("Thank you for upgrading to premium!");
-                mIsPremium = true;
+                mSettingsManager.setBoughtPermanentLicence(true);
+                mSettingsManager.setMTank(null);
+                alert("Thank you for upgrading to a permanent license!",true);
             }
             else if (purchase.getSku().equals(SKU_INFINITE_GAS)) {
                 // bought the infinite gas subscription
                 Log.d(TAG, "Infinite gas subscription purchased.");
-                alert("Thank you for subscribing to infinite gas!");
-                mSubscribedToInfiniteGas = true;
+                mSettingsManager.setBoughtASubscription(true);
+                mSettingsManager.setMTank(null);
+                alert("Thank you for subscribing to infinite gas!",true);
             }
         }
     };
@@ -537,42 +560,16 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
                 // successfully consumed, so we apply the effects of the item in our
                 // game world's logic, which in our case means filling the gas tank a bit
                 Log.d(TAG, "Consumption successful. Provisioning.");
-                mTank=10;
-                saveData();
-                alert("You have purchased 10 usages.");
+                if(mSettingsManager.getMTank()==null || mSettingsManager.getMTank().intValue()==0) {
+                	mSettingsManager.setMTank(Integer.valueOf(10));
+                }
             }
             else {
-                complain("Error while consuming: " + result);
+                complain("Error while consuming: " + result,true);
             }
             Log.d(TAG, "End consumption flow.");
         }
     };
-	
-    void saveData() {
-
-        /*
-         * WARNING: on a real application, we recommend you save data in a secure way to
-         * prevent tampering. For simplicity in this sample, we simply store the data using a
-         * SharedPreferences.
-         */
-
-        SharedPreferences.Editor spe = getPreferences(MODE_PRIVATE).edit();
-        spe.putInt("tank", mTank);
-        spe.commit();
-        Log.d(TAG, "Saved data: tank = " + String.valueOf(mTank));
-    }
-
-    void loadData() {
-        SharedPreferences sp = getPreferences(MODE_PRIVATE);
-        int tryTank=sp.getInt("tank", 99999);
-        if(tryTank==99999) {
-        	mTank=null;
-        } else {
-        	mTank = tryTank;
-        }
-        Log.d(TAG, "Loaded data: tank = " + String.valueOf(mTank));
-    }
-
 	
 	private LocationManager mLocationManager = null;
 	
@@ -697,6 +694,9 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 				return false;
 				
 			}
+		}
+		if(mSettingsManager.getMTank()!=null) {
+			mHomeManager.getSecurityManager().incrementTrials();
 		}
 		return true;
 	}
@@ -879,6 +879,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
 								mFAlertDialog.dismiss();
+								mActivityX.finish();
 							}
 						});
 				builder.setCancelable(false);
@@ -912,7 +913,6 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 							Home2.mSingleton.onInfiniteGasButtonClicked();
 						}
 						mFAlertDialog.dismiss();	
-
 					}
 				});
 		builder.setNeutralButton("10 usages: USD 0.99",
@@ -1221,13 +1221,21 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			} else {
 				if(TextUtils.equals(action,ACTION_ETA)) {
 
-					String jdText=settings.getString(GlobalStaticValues.KEY_SpeakableAddress, "") +
+					final String jdText=settings.getString(GlobalStaticValues.KEY_SpeakableAddress, "") +
 							" " + intent.getStringExtra("eta");
 		    		new Logger(
 		    				Integer.parseInt(settings.getString("LoggingLevel", String.valueOf(GlobalStaticValues.LOG_LEVEL_CRITICAL))),
 		    				"Home2.onReceive", context)
 		    				.log("jdText: "+String.valueOf(jdText), GlobalStaticValues.LOG_LEVEL_NOTIFICATION);
-					currentLocation.setText(jdText);
+		    		
+					runOnUiThread(new Runnable() {
+						public void run() {
+							currentLocation.setText(jdText);
+						}
+					});					
+
+		    		
+		    		
 			    	Notification.Builder mBuilder=new Notification.Builder(Home2.this)
 			    	.setSmallIcon(R.drawable.ic_launcher_new)
 			    	.setContentTitle("Commuter Alert is on")
@@ -1400,15 +1408,24 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			mHelp4.setVisibility(View.INVISIBLE);
 		}
 	}
-    void complain(String message) {
+    void complain(String message, boolean finishOnReturn) {
         Log.e(TAG, "**** TrivialDrive Error: " + message);
-        alert("Error: " + message);
+        alert("Error: " + message, finishOnReturn);
     }
 
-    void alert(String message) {
+    void alert(String message, boolean finishOnReturn) {
+    	final boolean finishOnReturnFinal=finishOnReturn;
         AlertDialog.Builder bld = new AlertDialog.Builder(this);
         bld.setMessage(message);
-        bld.setNeutralButton("OK", null);
+        bld.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if(finishOnReturnFinal) {
+					Home2.this.finish();
+				}
+			}
+		});
         Log.d(TAG, "Showing alert dialog: " + message);
         bld.create().show();
     }

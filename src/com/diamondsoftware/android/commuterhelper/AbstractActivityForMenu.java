@@ -2,6 +2,7 @@ package com.diamondsoftware.android.commuterhelper;
 
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import com.diamondsoftware.android.commuterhelper.Home2.WarningAndInitialDialog;
 import com.diamondsoftware.android.commuterhelper.R;
@@ -77,15 +78,18 @@ public abstract class AbstractActivityForMenu extends Activity {
 				return true;
 			case R.id.action_about:
 				int mTank=0;
-				if(!Home2.mSubscribedToInfiniteGas && !Home2.mIsPremium) {
-					if(Home2.mTank!=null){
-						mTank=Home2.mTank.intValue();
+				if(!mSettingsManager.getBoughtASubscription() && !mSettingsManager.getBoughtPermanentLicense()) {
+					Integer mTankInteger=mSettingsManager.getMTank();
+					if(mTankInteger!=null){
+						mTank=mTankInteger.intValue();
 					} else {
 						int usages=new SecurityManager(this).getCountUserArmed();
 						mTank=Home2.TRIAL_ALLOWANCE-usages;
 					}
 				}
-				AboutDialog ab=new AboutDialog(mTank,Home2.mSubscribedToInfiniteGas, Home2.mSubscriptionEnds, Home2.mIsPremium);
+				GregorianCalendar gc=new GregorianCalendar(Locale.getDefault());
+				gc.setTime(mSettingsManager.getSubscriptionEnds());
+				AboutDialog ab=new AboutDialog(mTank,mSettingsManager.getBoughtASubscription(), gc, mSettingsManager.getBoughtPermanentLicense());
 				ab.show();
 				return true;
 		}

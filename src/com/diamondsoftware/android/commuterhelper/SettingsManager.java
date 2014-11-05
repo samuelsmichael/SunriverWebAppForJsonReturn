@@ -28,6 +28,54 @@ public class SettingsManager {
 		editor.putString(key,value);
 		editor.commit();				
 	}
+	public Integer getMTank() {
+		int value=mSharedPreferences.getInt(GlobalStaticValues.KEY_MTANK, -1);
+		if(value==-1) {
+			return null;
+		} else {
+			return Integer.valueOf(value);
+		}
+	}
+	public void setMTank(Integer value) {
+		Editor editor=mSharedPreferences.edit();
+		if(value==null) {
+			editor.putInt(GlobalStaticValues.KEY_MTANK, -1);
+		} else {
+			editor.putInt(GlobalStaticValues.KEY_MTANK, value.intValue());
+		}
+		editor.commit();				
+	}
+	public boolean getBoughtASubscription() {
+		return mSharedPreferences.getBoolean(GlobalStaticValues.KEY_BOUGHT_A_SUBSCRIPTION, false);
+	}
+	public void setBoughtASubscription(boolean value) {
+		Editor editor=mSharedPreferences.edit();
+		editor.putBoolean(GlobalStaticValues.KEY_BOUGHT_A_SUBSCRIPTION, value);
+		editor.commit();				
+	}
+	public boolean getBoughtPermanentLicense() {
+		return mSharedPreferences.getBoolean(GlobalStaticValues.KEY_BOUGHT_A_SUBSCRIPTION, false);
+	}
+	public void setBoughtPermanentLicence(boolean value) {
+		Editor editor=mSharedPreferences.edit();
+		editor.putBoolean(GlobalStaticValues.KEY_BOUGHT_A_PERMANENT_LICENSE, value);
+		editor.commit();				
+	}
+	public Date getSubscriptionEnds () {
+		String value=getValue(GlobalStaticValues.KEY_SUBSCRIPTION_ENDS,"");
+		if(value.equals("")) {
+			return new GregorianCalendar().getTime();
+		}
+		try {
+			return DbAdapter.mDateFormat.parse(value);
+		} catch (Exception e) {
+			return new Date();
+		}
+	}
+	public void setSubscriptionEnds(Date date) {
+		setValue(GlobalStaticValues.KEY_SUBSCRIPTION_ENDS,DbAdapter.mDateFormat.format(date));
+	}
+	
 	public void setHelpOverlayStateOn(boolean value) {
 		Editor editor=mSharedPreferences.edit();
 		editor.putString(GlobalStaticValues.KEY_HELP_OVERLAY_STATE, value?"true":"false");

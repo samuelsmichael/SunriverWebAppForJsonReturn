@@ -21,6 +21,11 @@ public class GlobalStaticValues {
 	public static final String ACTION_STOP_ACTIVITY_RECOGNITION="ACTIONSTOPACTIVITYRECOGNITION";
 	public static final String KEY_HELP_OVERLAY_STATE = "HelpOverlayState";
 	public static final String KEY_CONTINUOUS_ALARM_STATE="continuousalarm";
+	public static final String KEY_MTANK="mtank409";
+	public static final String KEY_BOUGHT_A_SUBSCRIPTION="bas409";
+	public static final String KEY_BOUGHT_A_PERMANENT_LICENSE="bapl409";
+	public static final String KEY_SUBSCRIPTION_ENDS="subends409";
+	
 	
 	public static final String KEY_SpeakableAddress="k_spa";
 	public static final String KEY_EFFECTIVE_DATETIME ="k_e_t";

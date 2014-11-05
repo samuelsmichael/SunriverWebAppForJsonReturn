@@ -95,7 +95,7 @@ public class IabHelper {
     Context mContext;
 
     // Connection to the service
-    IInAppBillingService mService;
+    public IInAppBillingService mService;
     ServiceConnection mServiceConn;
 
     // The request code used to launch purchase flow
