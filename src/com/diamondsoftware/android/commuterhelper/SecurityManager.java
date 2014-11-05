@@ -96,7 +96,7 @@ public class SecurityManager {
 
 	boolean hasExceededTrials() {
 		Integer mTank=mSettingsManager.getMTank();
-		if(mTank == null) {
+		if(mTank == null || mTank.intValue()==0) {
 			return getCountUserArmed() > Home2.TRIAL_ALLOWANCE;
 		} else {
 			return mTank.intValue()==0;
@@ -105,7 +105,7 @@ public class SecurityManager {
 
 	boolean startWarnings() {
 		Integer mTank=mSettingsManager.getMTank();
-		if(mTank == null) {
+		if(mTank == null || mTank.intValue()==0) {
 			return getCountUserArmed() > START_TRIAL_WARNINGS;
 		} else {
 			return false;
@@ -114,7 +114,7 @@ public class SecurityManager {
 
 	void incrementTrials() {
 		Integer mTank=mSettingsManager.getMTank();
-		if(mTank==null) {
+		if(mTank==null||mTank.intValue()==0) {
 			stampVersion(getCountUserArmed() + 1);
 		} else {
 			int mt=mTank.intValue();

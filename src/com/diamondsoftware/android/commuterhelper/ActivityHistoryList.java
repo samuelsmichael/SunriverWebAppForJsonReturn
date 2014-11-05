@@ -43,6 +43,20 @@ public class ActivityHistoryList extends AbstractActivityForMenu {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_history_list);
 		mSharedPreferences=getSharedPreferences(getApplicationContext().getPackageName() + "_preferences", Activity.MODE_PRIVATE);
+		Intent jdIntent=getIntent();
+		if(jdIntent!=null) {
+			String jdAction=jdIntent.getAction();
+			if(jdAction!=null) {
+				String latitude=jdIntent.getStringExtra("mLatitude");
+				String longitude=jdIntent.getStringExtra("mLongitude");
+				String name=jdIntent.getStringExtra("mName");
+				if(latitude!=null && longitude!=null && name !=null) {
+					selectIt(
+						Double.valueOf(latitude), Double.valueOf(longitude), name, jdIntent.getBooleanExtra("mIsStation", true));
+				}
+				finish();
+			}
+		}
 		final Button cancelHistory=(Button) findViewById(R.id.cancelhistory);
 		final TextView empty=(TextView)findViewById(R.id.emptyhistory);
 		cancelHistory.setOnClickListener(new View.OnClickListener() {
@@ -198,9 +212,21 @@ public class ActivityHistoryList extends AbstractActivityForMenu {
 		}
 		return retCode;
 	}	
+	public class HistorySelection {
+		double mLatitude;
+		double mLongitude;
+		String mName;
+		boolean mIsStation;
+	}
 	private void selectIt(double latitude, double longitude, String name, boolean isStation) {
 		/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
 		if(!Home2.mSingleton.doTrialCheck()) {
+			HistorySelection hs=new HistorySelection();
+			hs.mLatitude=latitude;
+			hs.mLongitude=longitude;
+			hs.mName=name;
+			hs.mIsStation=isStation;
+			Home2.mPostPaymentManager.setmHistorySelection(hs);
 			finish();
 			return;
 		}

@@ -45,7 +45,7 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 	private DbAdapter mDbAdapter=null;
     private MyBroadcastReceiver mBroadcastReceiver;
     private static SharedPreferences settings;
-    private static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
+    public static final String ACTION_HERES_AN_ADDRESS_TO_ARM="ADDRESS_TO_ARM";
     private static final String JUST_FINISH="JUST_FINISH";
     private static final String ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK="ACTION_HERES_AN_STREED_ADDRESS_TO_SEEK";
     
@@ -259,17 +259,18 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						
-						/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
-						if(!Home2.mSingleton.doTrialCheck()) {
-							mActivity.finish();
-							return;
-						}
-						
 						Address a=new Address(Locale.getDefault());
 						a.setLatitude(mAddresses.get(which).getLatitude());
 						a.setLongitude(mAddresses.get(which).getLongitude());
 						a.setAddressLine(0, mAddresses.get(which).getAddressLine(0));
+						
+						/* It's okay to do this singleton, because Home2 must be in memory if SearchActivity is in memory. */
+						if(!Home2.mSingleton.doTrialCheck()) {
+							Home2.mPostPaymentManager.setmTrainsAddress(a);
+							mActivity.finish();
+							return;
+						}
+						
 						mActivity.getDbAdapter().writeOrUpdateHistory(a,true);
 				        Intent broadcastIntent = new Intent();
 				        broadcastIntent.setAction(ACTION_HERES_AN_ADDRESS_TO_ARM)

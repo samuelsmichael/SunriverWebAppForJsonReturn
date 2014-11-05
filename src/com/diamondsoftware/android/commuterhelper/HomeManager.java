@@ -667,6 +667,10 @@ public class HomeManager implements
 						Address a = addressList.get(0);
 						/* Write address to history*/
 						if(Home2.mSingleton==null || !Home2.mSingleton.doTrialCheck()) {
+							if(Home2.mSingleton!=null) {
+								Home2.mSingleton.mPostPaymentManager.setmSearchingAddress(a);
+								Home2.mSingleton.finish();
+							}
 							return;
 						}
 						try {
@@ -723,7 +727,7 @@ public class HomeManager implements
 		return mLocationManager;
 	}	
 	
-	private void newLocationButFirstPrompt(Address a) {
+	public void newLocationButFirstPrompt(Address a) {
 		new NickNameDialog(mActivity, a)
 		.show();
 	}
@@ -995,6 +999,9 @@ public class HomeManager implements
 												mActivity.getApplicationContext(),
 												"No selection made..",
 												Toast.LENGTH_SHORT).show();
+										if(Home2.mSingleton!=null) {
+											Home2.mSingleton.finish();
+										}
 									}
 								})
 

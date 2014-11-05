@@ -80,7 +80,7 @@ public abstract class AbstractActivityForMenu extends Activity {
 				int mTank=0;
 				if(!mSettingsManager.getBoughtASubscription() && !mSettingsManager.getBoughtPermanentLicense()) {
 					Integer mTankInteger=mSettingsManager.getMTank();
-					if(mTankInteger!=null){
+					if(mTankInteger!=null&&mTankInteger.intValue()>0){
 						mTank=mTankInteger.intValue();
 					} else {
 						int usages=new SecurityManager(this).getCountUserArmed();

@@ -77,8 +77,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
     // SKUs for our products: the premium upgrade (non-consumable) and gas (consumable)
     static final String SKU_PREMIUM = "premium";
-//    static final String SKU_GAS = "gas";
-    static final String SKU_GAS="android.test.purchased";
+    static final String SKU_GAS = "gas";
+//    static final String SKU_GAS="android.test.purchased";
     // SKU for our subscription (infinite gas)
     static final String SKU_INFINITE_GAS = "infinite_gas";
 
@@ -99,6 +99,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 	private static float DEFAULT_TILT = 0f;
 	private static float DEFAULT_BEARING = 0f;
 	private Marker mPreviousMarker;
+	public static PostPaymentManager mPostPaymentManager;
 	private boolean mIveAnimated=false;
     private SharedPreferences settings = null;
 	private Button disarmButton = null;
@@ -146,7 +147,9 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home2);
-		
+		if(mPostPaymentManager==null) {
+			mPostPaymentManager=new PostPaymentManager(this);
+		}
 		// load mGas
 		String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA14rS4bA3hKKS0xUq239+qygEqxwkpvDKEtcAptoZXsprt8uL6IY3gO9mbOUcIFc6sQRAGE7+KRXH3tWkHmBIVKjmX1qFvu7HZWdYfZeg1qJUGpI12LHDeFL3c533njNrzP+eHPetmqgbOTexeQbzEuZP8POzXhEXICNMYvgM3MMrXpEbw1IjxTUmMyZfwz5TSfbnqqgyZ4qSxLzb8gAuOQbIe2dYyNMj8IZ+yMH6HBorvXOj2Zig/EaYL7mvcb5/oXmp/jXJjcP408URM2xoSyraxeSTNGp+0c5lQZNLp5ex0/fi3ZbRn3qgATxTAeFktIeBYxlyS/g1A+GEhHzsHwIDAQAB";
 		mHelper = new IabHelper(this,base64EncodedPublicKey);
@@ -352,7 +355,7 @@ try {
         {
         	DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         	String reportDate = df.format(mSettingsManager.getSubscriptionEnds());
-            complain("No need! You've bought a subscription that doesn't end until ."+reportDate,false);
+            complain("No need! You've bought a subscription that doesn't end until ."+reportDate,true);
             return;
         }
 
@@ -533,6 +536,7 @@ try {
                 Log.d(TAG, "Purchase is premium upgrade. Congratulating user.");
                 mSettingsManager.setBoughtPermanentLicence(true);
                 mSettingsManager.setMTank(null);
+                mPostPaymentManager.doPostPaymentActivities();
                 alert("Thank you for upgrading to a permanent license!",true);
             }
             else if (purchase.getSku().equals(SKU_INFINITE_GAS)) {
@@ -540,7 +544,8 @@ try {
                 Log.d(TAG, "Infinite gas subscription purchased.");
                 mSettingsManager.setBoughtASubscription(true);
                 mSettingsManager.setMTank(null);
-                alert("Thank you for subscribing to infinite gas!",true);
+                mPostPaymentManager.doPostPaymentActivities();
+                alert("Thank you for subscribing.",true);
             }
         }
     };
@@ -551,7 +556,9 @@ try {
             Log.d(TAG, "Consumption finished. Purchase: " + purchase + ", result: " + result);
 
             // if we were disposed of in the meantime, quit.
-            if (mHelper == null) return;
+            if (mHelper == null) {            	
+            	return;
+            }
 
             // We know this is the "gas" sku because it's the only one we consume,
             // so we don't check which sku was consumed. If you have more than one
@@ -562,7 +569,9 @@ try {
                 Log.d(TAG, "Consumption successful. Provisioning.");
                 if(mSettingsManager.getMTank()==null || mSettingsManager.getMTank().intValue()==0) {
                 	mSettingsManager.setMTank(Integer.valueOf(10));
+                	mPostPaymentManager.doPostPaymentActivities();
                 }
+            	finish();
             }
             else {
                 complain("Error while consuming: " + result,true);
@@ -695,7 +704,7 @@ try {
 				
 			}
 		}
-		if(mSettingsManager.getMTank()!=null) {
+		if(mSettingsManager.getMTank()!=null && mSettingsManager.getMTank().intValue()>0) {
 			mHomeManager.getSecurityManager().incrementTrials();
 		}
 		return true;
@@ -878,8 +887,8 @@ try {
 
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
-								mFAlertDialog.dismiss();
 								mActivityX.finish();
+//								mFAlertDialog.dismiss();
 							}
 						});
 				builder.setCancelable(false);
@@ -984,7 +993,7 @@ try {
 		}
 	}
 
-	private class LocationAndAssociatedTrainStations {
+	class LocationAndAssociatedTrainStations {
 		public Location mLocation;
 		public ArrayList<Address> mAddresses;
 
@@ -1063,103 +1072,110 @@ try {
 				// train.
 				// 3. Initiate what needs to be done to arm the system.
 				mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-					public void onMapLongClick(LatLng point) {
-						boolean isStation=false;
-						/*
-						 * If a trial version, and has exceeded the number of
-						 * trials
-						 */
-						if (!doTrialCheck()) {
-							return;
+						public void onMapLongClick(LatLng point) {
+							doMyOnMapLongClick(point,resultF);
 						}
-						if (mPreviousMarker != null) {
-							mPreviousMarker.setVisible(false);
-						}
-						/*
-						 * Do a "snap-to-grid" kind of thing. If the guy's
-						 * pressing near the train, let's snap him to the train.
-						 */
-
-						float zoomLevel = mMap.getCameraPosition().zoom;
-						float errorMarginMetersUnderWhichWeAssumeHePressedTheTrain = 0f;
-						errorMarginMetersUnderWhichWeAssumeHePressedTheTrain = (float) (SOMEKINDOFFACTOR * (1f / (Math
-								.pow(2f, (zoomLevel - 12f)))));
-						Address useThisAddress = null;
-						// Drop a train bitmap as a marker at each place on the
-						// map
-						// If he's near a train, then assume he meant to press
-						// the train.
-
-						boolean gotRRStation = false;
-						for (int i = 0; i < resultF.mAddresses.size(); i++) {
-							LatLng latlng2 = new LatLng(resultF.mAddresses.get(
-									i).getLatitude(), resultF.mAddresses.get(i)
-									.getLongitude());
-							float[] results = new float[3];
-							Location.distanceBetween(point.latitude,
-									point.longitude, latlng2.latitude,
-									latlng2.longitude, results);
-							if (results[0] < errorMarginMetersUnderWhichWeAssumeHePressedTheTrain) {
-								useThisAddress = resultF.mAddresses.get(i);
-								gotRRStation = true;
-								isStation=true;
-								break;
-							}
-						}
-						/*
-						 * All we're given is a point (latitude and longitude).
-						 * Is there an address near it so we can use that
-						 * description?
-						 */
-						try {
-							if (useThisAddress == null) {
-								Geocoder g = new Geocoder(Home2.this);
-								List<Address> addresses = g.getFromLocation(
-										(double) point.latitude,
-										(double) point.longitude, 2);
-								if (addresses != null && addresses.size() > 0) {
-									useThisAddress = addresses.get(0);
-									/*
-									 * Even though we've found a good
-									 * displayable name, we still want to drop
-									 * the pin in the exact right place.
-									 */
-									useThisAddress.setLatitude(point.latitude);
-									useThisAddress
-											.setLongitude(point.longitude);
-								}
-							}
-						} catch (Exception e) {
-						}
-						/*
-						 * If not, then just make up a description
-						 */
-						if (useThisAddress == null) {
-							useThisAddress = new Address(null);
-							useThisAddress.setLatitude(point.latitude);
-							useThisAddress.setLongitude(point.longitude);
-							useThisAddress.setAddressLine(1,
-									"Address for red marker, below");
-						}
-						// ask if user wants to give a nickname
-						if (!gotRRStation) {
-							new NickNameDialog(Home2.this, useThisAddress)
-									.show();
-						} else {
-							// arm the system
-							Editor editor = getSettings().edit();
-							editor.putString(GlobalStaticValues.KEY_SpeakableAddress, useThisAddress.getAddressLine(0));
-							editor.commit();
-							currentLocation.setText(Home2.this.settings.getString(GlobalStaticValues.KEY_SpeakableAddress, ""));
-							armTheSystem(useThisAddress,isStation);
-						}
-
-					}
 				});
 			}
 		}
 	}
 
+	public void doMyOnMapLongClick(LatLng point,LocationAndAssociatedTrainStations resultF) {
+
+		boolean isStation=false;
+		/*
+		 * If a trial version, and has exceeded the number of
+		 * trials
+		 */
+		if (!doTrialCheck()) {
+			mPostPaymentManager.setmPressedMapLatLng(point);
+			mPostPaymentManager.setmResultF(resultF);
+			return;
+		}
+		if (mPreviousMarker != null) {
+			mPreviousMarker.setVisible(false);
+		}
+		/*
+		 * Do a "snap-to-grid" kind of thing. If the guy's
+		 * pressing near the train, let's snap him to the train.
+		 */
+
+		float zoomLevel = mMap.getCameraPosition().zoom;
+		float errorMarginMetersUnderWhichWeAssumeHePressedTheTrain = 0f;
+		errorMarginMetersUnderWhichWeAssumeHePressedTheTrain = (float) (SOMEKINDOFFACTOR * (1f / (Math
+				.pow(2f, (zoomLevel - 12f)))));
+		Address useThisAddress = null;
+		// Drop a train bitmap as a marker at each place on the
+		// map
+		// If he's near a train, then assume he meant to press
+		// the train.
+
+		boolean gotRRStation = false;
+		for (int i = 0; i < resultF.mAddresses.size(); i++) {
+			LatLng latlng2 = new LatLng(resultF.mAddresses.get(
+					i).getLatitude(), resultF.mAddresses.get(i)
+					.getLongitude());
+			float[] results = new float[3];
+			Location.distanceBetween(point.latitude,
+					point.longitude, latlng2.latitude,
+					latlng2.longitude, results);
+			if (results[0] < errorMarginMetersUnderWhichWeAssumeHePressedTheTrain) {
+				useThisAddress = resultF.mAddresses.get(i);
+				gotRRStation = true;
+				isStation=true;
+				break;
+			}
+		}
+		/*
+		 * All we're given is a point (latitude and longitude).
+		 * Is there an address near it so we can use that
+		 * description?
+		 */
+		try {
+			if (useThisAddress == null) {
+				Geocoder g = new Geocoder(Home2.this);
+				List<Address> addresses = g.getFromLocation(
+						(double) point.latitude,
+						(double) point.longitude, 2);
+				if (addresses != null && addresses.size() > 0) {
+					useThisAddress = addresses.get(0);
+					/*
+					 * Even though we've found a good
+					 * displayable name, we still want to drop
+					 * the pin in the exact right place.
+					 */
+					useThisAddress.setLatitude(point.latitude);
+					useThisAddress
+							.setLongitude(point.longitude);
+				}
+			}
+		} catch (Exception e) {
+		}
+		/*
+		 * If not, then just make up a description
+		 */
+		if (useThisAddress == null) {
+			useThisAddress = new Address(null);
+			useThisAddress.setLatitude(point.latitude);
+			useThisAddress.setLongitude(point.longitude);
+			useThisAddress.setAddressLine(1,
+					"Address for red marker, below");
+		}
+		// ask if user wants to give a nickname
+		if (!gotRRStation) {
+			new NickNameDialog(Home2.this, useThisAddress)
+					.show();
+		} else {
+			// arm the system
+			Editor editor = getSettings().edit();
+			editor.putString(GlobalStaticValues.KEY_SpeakableAddress, useThisAddress.getAddressLine(0));
+			editor.commit();
+			currentLocation.setText(Home2.this.settings.getString(GlobalStaticValues.KEY_SpeakableAddress, ""));
+			armTheSystem(useThisAddress,isStation);
+		}
+
+	
+	}
 	public void armTheSystem(Address useThisAddress, boolean isStation) {
 		getHomeManager().getDbAdapter().writeOrUpdateHistory(useThisAddress, isStation);
 		getHomeManager().newLocation(useThisAddress);
@@ -1381,6 +1397,7 @@ try {
 									public void onClick(DialogInterface dialog,
 											int which) {
 										dismiss();
+										mActivity.finish();
 									}
 								});
             // Create the AlertDialog object and return it
