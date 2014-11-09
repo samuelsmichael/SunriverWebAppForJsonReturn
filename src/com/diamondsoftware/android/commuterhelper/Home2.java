@@ -77,10 +77,12 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
     // SKUs for our products: the premium upgrade (non-consumable) and gas (consumable)
     static final String SKU_PREMIUM = "premium";
-    static final String SKU_GAS = "gas";
-//    static final String SKU_GAS="android.test.purchased";
+//    static final String SKU_PREMIUM = "android.test.item_unavailable";
+   static final String SKU_GAS = "gas";
+  // static final String SKU_GAS= "android.test.purchased";
     // SKU for our subscription (infinite gas)
     static final String SKU_INFINITE_GAS = "infinite_gas";
+   // static final String SKU_INFINITE_GAS = "android.test.canceled";
 
     // (arbitrary) request code for the purchase flow
     static final int RC_REQUEST = 10001;
@@ -123,7 +125,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 	private static IntentFilter mIntentFilter;
 	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n-- Long press the screen\n   at the desired location. \n\n              or\n\n-- Press the Search button.";
 	public static String CURRENT_VERSION="1.00";
-	private boolean needToBringUpSplashScreen = false;
+	private static boolean needToBringUpSplashScreen = false;
 	public static Home2 mSingleton=null;
 	public boolean mIveShownGPSNotEnabledWarning=false;
 	private ImageView mHelp1;
@@ -166,8 +168,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
                     complain("Problem setting up in-app billing: " + result,false);
                     return;
                 }
-                /*
-try {
+                
+/*try {
                 int response = mHelper.mService.consumePurchase(3, getPackageName(),"inapp:"+getPackageName()+":android.test.purchased");
                 int bbhbb=response;
                 int cc=bbhbb;
@@ -286,9 +288,9 @@ try {
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
 						if (!isChecked) {
-							getHomeManager().disarmLocationService();
-							setControlState(false,null);
-							armedButton.setVisibility(View.GONE);
+							if(!mSettingsManager.getBoughtASubscription()&&!mSettingsManager.getBoughtPermanentLicense()) {
+								verifyTurnOff();
+							}
 						} else {
 							armedButton.setVisibility(View.VISIBLE);
 						}
@@ -330,6 +332,18 @@ try {
 				}
 			}
 		}
+		if (!getHomeManager().getSecurityManager().initializeVersion()) {
+			needToBringUpSplashScreen = true;
+		}
+		if (needToBringUpSplashScreen) {
+			needToBringUpSplashScreen = false;
+			mSettingsManager.setHelpOverlayStateOn(true);
+			invalidateOptionsMenu();
+
+			new WarningAndInitialDialog("Thank you for using Commuter Alert!",
+					"We hope that you find it useful.\n\nPlease ... if you like our app, give it a good rating.\nIf you don't, then please contact us. We will fix all bugs, and take any requests for enhancements very, very seriously.\n\nTo rate our app, or to contact us, press the menu.", Home2.this).show();
+		}
+		
 	}
     // We're being destroyed. It's important to dispose of the helper here!
     @Override
@@ -465,9 +479,6 @@ try {
                 return;
             }
             Log.d(TAG, "Initial inventory query finished; enabling main UI.");
-    		if (!getHomeManager().getSecurityManager().initializeVersion()) {
-    			needToBringUpSplashScreen = true;
-    		}
 
         }
     };
@@ -814,14 +825,6 @@ try {
 			editor.putString("KEY_ReadableAddress", readableAddress);
 			editor.commit();
 		}
-		if (needToBringUpSplashScreen) {
-			needToBringUpSplashScreen = false;
-			mSettingsManager.setHelpOverlayStateOn(true);
-			invalidateOptionsMenu();
-
-			new WarningAndInitialDialog("Thank you for using Commuter Alert!",
-					"We hope that you find it useful.\n\nPlease ... if you like our app, give it a good rating.\nIf you don't, then please contact us. We will fix all bugs, and take any requests for enhancements very, very seriously.\n\nTo rate our app, or to contact us, press the menu.", Home2.this).show();
-		}
 	}
 
 	private void setControlState(boolean isArmed,String readableAddress) {
@@ -901,7 +904,7 @@ try {
 		builder.setTitle(mTitle);
 		builder.setMessage("Your alerts have expired. Choose from one of the purchase options below, or press your phone's back key to Cancel");
 		String negativeButtonVerbiage = "Unlimited: USD 10.99";
-		builder.setNegativeButton(negativeButtonVerbiage,
+		builder.setPositiveButton(negativeButtonVerbiage,
 				new DialogInterface.OnClickListener() {
 
 					@Override
@@ -913,7 +916,7 @@ try {
 					}
 				});
 		builder.setCancelable(true);
-		builder.setPositiveButton("1 year: USD 5.99",
+		builder.setNeutralButton("Yearly Subscription: USD 5.99",
 				new DialogInterface.OnClickListener() {
 
 					@Override
@@ -924,7 +927,7 @@ try {
 						mFAlertDialog.dismiss();	
 					}
 				});
-		builder.setNeutralButton("10 usages: USD 0.99",
+		builder.setNegativeButton("10 usages: USD 0.99",
 				new DialogInterface.OnClickListener() {
 
 					@Override
@@ -1430,6 +1433,26 @@ try {
         alert("Error: " + message, finishOnReturn);
     }
 
+    void verifyTurnOff() {
+        AlertDialog.Builder bld = new AlertDialog.Builder(this);
+        bld.setMessage("Are you sure that you want to turn off the current alert?");
+        bld.setNegativeButton("No",  new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				armedButton.setChecked(true);
+			}
+		});
+        bld.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				getHomeManager().disarmLocationService();
+				setControlState(false,null);
+				armedButton.setVisibility(View.GONE);
+			}
+		});
+        bld.create().show();
+    }
+    
     void alert(String message, boolean finishOnReturn) {
     	final boolean finishOnReturnFinal=finishOnReturn;
         AlertDialog.Builder bld = new AlertDialog.Builder(this);

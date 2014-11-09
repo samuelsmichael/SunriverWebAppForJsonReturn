@@ -510,11 +510,13 @@ public class HomeManager implements
 				try {
 					getTrainStationsNear(mLocation, trainStationAddresses,
 							null, LIMIT_NBR_ACCESSES,1);
+					/*
 					Address sa=new Address(Locale.getDefault());
 					sa.setLatitude(40.655593210761204);
 					sa.setLongitude(-74.30356130003929);
 					sa.setAddressLine(0, "Cranford Station");
 					trainStationAddresses.add(sa); 
+					*/
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

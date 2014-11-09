@@ -84,7 +84,7 @@ public abstract class AbstractActivityForMenu extends Activity {
 						mTank=mTankInteger.intValue();
 					} else {
 						int usages=new SecurityManager(this).getCountUserArmed();
-						mTank=Home2.TRIAL_ALLOWANCE-usages;
+						mTank=Home2.TRIAL_ALLOWANCE-usages+1;
 					}
 				}
 				GregorianCalendar gc=new GregorianCalendar(Locale.getDefault());
@@ -133,7 +133,7 @@ public abstract class AbstractActivityForMenu extends Activity {
 			}
 			final TextView notice = (TextView) view.findViewById(R.id.about_notice);
 			if(mIsPermanent) {
-				notice.setText("Thank you for purchasing CommuterAlert!");
+				notice.setText("Thank you for purchasing a permanent license for CommuterAlert!");
 			} else {
 				if(mIsSubscription) {
 			        SimpleDateFormat fmt = new SimpleDateFormat("MMMM-dd-yyyy");

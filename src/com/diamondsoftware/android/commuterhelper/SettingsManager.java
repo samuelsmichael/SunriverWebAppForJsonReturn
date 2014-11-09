@@ -54,7 +54,7 @@ public class SettingsManager {
 		editor.commit();				
 	}
 	public boolean getBoughtPermanentLicense() {
-		return mSharedPreferences.getBoolean(GlobalStaticValues.KEY_BOUGHT_A_SUBSCRIPTION, false);
+		return mSharedPreferences.getBoolean(GlobalStaticValues.KEY_BOUGHT_A_PERMANENT_LICENSE, false);
 	}
 	public void setBoughtPermanentLicence(boolean value) {
 		Editor editor=mSharedPreferences.edit();
