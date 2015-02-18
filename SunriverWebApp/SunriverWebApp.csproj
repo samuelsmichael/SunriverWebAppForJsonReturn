@@ -80,6 +80,7 @@
     <Content Include="Services.aspx" />
     <Content Include="Stylesheet1.css" />
     <Content Include="Test.htm" />
+    <Content Include="Tips.aspx" />
     <Content Include="Update.aspx" />
     <Content Include="Web.config" />
     <Content Include="Welcome.aspx" />
@@ -194,6 +195,15 @@
       <DependentUpon>Services.aspx</DependentUpon>
     </Compile>
     <Compile Include="Services.cs" />
+    <Compile Include="Tips.aspx.cs">
+      <DependentUpon>Tips.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Tips.aspx.designer.cs">
+      <DependentUpon>Tips.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Tip.cs">
+    </Compile>
     <Compile Include="Update.aspx.cs">
       <DependentUpon>Update.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
