@@ -33,6 +33,36 @@ namespace SunriverWebApp {
         public static DateTime SQL_NULL_DATETIME = new DateTime(1900, 1, 1);
 
         /// <summary>
+        /// Retrieves a DataSet from a cmd whose cmd.Text is a Stored Procedure
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="connectionString"></param>
+        /// <returns></returns>
+        public static DataSet getDataSetFromStoredProcedure(SqlCommand cmd, string connectionString) {
+            SqlConnection connection = null;
+            try {
+                connection = new SqlConnection(connectionString);
+                connection.Open();
+                cmd.Connection = connection;
+                cmd.CommandType = CommandType.StoredProcedure;
+                DataSet ds = new DataSet();
+                DataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(ds);
+                return ds;
+            }
+            catch (Exception e) {
+                int x = 3;
+                return null;
+            }
+            finally {
+                try { cmd.Dispose(); }
+                catch { }
+                try { connection.Close(); }
+                catch { };
+            }
+        }
+
+        /// <summary>
         /// Performs a query to the database.  Note: this is for a single SELECT command, not for a stored procedure
         /// </summary>
         /// <param name="queryString"></param>

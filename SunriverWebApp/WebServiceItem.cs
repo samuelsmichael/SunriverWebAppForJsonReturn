@@ -18,7 +18,7 @@ namespace SunriverWebApp {
             }
         }
 
-        protected System.Data.DataSet getDataSet() {
+        protected virtual System.Data.DataSet getDataSet() {
             string query = "Select * from " + ConfigurationManager.AppSettings[GetType().Name + "TableName"] + (getIncludeOnlyWhereIsApprovedEqual1()?" WHERE isApproved=1":"");
             return Utils.getDataSetFromQuery(query, ConnectionString);
         }

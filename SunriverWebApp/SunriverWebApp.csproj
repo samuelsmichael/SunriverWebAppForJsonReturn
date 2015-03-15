@@ -66,6 +66,9 @@
     <Content Include="Activity.aspx" />
     <Content Include="Alert.aspx" />
     <Content Include="Calendar.aspx" />
+    <Content Include="EventPics.aspx" />
+    <Content Include="NewsFeeds.aspx" />
+    <Content Include="PromotedEvents.aspx" />
     <Content Include="EmergencyMaps.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="DidYouKnow.aspx" />
@@ -111,6 +114,30 @@
       <DependentUpon>Calendar.aspx</DependentUpon>
     </Compile>
     <Compile Include="Calendar.cs" />
+    <Compile Include="EventPics.aspx.cs">
+      <DependentUpon>EventPics.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EventPics.aspx.designer.cs">
+      <DependentUpon>EventPics.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EventPic.cs" />
+    <Compile Include="NewsFeeds.aspx.cs">
+      <DependentUpon>NewsFeeds.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="NewsFeeds.aspx.designer.cs">
+      <DependentUpon>NewsFeeds.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="NewsFeed.cs" />
+    <Compile Include="PromotedEvent.cs" />
+    <Compile Include="PromotedEvents.aspx.cs">
+      <DependentUpon>PromotedEvents.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PromotedEvents.aspx.designer.cs">
+      <DependentUpon>PromotedEvents.aspx</DependentUpon>
+    </Compile>
     <Compile Include="EmergencyMaps.cs" />
     <Compile Include="EmergencyMaps.aspx.cs">
       <DependentUpon>EmergencyMaps.aspx</DependentUpon>
