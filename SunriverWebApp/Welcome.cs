@@ -16,6 +16,8 @@ namespace SunriverWebApp
         public int welcomeID { get; set; }
         [DataMemberAttribute]
         public string welcomeURL { get; set; }
+        [DataMemberAttribute]
+        public bool isInRotation { get; set; }
 
 
         protected override WebServiceItem objectFromDatasetRow(System.Data.DataRow dr)
@@ -23,6 +25,7 @@ namespace SunriverWebApp
             Welcome welcome = new Welcome();
             welcome.welcomeID = Utils.ObjectToInt(dr["welcomeID"]);
             welcome.welcomeURL = Utils.ObjectToString(dr["welcomeURL"]);
+            welcome.isInRotation = Utils.ObjectToBool(dr["isInRotation"]);
             return welcome;
         }
 

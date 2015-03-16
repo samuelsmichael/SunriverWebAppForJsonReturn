@@ -16,6 +16,7 @@ BEGIN
 	SET NOCOUNT ON;
 	select 
 		pe.*,pc.*
+			,ped.promotedEventsDetailsID
 			,ped.promotedEventsDetailsTitle
 			,ped.promotedEventsDetailsDescription
 			,ped.promotedEventsDetailsURLDocDownload

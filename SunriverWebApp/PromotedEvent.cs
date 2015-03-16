@@ -26,6 +26,8 @@ namespace SunriverWebApp {
         [DataMemberAttribute]
         public string promotedCatURLForIconImage { get; set; }
         [DataMemberAttribute]
+        public int promotedEventsDetailsID { get; set; }
+        [DataMemberAttribute]
         public string promotedEventsDetailsTitle { get; set; }
         [DataMemberAttribute]
         public string promotedEventsDetailsDescription { get; set; }
@@ -48,6 +50,7 @@ namespace SunriverWebApp {
             PromotedEvent.promotedCatName = Utils.ObjectToString(dr["promotedCatName"]);
             PromotedEvent.promotedCatSortOrder = Utils.ObjectToInt(dr["promotedCatSortOrder"]);
             PromotedEvent.promotedCatURLForIconImage = Utils.ObjectToString(dr["promotedCatURLForIconImage"]);
+            PromotedEvent.promotedEventsDetailsID = Utils.ObjectToInt(dr["promotedEventsDetailsID"]);
             PromotedEvent.promotedEventsDetailsTitle = Utils.ObjectToString(dr["promotedEventsDetailsTitle"]);
             PromotedEvent.promotedEventsDetailsDescription = Utils.ObjectToString(dr["promotedEventsDetailsDescription"]);
             PromotedEvent.promotedEventsDetailsURLDocDownload = Utils.ObjectToString(dr["promotedEventsDetailsURLDocDownload"]);
