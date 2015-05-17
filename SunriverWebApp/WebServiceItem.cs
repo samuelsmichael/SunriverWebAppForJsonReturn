@@ -19,8 +19,18 @@ namespace SunriverWebApp {
         }
 
         protected virtual System.Data.DataSet getDataSet() {
-            string query = "Select * from " + ConfigurationManager.AppSettings[GetType().Name + "TableName"] + (getIncludeOnlyWhereIsApprovedEqual1()?" WHERE isApproved=1":"");
-            return Utils.getDataSetFromQuery(query, ConnectionString);
+            String query = "Select * from " + ConfigurationManager.AppSettings[GetType().Name + "TableName"] + (getIncludeOnlyWhereIsApprovedEqual1()?" WHERE isApproved=1":"");
+
+            //Update1.bubba.Write("Hi Jason!  Here's the query string: " + query + "<br>and here's the ConnectionString" + ConnectionString);
+
+
+            DataSet marre = Utils.getDataSetFromQuery(query, ConnectionString);
+           // Update1.bubba.Write("<br>Hi Jason! The query is "+ (marre==null?"Null":("not NULL<br>")));
+           // Update1.bubba.End();
+            //Update1.bubba.Write("Hi Jason!  DataSet tables count after return: " + 
+             //   (marre.Tables==null?"0":marre.Tables.Count+"<br>"));
+            //Update1.bubba.End();
+            return marre;
         }
         private bool getIncludeOnlyWhereIsApprovedEqual1() {
             return Utils.ObjectToBool(ConfigurationManager.AppSettings[GetType().Name + "IncludeOnlyWhereIsApprovedEqual1"]);

@@ -20,15 +20,20 @@ using System.Text;
 
 namespace SunriverWebApp {
     public partial class Update1 : System.Web.UI.Page {
+        public static HttpResponse bubba;
         protected void Page_Load(object sender, EventArgs e) {
+            bubba = Response;
+            //Response.Write("Hi Jason!  I made it successfully to Update.aspx.cs at line 24...PRE-anything!<br>");
+            // successfully got here Response.End();
             MemoryStream ms = new MemoryStream();
             JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
             using (JsonTextWriter jsonTextWriter = new JsonTextWriter(
-                new StreamWriter(ms, new UTF8Encoding(false, true))) { CloseOutput = false })
-               {
-                   serializer.Serialize(jsonTextWriter, new Update().buildList());
-                   jsonTextWriter.Flush();
-              }
+                new StreamWriter(ms, new UTF8Encoding(false, true))) { CloseOutput = false }) {
+                serializer.Serialize(jsonTextWriter, new Update().buildList());
+                jsonTextWriter.Flush();
+               // Response.Write("Hi Jason!  I made it successfully to Update.aspx.cs at line 32...POST-jsonSerialzieStep2<br>");
+            }
+            //Response.Write("Hi Jason!  I made it successfully to Update.aspx.cs at line 32...PRE-jsonSerialzieStep2<br>");
             Utils.jsonSerializeStep2(ms, Response);
         }
     }

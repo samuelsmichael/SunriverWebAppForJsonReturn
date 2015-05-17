@@ -39,6 +39,12 @@ namespace SunriverWebApp {
         public string promotedEventsDetailsTelephone { get; set; }
         [DataMemberAttribute]
         public string promotedEventsDetailsWebsite { get; set; }
+        [DataMemberAttribute]
+        public string promotedEventIconURL { get; set; }
+        [DataMemberAttribute]
+        public string promotedEventsDetailIconURL { get; set; }
+        [DataMemberAttribute]
+        public int promotedEventDetailOrder { get; set; }
 
         protected override WebServiceItem objectFromDatasetRow(System.Data.DataRow dr) {
             PromotedEvent PromotedEvent = new PromotedEvent();
@@ -57,6 +63,9 @@ namespace SunriverWebApp {
             PromotedEvent.promotedEventsDetailsAddress = Utils.ObjectToString(dr["promotedEventsDetailsAddress"]);
             PromotedEvent.promotedEventsDetailsTelephone = Utils.ObjectToString(dr["promotedEventsDetailsTelephone"]);
             PromotedEvent.promotedEventsDetailsWebsite = Utils.ObjectToString(dr["promotedEventsDetailsWebsite"]);
+            PromotedEvent.promotedEventIconURL = Utils.ObjectToString(dr["promotedEventIconURL"]);
+            PromotedEvent.promotedEventsDetailIconURL = Utils.ObjectToString(dr["promotedEventDetailIconURL"]);
+            PromotedEvent.promotedEventDetailOrder = Utils.ObjectToInt(dr["promotedEventOrderId"]);
             return PromotedEvent;
         }
 

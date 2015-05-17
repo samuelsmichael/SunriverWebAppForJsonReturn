@@ -16,6 +16,13 @@ namespace SunriverWebApp {
             ms.Position = 0;
             System.IO.StreamReader sr = new StreamReader(ms);
             string str = sr.ReadToEnd();
+
+            //Response.Write("Hi Jason!  I made it successfully to Utils.cs ... POST-sr.ReadToEnd();<br>");
+           // Response.Write("<div ><b>It's not publishing my site!!!</b></div>"); 
+            //Response.End();
+            //Response.Write("Here's the string that's about ready to get passed back:<br>"+str);
+           // Response.End();
+
             ms.Close();
             sr.Close();
             Response.Clear();
@@ -81,6 +88,8 @@ namespace SunriverWebApp {
                 da.Fill(ds);
                 return ds;
             }  catch (Exception e) {
+                //Update1.bubba.Write("Oops.  We got an Exception.  Exception.Message:"+e.Message+" Exception statck track:"+e.StackTrace);
+               // Update1.bubba.End();
                 int x=3;
                 return null;
             }  finally {

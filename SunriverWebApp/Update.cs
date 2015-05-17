@@ -49,6 +49,7 @@ namespace SunriverWebApp
         public List<Update> buildList()
         {
             List<Update> list = new List<Update>();
+
             foreach (DataRow dr in getDataSet().Tables[0].Rows)
             {
                 list.Add((Update)objectFromDatasetRow(dr));
