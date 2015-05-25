@@ -30,6 +30,8 @@ namespace SunriverWebApp
         public DateTime? updateOverlay { get; set; }
         [DataMemberAttribute]
         public DateTime? updateHospitality { get; set; }
+        [DataMemberAttribute]
+        public DateTime? updateLane { get; set; }
 
         protected override WebServiceItem objectFromDatasetRow(System.Data.DataRow dr)
         {
@@ -43,6 +45,7 @@ namespace SunriverWebApp
             update.updateData = Utils.ObjectToDateTimeNullable(dr["updateData"]);
             update.updateOverlay = Utils.ObjectToDateTimeNullable(dr["updateOverlay"]);
             update.updateHospitality = Utils.ObjectToDateTimeNullable(dr["updateHospitality"]);
+            update.updateLane = Utils.ObjectToDateTimeNullable(dr["updateLane"]);
             return update;
         }
 

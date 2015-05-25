@@ -66,6 +66,7 @@
     <Content Include="Activity.aspx" />
     <Content Include="Alert.aspx" />
     <Content Include="Calendar.aspx" />
+    <Content Include="Lanes.aspx" />
     <Content Include="EventPics.aspx" />
     <Content Include="NewsFeeds.aspx" />
     <Content Include="PromotedEvents.aspx" />
@@ -114,6 +115,14 @@
       <DependentUpon>Calendar.aspx</DependentUpon>
     </Compile>
     <Compile Include="Calendar.cs" />
+    <Compile Include="Lanes.aspx.cs">
+      <DependentUpon>Lanes.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Lanes.aspx.designer.cs">
+      <DependentUpon>Lanes.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SunriverLane.cs" />
     <Compile Include="EventPics.aspx.cs">
       <DependentUpon>EventPics.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
