@@ -12,7 +12,7 @@
           <NativeDebugging>False</NativeDebugging>
           <SQLDebugging>False</SQLDebugging>
           <PublishCopyOption>RunFiles</PublishCopyOption>
-          <PublishTargetLocation>C:\Temp\Sunriver\SunriverWebApp_Publication_2015_03_21\</PublishTargetLocation>
+          <PublishTargetLocation>\\10.0.0.253\SunriverWebApp\</PublishTargetLocation>
           <PublishDeleteAllFiles>True</PublishDeleteAllFiles>
           <PublishCopyAppData>True</PublishCopyAppData>
           <ExternalProgram>

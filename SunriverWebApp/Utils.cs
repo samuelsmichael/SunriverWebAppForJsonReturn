@@ -204,6 +204,15 @@ namespace SunriverWebApp {
             return ObjectToDecimal(obj);
         }
 
+        public static bool hasData(DataSet ds) {
+            return
+                ds != null &&
+                ds.Tables != null &&
+                ds.Tables.Count > 0 &&
+                ds.Tables[0].Rows != null &&
+                ds.Tables[0].Rows.Count > 0;
+        }
+
         public static int ObjectToIntNULLINTIfNull(object obj) {
             if (obj == null || obj is DBNull) {
                 return NULL_INT;

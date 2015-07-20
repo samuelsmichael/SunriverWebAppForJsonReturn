@@ -28,7 +28,7 @@ namespace SunriverWebApp {
             try {
                 String connectionString =
                     ConfigurationManager.ConnectionStrings["SROAddConvertConnectionString"].ConnectionString;
-
+                lane = cleanLane(lane);
                 connection = new SqlConnection(connectionString);
                 connection.Open();
                 command = new SqlCommand("SELECT * FROM SRAddConvert WHERE SRLot='" + number + "' AND SRLane='" + lane + "'", connection);
@@ -36,6 +36,11 @@ namespace SunriverWebApp {
                 command.CommandType = CommandType.Text;
                 DataSet ds = new DataSet();
                 adapter.Fill(ds);
+                if(!Utils.hasData(ds)) {
+                    command.CommandText="SELECT * FROM SRAddConvert WHERE SRLane='" + lane + "'";
+                    adapter  = new SqlDataAdapter(command);
+                    adapter.Fill(ds);
+                }
                 countyAddress.mAddress =
                     ds.Tables[0].Rows[0]["DC_Address"] + " " +
                     ds.Tables[0].Rows[0]["SRCity"] + " " +
@@ -70,6 +75,28 @@ namespace SunriverWebApp {
 
             returnList.Add(countyAddress);
             return returnList;
+        }
+        private static string cleanLane(string lane) {
+            lane=lane.ToLower();
+            return
+                lane.Replace("landing","").
+                    Replace("circle","").
+                    Replace("cr","").
+                    Replace("estates","").
+                    Replace("room","").
+                    Replace("rm","").
+                    Replace("loop","").
+                    Replace("lane","").
+                    Replace("ln","").
+                    Replace("drive","").
+                    Replace("dr","").
+                    Replace("Condo","").
+                    Replace("road","").
+                    Replace("rd","").
+                    Replace("street","").
+                    Replace("st","").
+                    Replace("avenue","").
+                    Replace("ave","");
         }
         /*
          * An exception -> no item found

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Configuration;
 using System.Web;
 using System.Data.Common;
 using System.Data;
@@ -29,6 +30,13 @@ namespace SunriverWebApp
             alert.isOnAlert = Utils.ObjectToBool(dr["isOnAlert"]);
             return alert;
         }
+
+        protected override System.Data.DataSet getDataSet() {
+            String query = "Select * from " + ConfigurationManager.AppSettings[GetType().Name + "TableName"] +  " WHERE isOnAlert=1";
+            DataSet marre = Utils.getDataSetFromQuery(query, ConnectionString);
+            return marre;
+        }
+
 
         public List<Alert> buildList()
         {
