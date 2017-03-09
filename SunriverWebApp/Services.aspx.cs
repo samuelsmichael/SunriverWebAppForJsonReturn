@@ -29,6 +29,7 @@ namespace SunriverWebApp {
                 jsonTextWriter.Flush();
             }
             Utils.jsonSerializeStep2(ms, Response);
+
         }
     }
 }

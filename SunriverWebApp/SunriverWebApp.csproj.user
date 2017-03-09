@@ -6,13 +6,13 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <StartPageUrl>PromotedEvents.aspx</StartPageUrl>
+          <StartPageUrl>Services.aspx</StartPageUrl>
           <StartAction>SpecificPage</StartAction>
           <AspNetDebugging>True</AspNetDebugging>
           <NativeDebugging>False</NativeDebugging>
           <SQLDebugging>False</SQLDebugging>
           <PublishCopyOption>RunFiles</PublishCopyOption>
-          <PublishTargetLocation>C:\Temp\Sunriver\SunriverWebApp_Publication_2015_07_20a\</PublishTargetLocation>
+          <PublishTargetLocation>C:\Users\Diamond\Documents\moi\DiamondSoftware\Jason_Sunriver\SunriverWebApp\</PublishTargetLocation>
           <PublishDeleteAllFiles>True</PublishDeleteAllFiles>
           <PublishCopyAppData>True</PublishCopyAppData>
           <ExternalProgram>
